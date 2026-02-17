@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from federated.coordinator import FederationCoordinator, RoundResult
+from federated.coordinator import AggregationStrategy, FederationCoordinator, RoundResult
 from federated.model import FederatedModel, ModelConfig
 
 
@@ -37,12 +37,10 @@ class TestFederationCoordinator:
     def test_run_round_basic(self, coordinator, model_config):
         global_params = coordinator.initialize()
 
-        # Simulate 2 clients returning updated parameters
         client_updates = []
         for _ in range(2):
             m = FederatedModel.from_config(model_config)
             m.set_parameters(global_params)
-            # Simulate some local training by adding small perturbations
             updated = [p + np.random.randn(*p.shape) * 0.01 for p in m.get_parameters()]
             client_updates.append(updated)
 
@@ -76,7 +74,6 @@ class TestFederationCoordinator:
         p2 = [p - 0.1 for p in global_params]
 
         coordinator.run_round([p1, p2], client_sample_counts=[100, 100])
-        # With equal weights, result should be close to original
         new_params = coordinator.get_global_parameters()
         for orig, new in zip(global_params, new_params):
             assert np.allclose(orig, new, atol=0.01)
@@ -90,6 +87,7 @@ class TestFederationCoordinator:
         summary = coordinator.get_training_summary()
         assert summary["total_rounds"] == 2
         assert len(summary["rounds"]) == 2
+        assert summary["strategy"] == "fedavg"
 
 
 class TestCoordinatorWithDP:
@@ -117,3 +115,74 @@ class TestCoordinatorWithSecureAgg:
         updates = [global_params, global_params]
         result = coord.run_round(updates)
         assert result.num_clients == 2
+
+
+class TestAggregationStrategies:
+    def test_fedprox_strategy(self, model_config):
+        coord = FederationCoordinator(
+            model_config=model_config,
+            strategy="fedprox",
+            mu=0.01,
+        )
+        assert coord.strategy == AggregationStrategy.FEDPROX
+        global_params = coord.initialize()
+        updates = [global_params, global_params]
+        result = coord.run_round(updates)
+        assert result.round_number == 1
+
+    def test_scaffold_strategy(self, model_config):
+        coord = FederationCoordinator(
+            model_config=model_config,
+            strategy="scaffold",
+        )
+        assert coord.strategy == AggregationStrategy.SCAFFOLD
+        global_params = coord.initialize()
+
+        # SCAFFOLD should initialise server control
+        assert coord.get_server_control() is not None
+        control = coord.get_client_control("client_0")
+        assert all(np.allclose(c, 0) for c in control)
+
+        # Run a round with control deltas
+        updates = [global_params, global_params]
+        deltas = [[np.zeros_like(p) for p in global_params] for _ in range(2)]
+        result = coord.run_round(
+            updates,
+            client_ids=["client_0", "client_1"],
+            client_control_deltas=deltas,
+        )
+        assert result.round_number == 1
+
+
+class TestConvergenceDetection:
+    def test_converges_when_stable(self, model_config):
+        coord = FederationCoordinator(
+            model_config=model_config,
+            convergence_window=3,
+            convergence_threshold=0.01,
+        )
+        global_params = coord.initialize()
+        updates = [global_params, global_params]
+        x_eval = np.random.randn(20, 10)
+        y_eval = np.random.randint(0, 2, 20)
+
+        for _ in range(5):
+            result = coord.run_round(updates, eval_data=(x_eval, y_eval))
+
+        # After several rounds with identical updates, should converge
+        assert result.converged is True
+
+    def test_does_not_converge_early(self, model_config):
+        coord = FederationCoordinator(
+            model_config=model_config,
+            convergence_window=10,
+            convergence_threshold=0.001,
+        )
+        global_params = coord.initialize()
+        updates = [global_params, global_params]
+        x_eval = np.random.randn(20, 10)
+        y_eval = np.random.randint(0, 2, 20)
+
+        result = coord.run_round(updates, eval_data=(x_eval, y_eval))
+        # Only one round — not enough for convergence window
+        assert result.converged is False

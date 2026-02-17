@@ -3,7 +3,8 @@
 import numpy as np
 import pytest
 
-from physical_ai.digital_twin import PatientDigitalTwin, TumorModel
+from physical_ai.digital_twin import GrowthModel, PatientDigitalTwin, TumorModel
+from physical_ai.framework_detection import FrameworkDetector
 from physical_ai.robotic_integration import (
     RobotType,
     SurgicalRobotInterface,
@@ -15,24 +16,67 @@ from physical_ai.simulation_bridge import (
     RobotModel,
     SimulationBridge,
 )
+from physical_ai.surgical_tasks import (
+    STANDARD_TASKS,
+    ProcedureType,
+    SurgicalTaskEvaluator,
+)
+
+
+class TestGrowthModels:
+    def test_exponential_growth(self):
+        vol = GrowthModel.exponential(1.0, 60.0, 60)
+        assert abs(vol - 2.0) < 0.01
+
+    def test_logistic_growth(self):
+        vol = GrowthModel.logistic(1.0, 60.0, 60, carrying_capacity=100.0)
+        assert 1.0 < vol < 100.0
+
+    def test_gompertz_growth(self):
+        vol = GrowthModel.gompertz(1.0, 60.0, 60, plateau=80.0)
+        assert 1.0 < vol < 80.0
 
 
 class TestTumorModel:
     def test_simulate_growth(self):
         tumor = TumorModel(volume_cm3=1.0, growth_rate=60.0)
-        # After one doubling time, volume should approximately double
         vol = tumor.simulate_growth(60)
         assert abs(vol - 2.0) < 0.01
+
+    def test_logistic_growth_model(self):
+        tumor = TumorModel(volume_cm3=1.0, growth_rate=60.0, growth_model="logistic")
+        vol = tumor.simulate_growth(60)
+        assert vol > 1.0
+        assert vol < tumor.carrying_capacity
+
+    def test_gompertz_growth_model(self):
+        tumor = TumorModel(volume_cm3=1.0, growth_rate=60.0, growth_model="gompertz")
+        vol = tumor.simulate_growth(120)
+        assert vol > 1.0
 
     def test_chemo_response(self):
         tumor = TumorModel(volume_cm3=5.0, chemo_sensitivity=0.5)
         vol = tumor.simulate_chemo_response(dose_mg=100, cycles=4)
-        assert vol < 5.0  # Should shrink
+        assert vol < 5.0
 
     def test_radiation_response(self):
         tumor = TumorModel(volume_cm3=5.0, radio_sensitivity=0.6)
         vol = tumor.simulate_radiation_response(dose_gy=60, fractions=30)
-        assert vol < 5.0  # Should shrink
+        assert vol < 5.0
+
+    def test_immunotherapy_response(self):
+        tumor = TumorModel(volume_cm3=5.0, immuno_sensitivity=0.8)
+        vol = tumor.simulate_immunotherapy_response(response_rate=0.5, seed=42)
+        assert vol > 0
+
+    def test_combination_therapy(self):
+        tumor = TumorModel(volume_cm3=5.0, chemo_sensitivity=0.5, radio_sensitivity=0.6)
+        result = tumor.simulate_combination_therapy(
+            chemo_dose_mg=75, chemo_cycles=2, radiation_dose_gy=30, radiation_fractions=15
+        )
+        assert "initial_volume_cm3" in result
+        assert "final_volume_cm3" in result
+        assert result["final_volume_cm3"] < result["initial_volume_cm3"]
 
 
 class TestPatientDigitalTwin:
@@ -52,14 +96,25 @@ class TestPatientDigitalTwin:
         result = twin.simulate_treatment("immunotherapy", response_rate=0.5)
         assert "response_category" in result
 
-    def test_unknown_treatment_raises(self):
+    def test_simulate_combination(self):
         twin = PatientDigitalTwin("patient_004")
+        result = twin.simulate_treatment(
+            "combination",
+            chemo_dose_mg=75,
+            chemo_cycles=2,
+            radiation_dose_gy=30,
+            radiation_fractions=15,
+        )
+        assert "response_category" in result
+
+    def test_unknown_treatment_raises(self):
+        twin = PatientDigitalTwin("patient_005")
         with pytest.raises(ValueError, match="Unknown treatment"):
             twin.simulate_treatment("unknown_therapy")
 
     def test_feature_vector(self):
         twin = PatientDigitalTwin(
-            "patient_005",
+            "patient_006",
             biomarkers={"pdl1": 0.7, "ki67": 0.3},
         )
         features = twin.generate_feature_vector()
@@ -67,10 +122,45 @@ class TestPatientDigitalTwin:
         assert features[0] == twin.tumor.volume_cm3
 
     def test_summary(self):
-        twin = PatientDigitalTwin("patient_006")
+        twin = PatientDigitalTwin("patient_007")
         summary = twin.get_summary()
-        assert summary["patient_id"] == "patient_006"
+        assert summary["patient_id"] == "patient_007"
         assert "tumor_volume_cm3" in summary
+        assert "growth_model" in summary
+
+    def test_uncertainty_quantification(self):
+        twin = PatientDigitalTwin(
+            "patient_008",
+            tumor=TumorModel(chemo_sensitivity=0.5),
+        )
+        uq = twin.simulate_with_uncertainty(
+            "chemotherapy", n_samples=20, seed=42, dose_mg=75, cycles=4
+        )
+        assert "mean_volume_cm3" in uq
+        assert "std_volume_cm3" in uq
+        assert uq["n_samples"] == 20
+        assert uq["std_volume_cm3"] >= 0
+
+
+class TestFrameworkDetector:
+    def test_detect(self):
+        detector = FrameworkDetector()
+        frameworks = detector.detect()
+        assert isinstance(frameworks, dict)
+        assert "mujoco" in frameworks
+        assert "pybullet" in frameworks
+
+    def test_recommend_pipeline(self):
+        detector = FrameworkDetector()
+        pipeline = detector.recommend_pipeline()
+        assert isinstance(pipeline, dict)
+        # At minimum, simulated mode should be recommended
+        assert len(pipeline) > 0
+
+    def test_get_available(self):
+        detector = FrameworkDetector()
+        available = detector.get_available()
+        assert isinstance(available, list)
 
 
 class TestSurgicalRobotInterface:
@@ -114,6 +204,32 @@ class TestSurgicalRobotInterface:
         assert features.shape == (10,)
 
 
+class TestSurgicalTaskEvaluator:
+    def test_evaluate_passing(self):
+        task_def = STANDARD_TASKS[ProcedureType.SPECIMEN_HANDLING]
+        evaluator = SurgicalTaskEvaluator(task_def)
+        result = evaluator.evaluate(
+            position_errors_mm=[1.0, 2.0, 3.0],
+            forces_n=[0.5, 1.0, 1.5],
+            collisions=0,
+            total_attempts=100,
+            procedure_time_s=30.0,
+        )
+        assert result["clinical_ready"] is True
+
+    def test_evaluate_failing(self):
+        task_def = STANDARD_TASKS[ProcedureType.NEEDLE_BIOPSY]
+        evaluator = SurgicalTaskEvaluator(task_def)
+        result = evaluator.evaluate(
+            position_errors_mm=[5.0, 10.0],
+            forces_n=[8.0],
+            collisions=5,
+            total_attempts=10,
+            procedure_time_s=300.0,
+        )
+        assert result["clinical_ready"] is False
+
+
 class TestClinicalSensorFusion:
     def test_ingest_and_fuse(self):
         fusion = ClinicalSensorFusion()
@@ -137,7 +253,6 @@ class TestClinicalSensorFusion:
 
     def test_anomaly_detection(self):
         fusion = ClinicalSensorFusion(anomaly_threshold=2.0)
-        # Normal readings
         for i in range(20):
             fusion.ingest(
                 SensorReading(
@@ -147,7 +262,6 @@ class TestClinicalSensorFusion:
                     values={"heart_rate": 70.0},
                 )
             )
-        # Anomalous reading
         fusion.ingest(
             SensorReading(
                 sensor_id="vitals",

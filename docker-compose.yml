@@ -13,8 +13,27 @@ services:
       --num-sites 3
       --rounds 10
       --local-epochs 5
+      --strategy fedavg
       --dp-epsilon 2.0
       --secure-agg
+
+  fedprox:
+    build: .
+    container_name: fl-fedprox
+    volumes:
+      - .:/app
+      - fl-data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    command: >
+      python examples/run_federation.py
+      --num-sites 4
+      --rounds 15
+      --strategy fedprox
+      --mu 0.01
+    profiles:
+      - fedprox
 
   test:
     build: .

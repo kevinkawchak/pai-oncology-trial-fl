@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pai-oncology-trial-fl"
-version = "0.1.0"
+version = "0.2.0"
 description = "Federated machine learning framework for physical AI oncology trials"
 readme = "README.md"
 license = {text = "MIT"}
@@ -19,9 +19,11 @@ keywords = [
     "clinical-trials",
     "privacy",
     "machine-learning",
+    "digital-twins",
+    "surgical-robotics",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",

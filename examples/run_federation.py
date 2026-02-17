@@ -3,10 +3,13 @@
 
 Demonstrates a multi-site oncology trial where several hospitals
 collaboratively train an AI model without sharing raw patient data.
+Includes site enrollment validation, compliance checks, consent
+management, and support for FedAvg/FedProx/SCAFFOLD strategies.
 
 Usage:
     python examples/run_federation.py
     python examples/run_federation.py --num-sites 4 --rounds 20 --dp-epsilon 2.0
+    python examples/run_federation.py --strategy fedprox --mu 0.01
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ from federated.client import FederatedClient
 from federated.coordinator import FederationCoordinator
 from federated.data_ingestion import DataPartitioner, generate_synthetic_oncology_data
 from federated.model import ModelConfig
+from federated.site_enrollment import SiteEnrollmentManager
 from privacy.audit_logger import AuditLogger, EventType
 from privacy.consent_manager import ConsentManager
 from regulatory.compliance_checker import ComplianceChecker
@@ -30,6 +34,7 @@ from regulatory.compliance_checker import ComplianceChecker
 def main(args: argparse.Namespace) -> None:
     print("=" * 70)
     print("  Physical AI Federated Oncology Trial Simulation")
+    print(f"  Strategy: {args.strategy.upper()}")
     print("=" * 70)
 
     # --- Model configuration ---
@@ -42,7 +47,7 @@ def main(args: argparse.Namespace) -> None:
     )
 
     # --- Compliance check ---
-    print("\n[1/6] Running regulatory compliance checks...")
+    print("\n[1/7] Running regulatory compliance checks...")
     checker = ComplianceChecker()
     federation_config = {
         "use_differential_privacy": args.dp_epsilon is not None,
@@ -64,8 +69,32 @@ def main(args: argparse.Namespace) -> None:
         print(f"  [{status_icon}] {check.description}")
     print(f"  Overall: {report.overall_status.value.upper()}")
 
+    # --- Site enrollment ---
+    print("\n[2/7] Enrolling and activating hospital sites...")
+    site_mgr = SiteEnrollmentManager("FL_TRIAL_001", min_patients_per_site=10)
+    site_names = [
+        "Memorial Cancer Center",
+        "University Oncology Institute",
+        "Regional Medical Center",
+        "National Cancer Research Lab",
+        "Community Oncology Clinic",
+    ]
+    for i in range(args.num_sites):
+        name = site_names[i % len(site_names)]
+        site_mgr.enroll_site(
+            f"site_{i}",
+            name,
+            patient_count=200,
+            capabilities=["imaging", "biopsy"],
+        )
+        site_mgr.mark_data_ready(f"site_{i}")
+        site_mgr.mark_compliance_passed(f"site_{i}")
+        site_mgr.activate_site(f"site_{i}")
+    summary = site_mgr.get_enrollment_summary()
+    print(f"  {summary['total_sites']} sites enrolled, {summary['total_patients']} patients")
+
     # --- Consent management ---
-    print("\n[2/6] Registering patient consent...")
+    print("\n[3/7] Registering patient consent...")
     consent_mgr = ConsentManager()
     for i in range(args.num_sites):
         for j in range(50):
@@ -74,7 +103,7 @@ def main(args: argparse.Namespace) -> None:
     print(f"  {len(consented)} patients consented across {args.num_sites} sites")
 
     # --- Data generation and partitioning ---
-    print("\n[3/6] Generating synthetic oncology data...")
+    print("\n[4/7] Generating synthetic oncology data...")
     n_samples = args.num_sites * 200
     x, y = generate_synthetic_oncology_data(
         n_samples=n_samples, n_features=30, n_classes=2, seed=args.seed
@@ -85,11 +114,13 @@ def main(args: argparse.Namespace) -> None:
         print(f"  {site.site_id}: {site.num_train} train, {site.num_test} test")
 
     # --- Initialize coordinator and clients ---
-    print("\n[4/6] Initializing federated coordinator and clients...")
+    print(f"\n[5/7] Initializing coordinator (strategy={args.strategy})...")
     coordinator = FederationCoordinator(
         model_config=config,
         num_rounds=args.rounds,
         min_clients=args.num_sites,
+        strategy=args.strategy,
+        mu=args.mu,
         use_secure_aggregation=args.secure_agg,
         use_differential_privacy=args.dp_epsilon is not None,
         dp_epsilon=args.dp_epsilon or 1.0,
@@ -111,16 +142,18 @@ def main(args: argparse.Namespace) -> None:
         clients.append(client)
 
     # --- Federated training ---
-    print(f"\n[5/6] Running {args.rounds} federated training rounds...")
-    print(f"  {'Round':>5}  {'Clients':>7}  {'Accuracy':>8}  {'Loss':>8}")
-    print(f"  {'-' * 5}  {'-' * 7}  {'-' * 8}  {'-' * 8}")
+    print(f"\n[6/7] Running {args.rounds} federated training rounds...")
+    print(f"  {'Round':>5}  {'Clients':>7}  {'Accuracy':>8}  {'Loss':>8}  {'Converged':>9}")
+    print(f"  {'-' * 5}  {'-' * 7}  {'-' * 8}  {'-' * 8}  {'-' * 9}")
 
     for round_num in range(args.rounds):
         client_updates = []
         sample_counts = []
 
         for client in clients:
-            result = client.train_local(global_params, epochs=args.local_epochs, lr=args.lr)
+            result = client.train_local(
+                global_params, epochs=args.local_epochs, lr=args.lr, mu=args.mu
+            )
             client_updates.append(client.get_parameters())
             sample_counts.append(client.get_sample_count())
             audit.log(
@@ -140,13 +173,22 @@ def main(args: argparse.Namespace) -> None:
 
         acc = round_result.global_metrics.get("accuracy", 0)
         loss = round_result.global_metrics.get("loss", 0)
-        print(f"  {round_num + 1:>5}  {round_result.num_clients:>7}  {acc:>8.4f}  {loss:>8.4f}")
+        conv = "Yes" if round_result.converged else ""
+        print(
+            f"  {round_num + 1:>5}  {round_result.num_clients:>7}"
+            f"  {acc:>8.4f}  {loss:>8.4f}  {conv:>9}"
+        )
+
+        if round_result.converged and round_num >= 5:
+            print(f"\n  Converged at round {round_num + 1}.")
+            break
 
     # --- Summary ---
-    print("\n[6/6] Training complete!")
-    summary = coordinator.get_training_summary()
+    print("\n[7/7] Training complete!")
+    training_summary = coordinator.get_training_summary()
     final = coordinator.global_model.evaluate(sites[0].x_test, sites[0].y_test)
-    print(f"  Total rounds:  {summary['total_rounds']}")
+    print(f"  Strategy:       {training_summary['strategy']}")
+    print(f"  Total rounds:   {training_summary['total_rounds']}")
     print(f"  Final accuracy: {final['accuracy']:.4f}")
     print(f"  Final loss:     {final['loss']:.4f}")
 
@@ -170,6 +212,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lr", type=float, default=0.01, help="Learning rate")
     parser.add_argument("--dp-epsilon", type=float, default=None, help="DP epsilon (None=off)")
     parser.add_argument("--secure-agg", action="store_true", help="Enable secure aggregation")
+    parser.add_argument(
+        "--strategy",
+        choices=["fedavg", "fedprox", "scaffold"],
+        default="fedavg",
+        help="Aggregation strategy",
+    )
+    parser.add_argument("--mu", type=float, default=0.0, help="FedProx proximal term mu")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     return parser.parse_args()
 

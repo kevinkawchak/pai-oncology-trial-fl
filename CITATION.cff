@@ -8,7 +8,7 @@ authors:
 repository-code: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 url: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 license: MIT
-version: "0.1.0"
+version: "0.2.0"
 date-released: "2026-02-17"
 keywords:
   - federated-learning
@@ -19,12 +19,17 @@ keywords:
   - machine-learning
   - digital-twins
   - surgical-robotics
+  - data-harmonization
+  - fda-compliance
 abstract: >-
   A federated machine learning framework for physical AI oncology
   clinical trials. Enables multiple hospitals to collaboratively train
   AI models for tumor response prediction, surgical planning, and
   treatment optimization without sharing raw patient data. Integrates
-  physical AI components including patient digital twins, surgical
-  robotic telemetry, and multi-modal sensor fusion with privacy-
-  preserving federated learning using differential privacy and secure
-  aggregation.
+  physical AI components including patient digital twins with multiple
+  growth models, surgical robotic telemetry with clinical threshold
+  evaluation, and multi-modal sensor fusion. Supports FedAvg, FedProx,
+  and SCAFFOLD aggregation strategies with differential privacy, secure
+  aggregation, role-based access control, breach response protocols, and
+  multi-site enrollment management. Includes FDA submission tracking
+  and HIPAA/GDPR/FDA 21 CFR Part 11 compliance validation.
