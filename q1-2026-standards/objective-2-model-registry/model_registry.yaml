@@ -1,0 +1,526 @@
+# Federated Model Registry Schema
+# PAI Oncology Trial FL -- Q1 2026 Standards
+#
+# This YAML file defines the schema for federated model registry entries.
+# Every model artifact exchanged between sites must have a corresponding
+# registry entry conforming to this schema before it is accepted.
+#
+# DISCLAIMER: RESEARCH USE ONLY. Not approved for clinical decision-making.
+
+# ---------------------------------------------------------------------------
+# Schema version -- increment on breaking changes
+# ---------------------------------------------------------------------------
+schema_version: "1.0.0"
+schema_date: "2026-01-06"
+
+# ---------------------------------------------------------------------------
+# Registry entry fields
+# ---------------------------------------------------------------------------
+registry_entry:
+
+  # -------------------------------------------------------------------------
+  # Model identification
+  # -------------------------------------------------------------------------
+  model_id:
+    type: string
+    required: true
+    description: >
+      Globally unique identifier for the model. Format: <site_prefix>-<domain>-<seq>.
+      Example: "MCC-tumor-response-001".
+    pattern: "^[A-Z]{2,6}-[a-z0-9-]+-[0-9]{3,6}$"
+
+  model_name:
+    type: string
+    required: true
+    description: >
+      Human-readable name for the model.
+    max_length: 256
+
+  description:
+    type: string
+    required: false
+    description: >
+      Free-text description of the model purpose, architecture, and intended use.
+    max_length: 4096
+
+  # -------------------------------------------------------------------------
+  # Framework and format
+  # -------------------------------------------------------------------------
+  framework:
+    type: string
+    required: true
+    description: >
+      Training framework used to produce the model.
+    allowed_values:
+      - "pytorch"
+      - "tensorflow"
+      - "onnx"
+      - "safetensors"
+      - "monai"
+      - "numpy"
+      - "jax"
+    examples:
+      - "pytorch"
+      - "monai"
+
+  model_format:
+    type: string
+    required: true
+    description: >
+      Serialization format of the model artifact.
+    allowed_values:
+      - "pt"            # PyTorch state_dict
+      - "onnx"          # ONNX protobuf
+      - "savedmodel"    # TensorFlow SavedModel
+      - "h5"            # Keras HDF5
+      - "safetensors"   # SafeTensors
+      - "monai_bundle"  # MONAI Bundle
+      - "numpy_npz"     # NumPy npz archive
+
+  # -------------------------------------------------------------------------
+  # Versioning
+  # -------------------------------------------------------------------------
+  version:
+    type: string
+    required: true
+    description: >
+      Semantic version of the model (MAJOR.MINOR.PATCH).
+      MAJOR: breaking architecture changes.
+      MINOR: retraining with new data or hyperparameters.
+      PATCH: format conversion or metadata-only changes.
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    examples:
+      - "1.0.0"
+      - "2.3.1"
+
+  parent_version:
+    type: string
+    required: false
+    description: >
+      Version of the model this version was derived from (for lineage tracking).
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+
+  created_at:
+    type: datetime
+    required: true
+    description: >
+      ISO 8601 timestamp of when this registry entry was created.
+    format: "YYYY-MM-DDTHH:MM:SSZ"
+
+  updated_at:
+    type: datetime
+    required: false
+    description: >
+      ISO 8601 timestamp of last update to this registry entry.
+    format: "YYYY-MM-DDTHH:MM:SSZ"
+
+  # -------------------------------------------------------------------------
+  # Performance metrics
+  # -------------------------------------------------------------------------
+  metrics:
+    type: object
+    required: true
+    description: >
+      Performance metrics from the most recent evaluation. All metrics are
+      computed on a held-out test set and must be reproducible.
+    fields:
+
+      accuracy:
+        type: float
+        required: true
+        description: "Overall classification accuracy (0.0 -- 1.0)."
+        min: 0.0
+        max: 1.0
+
+      auc_roc:
+        type: float
+        required: true
+        description: "Area under the ROC curve (0.0 -- 1.0)."
+        min: 0.0
+        max: 1.0
+
+      f1_score:
+        type: float
+        required: false
+        description: "Macro-averaged F1 score (0.0 -- 1.0)."
+        min: 0.0
+        max: 1.0
+
+      sensitivity:
+        type: float
+        required: false
+        description: "True positive rate / recall (0.0 -- 1.0)."
+        min: 0.0
+        max: 1.0
+
+      specificity:
+        type: float
+        required: false
+        description: "True negative rate (0.0 -- 1.0)."
+        min: 0.0
+        max: 1.0
+
+      loss:
+        type: float
+        required: false
+        description: "Loss value on evaluation dataset."
+
+      inference_latency_ms:
+        type: float
+        required: false
+        description: "Median inference latency in milliseconds on reference hardware."
+
+      evaluation_dataset:
+        type: string
+        required: true
+        description: >
+          Identifier of the dataset used for evaluation.
+          Must be a registered dataset in the site's data catalog.
+
+      evaluation_samples:
+        type: integer
+        required: true
+        description: "Number of samples in the evaluation dataset."
+        min: 1
+
+  # -------------------------------------------------------------------------
+  # Validation status
+  # -------------------------------------------------------------------------
+  validation_status:
+    type: string
+    required: true
+    description: >
+      Current validation status of the model.
+    allowed_values:
+      - "PENDING"          # Newly registered, not yet validated
+      - "PASSED"           # All validation checks passed
+      - "FAILED"           # One or more validation checks failed
+      - "REQUIRES_REVIEW"  # Automated checks passed but manual review needed
+    default: "PENDING"
+
+  validation_history:
+    type: array
+    required: false
+    description: >
+      History of validation runs for this model version.
+    items:
+      type: object
+      fields:
+        run_id:
+          type: string
+          description: "Unique identifier for the validation run."
+        timestamp:
+          type: datetime
+          description: "When the validation was executed."
+        status:
+          type: string
+          allowed_values: ["PENDING", "PASSED", "FAILED", "REQUIRES_REVIEW"]
+        checks_passed:
+          type: integer
+          description: "Number of checks that passed."
+        checks_failed:
+          type: integer
+          description: "Number of checks that failed."
+        notes:
+          type: string
+          description: "Free-text notes from the validator or reviewer."
+
+  # -------------------------------------------------------------------------
+  # Clinical domain
+  # -------------------------------------------------------------------------
+  clinical_domain:
+    type: object
+    required: true
+    description: >
+      Clinical context for the model.
+    fields:
+
+      primary_domain:
+        type: string
+        required: true
+        description: "Primary oncology domain."
+        allowed_values:
+          - "tumor_response_prediction"
+          - "surgical_planning"
+          - "treatment_optimization"
+          - "radiation_planning"
+          - "pathology_classification"
+          - "biomarker_prediction"
+          - "survival_analysis"
+          - "toxicity_prediction"
+
+      cancer_types:
+        type: array
+        required: true
+        description: "Cancer types the model is trained or evaluated on."
+        items:
+          type: string
+        examples:
+          - ["breast", "lung"]
+          - ["colorectal"]
+          - ["glioblastoma", "meningioma"]
+
+      modalities:
+        type: array
+        required: false
+        description: "Imaging or data modalities used."
+        items:
+          type: string
+          allowed_values:
+            - "CT"
+            - "MRI"
+            - "PET"
+            - "ultrasound"
+            - "pathology_slides"
+            - "genomics"
+            - "clinical_tabular"
+            - "multi_modal"
+
+      intended_use:
+        type: string
+        required: true
+        description: >
+          Statement of intended use for regulatory purposes.
+        max_length: 2048
+
+  # -------------------------------------------------------------------------
+  # Training configuration
+  # -------------------------------------------------------------------------
+  training_config:
+    type: object
+    required: true
+    description: >
+      Training configuration used to produce this model version.
+    fields:
+
+      architecture:
+        type: string
+        required: true
+        description: "Model architecture name (e.g., ResNet50, UNet, MLP-3Layer)."
+
+      input_shape:
+        type: array
+        required: true
+        description: "Expected input tensor shape (excluding batch dimension)."
+        items:
+          type: integer
+        examples:
+          - [30]
+          - [1, 224, 224]
+          - [3, 512, 512]
+
+      output_shape:
+        type: array
+        required: true
+        description: "Output tensor shape (excluding batch dimension)."
+        items:
+          type: integer
+        examples:
+          - [2]
+          - [5]
+
+      num_parameters:
+        type: integer
+        required: true
+        description: "Total number of trainable parameters."
+
+      optimizer:
+        type: string
+        required: true
+        description: "Optimizer used during training."
+        examples:
+          - "Adam"
+          - "SGD"
+          - "AdamW"
+
+      learning_rate:
+        type: float
+        required: true
+        description: "Initial learning rate."
+
+      epochs:
+        type: integer
+        required: false
+        description: "Number of training epochs."
+
+      batch_size:
+        type: integer
+        required: false
+        description: "Training batch size."
+
+      federated_rounds:
+        type: integer
+        required: false
+        description: "Number of federated aggregation rounds (if federated training)."
+
+      federated_strategy:
+        type: string
+        required: false
+        description: "Federated aggregation strategy."
+        allowed_values:
+          - "fedavg"
+          - "fedprox"
+          - "scaffold"
+
+      num_sites:
+        type: integer
+        required: false
+        description: "Number of federated sites that contributed to training."
+
+      differential_privacy:
+        type: object
+        required: false
+        description: "Differential privacy configuration (if applied)."
+        fields:
+          epsilon:
+            type: float
+            description: "Privacy budget epsilon."
+          delta:
+            type: float
+            description: "Privacy budget delta."
+          mechanism:
+            type: string
+            description: "DP mechanism used."
+            allowed_values: ["gaussian", "laplace"]
+
+      training_data_summary:
+        type: object
+        required: true
+        description: "Summary of training data (no PHI)."
+        fields:
+          total_samples:
+            type: integer
+            description: "Total number of training samples across all sites."
+          num_classes:
+            type: integer
+            description: "Number of output classes."
+          class_distribution:
+            type: object
+            description: "Mapping of class label to sample count."
+          feature_count:
+            type: integer
+            description: "Number of input features."
+
+  # -------------------------------------------------------------------------
+  # Provenance and integrity
+  # -------------------------------------------------------------------------
+  provenance:
+    type: object
+    required: true
+    description: >
+      Provenance information for auditability and reproducibility.
+    fields:
+
+      created_by:
+        type: string
+        required: true
+        description: "Site or user that created this model version."
+
+      source_site:
+        type: string
+        required: true
+        description: "Site identifier where the model was trained."
+
+      artifact_sha256:
+        type: string
+        required: true
+        description: "SHA-256 hash of the model artifact file."
+        pattern: "^[a-f0-9]{64}$"
+
+      artifact_size_bytes:
+        type: integer
+        required: true
+        description: "Size of the model artifact in bytes."
+
+      artifact_path:
+        type: string
+        required: true
+        description: "Relative path to the model artifact within the site's model store."
+
+      dependencies:
+        type: object
+        required: false
+        description: "Key library versions used during training."
+        fields:
+          python:
+            type: string
+          framework_version:
+            type: string
+          numpy:
+            type: string
+          cuda:
+            type: string
+
+      git_commit:
+        type: string
+        required: false
+        description: "Git commit hash of the training code."
+        pattern: "^[a-f0-9]{40}$"
+
+      training_duration_hours:
+        type: float
+        required: false
+        description: "Wall-clock training duration in hours."
+
+# ---------------------------------------------------------------------------
+# Example registry entry
+# ---------------------------------------------------------------------------
+example_entry:
+  model_id: "MCC-tumor-response-001"
+  model_name: "Tumor Response Predictor v1"
+  description: "MLP classifier for predicting tumor treatment response from clinical features."
+  framework: "pytorch"
+  model_format: "pt"
+  version: "1.0.0"
+  created_at: "2026-01-15T10:30:00Z"
+  metrics:
+    accuracy: 0.892
+    auc_roc: 0.915
+    f1_score: 0.878
+    sensitivity: 0.865
+    specificity: 0.912
+    loss: 0.312
+    inference_latency_ms: 2.4
+    evaluation_dataset: "MCC-EVAL-2026Q1"
+    evaluation_samples: 500
+  validation_status: "PASSED"
+  clinical_domain:
+    primary_domain: "tumor_response_prediction"
+    cancer_types: ["breast", "lung"]
+    modalities: ["clinical_tabular"]
+    intended_use: "Research use only. AI-assisted prediction of tumor treatment response from clinical tabular features for federated learning studies."
+  training_config:
+    architecture: "MLP-3Layer"
+    input_shape: [30]
+    output_shape: [2]
+    num_parameters: 2274
+    optimizer: "Adam"
+    learning_rate: 0.01
+    epochs: 50
+    batch_size: 32
+    federated_rounds: 10
+    federated_strategy: "fedavg"
+    num_sites: 3
+    differential_privacy:
+      epsilon: 2.0
+      delta: 0.00001
+      mechanism: "gaussian"
+    training_data_summary:
+      total_samples: 3000
+      num_classes: 2
+      class_distribution:
+        responder: 1500
+        non_responder: 1500
+      feature_count: 30
+  provenance:
+    created_by: "ml-engineer-01"
+    source_site: "memorial-cancer-center"
+    artifact_sha256: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+    artifact_size_bytes: 45678
+    artifact_path: "models/tumor-response/v1.0.0/model.pt"
+    dependencies:
+      python: "3.10.12"
+      framework_version: "2.1.0"
+      numpy: "1.24.3"
+    git_commit: "abc123def456abc123def456abc123def456abc1"
+    training_duration_hours: 2.5

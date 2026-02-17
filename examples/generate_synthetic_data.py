@@ -97,10 +97,7 @@ def main(args: argparse.Namespace) -> None:
         test_path = output_dir / f"{site.site_id}_test.csv"
         test_df.to_csv(test_path, index=False)
 
-        print(
-            f"  {site.site_id}: {site.num_train} train -> {train_path}, "
-            f"{site.num_test} test -> {test_path}"
-        )
+        print(f"  {site.site_id}: {site.num_train} train -> {train_path}, {site.num_test} test -> {test_path}")
 
     # Save combined metadata
     meta = {
@@ -125,9 +122,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=str, default="data", help="Output directory")
     parser.add_argument("--num-sites", type=int, default=3, help="Number of sites")
     parser.add_argument("--samples-per-site", type=int, default=200, help="Samples per site")
-    parser.add_argument(
-        "--strategy", choices=["iid", "non_iid"], default="iid", help="Split strategy"
-    )
+    parser.add_argument("--strategy", choices=["iid", "non_iid"], default="iid", help="Split strategy")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     return parser.parse_args()
 

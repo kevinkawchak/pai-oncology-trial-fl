@@ -91,9 +91,7 @@ class SecureAggregator:
         parameter tensor.
         """
         num_params = len(param_template)
-        masks: list[list[np.ndarray]] = [
-            [np.zeros_like(p) for p in param_template] for _ in range(num_clients)
-        ]
+        masks: list[list[np.ndarray]] = [[np.zeros_like(p) for p in param_template] for _ in range(num_clients)]
 
         for i in range(num_clients):
             for j in range(i + 1, num_clients):

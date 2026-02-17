@@ -1,0 +1,467 @@
+# =============================================================================
+# Integration Workflow Templates
+# =============================================================================
+#
+# Parameterized workflow templates for common end-to-end operations in the
+# Physical AI Oncology Trial Federated Learning platform. Each template
+# defines a sequence of steps, required inputs, expected outputs, and
+# success criteria.
+#
+# DISCLAIMER: RESEARCH USE ONLY
+# These workflow templates are provided for research and educational purposes.
+# They have NOT been validated for clinical use and MUST NOT be used in
+# patient-facing settings without independent validation.
+#
+# Version: 1.0.0
+# Last Updated: 2026-02-17
+# =============================================================================
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-02-17"
+  maintainer: "PAI Oncology Trial FL Contributors"
+  license: "MIT"
+
+# ---------------------------------------------------------------------------
+# Workflow 1: Sim-to-Real Policy Transfer
+# ---------------------------------------------------------------------------
+sim_to_real_transfer:
+  name: "Simulation-to-Real Policy Transfer for Surgical Robotics"
+  description: |
+    Train a policy in simulation, validate across multiple physics engines,
+    export to a portable format, and prepare for hardware-in-the-loop testing.
+  applicable_tasks:
+    - needle_biopsy
+    - tissue_retraction
+    - suturing
+    - ablation_guidance
+
+  parameters:
+    primary_engine: "isaac_sim"
+    validation_engines: ["mujoco", "pybullet"]
+    robot_model: "ur5e"
+    task_name: "NeedleBiopsy-v1"
+    training_algorithm: "PPO"
+    training_steps: 5000000
+    cross_engine_drift_tolerance_m: 0.001
+    min_success_rate: 0.90
+    safety_validation_required: true
+    export_format: "onnx"
+
+  steps:
+    - step: 1
+      name: "Environment Setup"
+      tool: "framework_detector"
+      action: "Verify that primary and validation engines are installed"
+      inputs:
+        required_frameworks:
+          - name: "isaac_sim"
+            minimum_version: "4.0"
+          - name: "mujoco"
+            minimum_version: "3.0"
+      outputs:
+        - framework_report_json
+      success_criteria: "All required frameworks detected"
+
+    - step: 2
+      name: "Model Conversion"
+      tool: "model_converter"
+      action: "Convert robot model to all required formats"
+      inputs:
+        source_model: "${robot_model}.urdf"
+        source_format: "urdf"
+        target_formats: ["mjcf", "usd"]
+      outputs:
+        - converted_models
+        - conversion_reports
+      success_criteria: "All conversions succeed with < 0.5% geometry loss"
+
+    - step: 3
+      name: "Policy Training"
+      tool: "isaac_lab"
+      action: "Train RL policy in primary engine"
+      inputs:
+        task: "${task_name}"
+        algorithm: "${training_algorithm}"
+        num_steps: "${training_steps}"
+        robot_model: "${robot_model}"
+      outputs:
+        - trained_policy_checkpoint
+        - training_metrics
+      success_criteria: "Success rate >= ${min_success_rate}"
+
+    - step: 4
+      name: "Cross-Engine Validation"
+      tool: "validation_suite"
+      action: "Validate policy behavior across all engines"
+      inputs:
+        policy: "${trained_policy_checkpoint}"
+        engines: "${validation_engines}"
+        num_episodes: 100
+        thresholds:
+          max_position_error_m: "${cross_engine_drift_tolerance_m}"
+          max_force_error_n: 2.0
+      outputs:
+        - validation_report
+      success_criteria: "All engines pass kinematic and safety validation"
+
+    - step: 5
+      name: "Safety Validation"
+      tool: "validation_suite"
+      action: "Run comprehensive safety checks"
+      inputs:
+        policy: "${trained_policy_checkpoint}"
+        safety_thresholds:
+          max_force_n: 20.0
+          max_velocity_rad_s: 6.2832
+          workspace_bounds:
+            min: [-1.0, -1.0, 0.0]
+            max: [1.0, 1.0, 1.5]
+      outputs:
+        - safety_report
+      success_criteria: "All safety checks pass"
+
+    - step: 6
+      name: "Policy Export"
+      tool: "policy_exporter"
+      action: "Export policy to portable format"
+      inputs:
+        policy: "${trained_policy_checkpoint}"
+        target_format: "${export_format}"
+        include_metadata: true
+        include_safety_constraints: true
+      outputs:
+        - exported_policy
+        - policy_metadata_json
+        - export_report
+      success_criteria: "Export succeeds with integrity hash verified"
+
+    - step: 7
+      name: "Audit Record Generation"
+      action: "Generate complete audit trail for regulatory submission"
+      inputs:
+        - framework_report_json
+        - conversion_reports
+        - training_metrics
+        - validation_report
+        - safety_report
+        - export_report
+      outputs:
+        - audit_package
+      success_criteria: "All records have valid hash chains"
+
+# ---------------------------------------------------------------------------
+# Workflow 2: Federated Training with Heterogeneous Simulators
+# ---------------------------------------------------------------------------
+federated_heterogeneous_training:
+  name: "Federated Training Across Heterogeneous Simulation Backends"
+  description: |
+    Coordinate federated learning across sites that use different simulation
+    engines. Each site trains locally with its preferred engine and contributes
+    normalized model updates to the federation.
+
+  parameters:
+    num_sites: 4
+    num_rounds: 20
+    aggregation_strategy: "fedprox"
+    fedprox_mu: 0.01
+    use_differential_privacy: true
+    dp_epsilon: 2.0
+    dp_delta: 1.0e-5
+    use_secure_aggregation: true
+    convergence_patience: 5
+    convergence_threshold: 0.001
+
+  site_configurations:
+    - site_id: "hospital_a"
+      engine: "isaac_sim"
+      gpu: "nvidia_a100"
+      patient_count: 500
+    - site_id: "hospital_b"
+      engine: "mujoco"
+      gpu: "none"
+      patient_count: 300
+    - site_id: "research_center_c"
+      engine: "isaac_sim"
+      gpu: "nvidia_h100"
+      patient_count: 1000
+    - site_id: "pharma_lab_d"
+      engine: "pybullet"
+      gpu: "none"
+      patient_count: 200
+
+  steps:
+    - step: 1
+      name: "Site Enrollment"
+      action: "Verify all sites meet participation requirements"
+      checks:
+        - "Framework detection passes"
+        - "Compliance checker approves"
+        - "Minimum patient count met"
+        - "Data use agreement signed"
+        - "IRB approval obtained"
+
+    - step: 2
+      name: "Model Distribution"
+      action: "Convert and distribute robot models to all sites"
+      per_site: true
+
+    - step: 3
+      name: "Observation Space Normalization"
+      action: "Establish common observation normalization statistics"
+      inputs:
+        method: "running_mean_std"
+        warmup_steps: 10000
+      outputs:
+        - normalization_statistics
+
+    - step: 4
+      name: "Federated Training Loop"
+      action: "Execute federated training rounds"
+      loop:
+        for_each: "round in range(${num_rounds})"
+        steps:
+          - action: "Coordinator distributes global parameters"
+          - action: "Each site trains locally for 1 epoch"
+            per_site: true
+          - action: "Sites submit encrypted model updates"
+            per_site: true
+          - action: "Coordinator aggregates updates (${aggregation_strategy})"
+          - action: "Apply differential privacy noise (epsilon=${dp_epsilon})"
+          - action: "Evaluate global model on held-out data"
+          - action: "Check convergence (patience=${convergence_patience})"
+
+    - step: 5
+      name: "Cross-Engine Validation"
+      action: "Validate final model on all site engines"
+      per_site: true
+
+    - step: 6
+      name: "Model Registration"
+      action: "Register trained model with audit trail"
+      outputs:
+        - final_model
+        - training_audit_log
+        - privacy_budget_report
+
+# ---------------------------------------------------------------------------
+# Workflow 3: Regulatory Submission Preparation
+# ---------------------------------------------------------------------------
+regulatory_submission:
+  name: "FDA Pre-Submission Package Preparation"
+  description: |
+    Generate documentation and evidence packages for FDA regulatory
+    submissions related to AI/ML surgical robotics devices.
+
+  parameters:
+    submission_type: "de_novo"
+    device_name: "PAI Surgical Navigation Assistant"
+    indication: "AI-assisted needle biopsy guidance for oncology"
+
+  steps:
+    - step: 1
+      name: "Device Description"
+      action: "Generate device description from codebase and configuration"
+      outputs:
+        - device_description_doc
+
+    - step: 2
+      name: "Software Documentation"
+      action: "Compile IEC 62304 software lifecycle documentation"
+      outputs:
+        - software_development_plan
+        - software_requirements_spec
+        - software_architecture_doc
+        - risk_management_file
+
+    - step: 3
+      name: "Performance Testing Evidence"
+      action: "Compile cross-platform validation results"
+      inputs:
+        - validation_reports
+        - safety_reports
+        - calibration_results
+      outputs:
+        - performance_testing_report
+
+    - step: 4
+      name: "Clinical Evidence"
+      action: "Compile clinical study results"
+      inputs:
+        - federated_training_results
+        - digital_twin_validation
+        - cadaver_study_results
+      outputs:
+        - clinical_evidence_summary
+
+    - step: 5
+      name: "Submission Package Assembly"
+      action: "Assemble all documents into submission package"
+      outputs:
+        - submission_package
+        - readiness_checklist
+
+# ---------------------------------------------------------------------------
+# Workflow 4: Digital Twin Calibration
+# ---------------------------------------------------------------------------
+digital_twin_calibration:
+  name: "Patient Digital Twin Calibration and Validation"
+  description: |
+    Calibrate a patient-specific digital twin using imaging data,
+    validate across simulation engines, and prepare for treatment
+    planning simulation.
+
+  parameters:
+    modality: "CT"
+    segmentation_method: "automatic"
+    tissue_model: "neo_hookean"
+    validation_metric: "volume_overlap"
+    min_dice_score: 0.85
+
+  steps:
+    - step: 1
+      name: "DICOM Ingestion"
+      action: "Load and de-identify patient imaging data"
+      inputs:
+        - dicom_series
+      outputs:
+        - deidentified_volume
+        - patient_metadata
+
+    - step: 2
+      name: "Anatomical Segmentation"
+      action: "Segment tumor and surrounding anatomy"
+      inputs:
+        - deidentified_volume
+      outputs:
+        - segmentation_masks
+        - organ_meshes
+        - tumor_mesh
+
+    - step: 3
+      name: "Material Property Assignment"
+      action: "Assign tissue material properties from imaging data"
+      inputs:
+        - segmentation_masks
+        - imaging_metadata
+      outputs:
+        - material_property_map
+      method: |
+        Use Hounsfield units for CT, signal intensity for MRI.
+        Cross-reference with physics_parameter_mapping.yaml tissue tables.
+
+    - step: 4
+      name: "Multi-Engine Simulation"
+      action: "Run calibration simulation in multiple engines"
+      engines: ["isaac_sim", "mujoco"]
+      inputs:
+        - organ_meshes
+        - material_property_map
+      outputs:
+        - simulation_results_per_engine
+
+    - step: 5
+      name: "Cross-Engine Comparison"
+      action: "Compare simulation results across engines"
+      tool: "validation_suite"
+      outputs:
+        - calibration_report
+      success_criteria: "Cross-engine agreement within tissue-specific tolerance"
+
+    - step: 6
+      name: "Twin Registration"
+      action: "Register validated digital twin for clinical use"
+      outputs:
+        - digital_twin_package
+        - validation_certificate
+
+# ---------------------------------------------------------------------------
+# Workflow 5: Agentic AI Deployment
+# ---------------------------------------------------------------------------
+agentic_ai_deployment:
+  name: "Multi-Agent Clinical Decision Support Deployment"
+  description: |
+    Deploy a multi-agent clinical decision support system across
+    federated trial sites with appropriate safety controls and
+    audit trail.
+
+  parameters:
+    agent_framework: "unified"
+    num_agents: 4
+    human_in_loop: true
+    phi_detection: true
+    audit_level: "full"
+
+  agent_roster:
+    - role: "oncologist"
+      backend: "langgraph"
+      model: "claude-sonnet-4-20250514"
+      scope: ["treatment_planning", "literature_review"]
+    - role: "radiologist"
+      backend: "crewai"
+      model: "claude-sonnet-4-20250514"
+      scope: ["imaging_analysis", "staging"]
+    - role: "safety_monitor"
+      backend: "autogen"
+      model: "claude-sonnet-4-20250514"
+      scope: ["adverse_event_detection", "drug_interactions"]
+    - role: "data_manager"
+      backend: "custom"
+      model: "claude-sonnet-4-20250514"
+      scope: ["data_quality", "enrollment_tracking"]
+
+  steps:
+    - step: 1
+      name: "Framework Detection"
+      action: "Verify agent framework availability at each site"
+      tool: "framework_detector"
+
+    - step: 2
+      name: "Tool Registry Setup"
+      action: "Register shared clinical tools across all agents"
+      tools:
+        - query_patient_record
+        - search_literature
+        - check_drug_interactions
+        - run_digital_twin_simulation
+        - generate_adverse_event_report
+
+    - step: 3
+      name: "Agent Initialization"
+      action: "Initialize agents with role-appropriate configurations"
+      per_agent: true
+
+    - step: 4
+      name: "PHI Detection Verification"
+      action: "Verify PHI detection is active on all agent I/O"
+
+    - step: 5
+      name: "Audit Trail Verification"
+      action: "Verify hash-chained audit trail is operational"
+
+    - step: 6
+      name: "Integration Test"
+      action: "Run end-to-end test with synthetic patient data"
+      success_criteria: "All agents respond correctly, audit trail intact"
+
+    - step: 7
+      name: "Production Deployment"
+      action: "Deploy to production with monitoring enabled"
+      requires_approval: true
+      approver: "clinical_trial_coordinator"
+
+# ---------------------------------------------------------------------------
+# Shared Configuration Defaults
+# ---------------------------------------------------------------------------
+defaults:
+  timeout_seconds: 3600
+  retry_count: 3
+  log_level: "INFO"
+  checkpoint_frequency: "per_step"
+  notification_channels:
+    - "log"
+    - "email"
+  compliance_frameworks:
+    - "hipaa"
+    - "gdpr"
+    - "fda_21cfr11"

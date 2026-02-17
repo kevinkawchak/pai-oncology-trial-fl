@@ -94,7 +94,5 @@ class TestReproducibility:
     def test_different_seed_different_model(self):
         m1 = FederatedModel(input_dim=5, hidden_dims=[4], output_dim=2, seed=1)
         m2 = FederatedModel(input_dim=5, hidden_dims=[4], output_dim=2, seed=2)
-        any_different = any(
-            not np.allclose(p1, p2) for p1, p2 in zip(m1.get_parameters(), m2.get_parameters())
-        )
+        any_different = any(not np.allclose(p1, p2) for p1, p2 in zip(m1.get_parameters(), m2.get_parameters()))
         assert any_different

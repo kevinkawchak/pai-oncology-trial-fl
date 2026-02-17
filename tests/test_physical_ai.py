@@ -133,9 +133,7 @@ class TestPatientDigitalTwin:
             "patient_008",
             tumor=TumorModel(chemo_sensitivity=0.5),
         )
-        uq = twin.simulate_with_uncertainty(
-            "chemotherapy", n_samples=20, seed=42, dose_mg=75, cycles=4
-        )
+        uq = twin.simulate_with_uncertainty("chemotherapy", n_samples=20, seed=42, dose_mg=75, cycles=4)
         assert "mean_volume_cm3" in uq
         assert "std_volume_cm3" in uq
         assert uq["n_samples"] == 20

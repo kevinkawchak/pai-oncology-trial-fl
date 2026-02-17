@@ -18,9 +18,7 @@ class TestGenerateSyntheticData:
         assert set(np.unique(y)).issubset({0, 1, 2})
 
     def test_class_balance(self):
-        x, y = generate_synthetic_oncology_data(
-            n_samples=1000, n_classes=2, class_balance=[0.3, 0.7]
-        )
+        x, y = generate_synthetic_oncology_data(n_samples=1000, n_classes=2, class_balance=[0.3, 0.7])
         counts = np.bincount(y)
         assert counts[0] < counts[1]
 

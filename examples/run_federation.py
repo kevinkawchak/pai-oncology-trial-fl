@@ -105,9 +105,7 @@ def main(args: argparse.Namespace) -> None:
     # --- Data generation and partitioning ---
     print("\n[4/7] Generating synthetic oncology data...")
     n_samples = args.num_sites * 200
-    x, y = generate_synthetic_oncology_data(
-        n_samples=n_samples, n_features=30, n_classes=2, seed=args.seed
-    )
+    x, y = generate_synthetic_oncology_data(n_samples=n_samples, n_features=30, n_classes=2, seed=args.seed)
     partitioner = DataPartitioner(num_sites=args.num_sites, strategy="iid", seed=args.seed)
     sites = partitioner.partition(x, y)
     for site in sites:
@@ -151,9 +149,7 @@ def main(args: argparse.Namespace) -> None:
         sample_counts = []
 
         for client in clients:
-            result = client.train_local(
-                global_params, epochs=args.local_epochs, lr=args.lr, mu=args.mu
-            )
+            result = client.train_local(global_params, epochs=args.local_epochs, lr=args.lr, mu=args.mu)
             client_updates.append(client.get_parameters())
             sample_counts.append(client.get_sample_count())
             audit.log(
@@ -174,10 +170,7 @@ def main(args: argparse.Namespace) -> None:
         acc = round_result.global_metrics.get("accuracy", 0)
         loss = round_result.global_metrics.get("loss", 0)
         conv = "Yes" if round_result.converged else ""
-        print(
-            f"  {round_num + 1:>5}  {round_result.num_clients:>7}"
-            f"  {acc:>8.4f}  {loss:>8.4f}  {conv:>9}"
-        )
+        print(f"  {round_num + 1:>5}  {round_result.num_clients:>7}  {acc:>8.4f}  {loss:>8.4f}  {conv:>9}")
 
         if round_result.converged and round_num >= 5:
             print(f"\n  Converged at round {round_num + 1}.")

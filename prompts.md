@@ -4,6 +4,88 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 5: v0.5.0 — Domain Examples and Engineering Demonstrations
+
+Consolidates: v0.6.0 (5 core examples) + v0.7.0 (6 physical AI examples) + v0.9.0 (6 agentic AI examples)
+
+Dependencies: Prompt 4
+
+```
+Build 17 production-quality example scripts across three domains for pai-oncology-trial-fl.
+1. Core Examples (examples/) — README.md, 5 scripts (800-1000 LOC each):
+   - 01_federated_training_workflow.py: End-to-end FL pipeline with coordinator setup, FedAvg/FedProx aggregation, DP integration, secure aggregation, convergence monitoring.
+   - 02_digital_twin_planning.py: Patient digital twin construction from imaging data, tumor growth modeling (exponential/logistic/Gompertz), treatment response simulation, multi-organ tracking.
+   - 03_cross_framework_validation.py: Policy validation across Isaac Sim/MuJoCo/PyBullet/Gazebo, kinematic drift analysis, force comparison, cross-engine metrics.
+   - 04_agentic_clinical_workflow.py: Multi-agent clinical decision support with oncologist/radiologist/safety/data agents, unified interface, human-in-the-loop.
+   - 05_outcome_prediction_pipeline.py: ML pipeline for treatment outcome prediction, survival analysis, biomarker integration, fairness auditing.
+2. Physical AI Examples (examples-physical-ai/) — README.md, 6 scripts (1000-1300 LOC each):
+   - 01_realtime_safety_monitoring.py: Force/torque monitoring, emergency stop, workspace bounds, ISO 13482.
+   - 02_multi_sensor_fusion.py: Kalman/complementary filter fusion, optical+IMU+F/T+stereo, latency compensation.
+   - 03_ros2_surgical_deployment.py: ROS2 lifecycle nodes, QoS, URDF, trajectory planning, real-time control.
+   - 04_hand_eye_calibration.py: Tsai-Lenz calibration, fiducial detection, reprojection error, validation.
+   - 05_shared_autonomy_teleoperation.py: Variable autonomy blending, intent prediction, haptic feedback, safety constraints.
+   - 06_robotic_sample_handling.py: Grasp planning, force-controlled manipulation, contamination avoidance, chain-of-custody.
+3. Agentic AI Examples (agentic-ai/examples-agentic-ai/) — README.md, 6 scripts (1000-1300 LOC each):
+   - 01_mcp_oncology_server.py: MCP server with tool registration, resource management, PHI-safe prompts.
+   - 02_react_treatment_planner.py: ReAct agent with thought-action-observation loops, NCCN retrieval, drug interactions.
+   - 03_realtime_adaptive_monitoring_agent.py: Streaming monitor, adaptive thresholds, adverse event tracking, dashboards.
+   - 04_autonomous_simulation_orchestrator.py: Simulation campaign management, parameter sweeps, job scheduling, convergence.
+   - 05_safety_constrained_agent_executor.py: Multi-layer safety (PHI detection, action allowlists, HITL gates, audit trail).
+   - 06_oncology_rag_compliance_agent.py: RAG for regulatory compliance, FDA guidance retrieval, protocol deviation detection.
+4. Updates: per-file-ignores in ruff.toml, README.md structure tree, version bump to 0.5.0.
+Quality gates: ruff check + ruff format pass. RESEARCH USE ONLY disclaimers. Structured logging. Conditional imports with HAS_X. All clinical parameters bounded.
+```
+
+---
+
+## Prompt 4: v0.4.0 — Core Domain Modules and CLI Tools
+
+Consolidates: v0.4.0 (digital twins: patient modeling, treatment sim, clinical integration) + v0.8.0 (5 CLI tools)
+
+Dependencies: Prompt 3
+
+```
+Build the core domain modules and CLI tools for pai-oncology-trial-fl.
+1. Primary Domain (digital-twins/) — README.md, 3 subdirectories:
+   - patient-modeling/patient_model.py: 500-800 LOC with TumorType/GrowthModel/PatientStatus Enums, TumorProfile/PatientBiomarkers/OrganFunction/PatientDigitalTwinConfig dataclasses, PatientPhysiologyEngine, PatientDigitalTwinFactory.
+   - treatment-simulation/treatment_simulator.py: 500-800 LOC with TreatmentModality/ResponseCategory/ToxicityGrade Enums, ChemotherapyProtocol/RadiationPlan/ImmunotherapyRegimen/TreatmentOutcome dataclasses, TreatmentSimulator.
+   - clinical-integration/clinical_integrator.py: 500-800 LOC with ClinicalSystem/IntegrationStatus/DataFormat Enums, ClinicalIntegrator, FederatedClinicalBridge.
+2. CLI Tools (tools/) — README.md, 5 tools:
+   - dicom-inspector: DICOM inspection with argparse subcommands, JSON output.
+   - dose-calculator: Radiation/chemo dose calculator with NCCN/RTOG reference constants.
+   - trial-site-monitor: Multi-site monitoring with GREEN/YELLOW/RED status Enums.
+   - sim-job-runner: Cross-framework simulation launcher with framework detection.
+   - deployment-readiness: Checklist-based validation with PASS/FAIL/WARNING/REQUIRES_VERIFICATION.
+3. Updates: per-file-ignores in ruff.toml, README.md structure tree.
+Quality gates: ruff check + ruff format pass. RESEARCH USE ONLY disclaimers. Docstrings on all dataclasses/enums. CLI --help. Bounded clinical parameters.
+```
+
+---
+
+## Prompt 3: v0.3.0 — Repository Foundation, Community Health, and CI/CD Infrastructure
+
+Consolidates: v0.1.0 (initial structure) + v0.2.0 (cooperation model) + v0.3.0/v0.3.1 (standards, version corrections, citations) + v0.5.1 (community health, CI/CD, disclaimers)
+
+Dependencies: None (first prompt)
+
+```
+Create a new GitHub repository called [REPO_NAME] for [DOMAIN_FOCUS] in oncology clinical trials. Build the complete foundation in a single submission.
+1. Repository Root Files — README.md with badges, responsible-use notice, Quick Start, Repository Structure tree, Core Technologies table, Unification Framework section, Key Capabilities, Dependencies, Actively Maintained Repositories table, Multi-Organization Cooperation table, Citation, Contributing, License.
+2. Unification Framework (unification/) — simulation_physics/ with Isaac-MuJoCo bridge and parameter mapping, agentic_generative_ai/ with unified agent interface, surgical_robotics/, cross_platform_tools/ with framework detector/model converter/policy exporter/validation suite, standards_protocols/, integration_workflows/.
+3. Standards (q1-2026-standards/) — 3 objectives: model conversion pipeline, model registry with validator, cross-platform benchmark runner. Implementation guide with timeline and compliance checklist.
+4. Framework Integration Guides (frameworks/) — nvidia-isaac/, mujoco/, gazebo/, pybullet/ with INTEGRATION.md each.
+5. Learning Domain Directories — supervised-learning/, reinforcement-learning/, self-supervised-learning/, generative-ai/ with strengths.md, limitations.md, results.md.
+6. Configuration (configs/) — training_config.yaml with environment, domain randomization, algorithm, network, safety constraints, training, evaluation, deployment, transfer settings.
+7. Verification (scripts/) — verify_installation.py with importlib-based detection, colored output, graceful handling.
+8. Community Health — CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, SUPPORT.md, .github/PULL_REQUEST_TEMPLATE.md, .github/ISSUE_TEMPLATE/bug_report.md, .github/ISSUE_TEMPLATE/feature_request.md.
+9. CI/CD (.github/workflows/ci.yml) — lint-and-format (ruff + yamllint), validate-scripts (py_compile), test (pytest). Matrix 3.10/3.11/3.12.
+10. Linting (ruff.toml) — line-length 120, per-file-ignores for all directories.
+11. Tests — tests/__init__.py placeholder.
+Quality gates: ruff check + ruff format --check pass. yamllint -d relaxed pass. RESEARCH USE ONLY disclaimers. Structured logging. Conditional imports with HAS_X.
+```
+
+---
+
 ## Prompt 1: v0.1.0 — Integration and Implementation
 
 ```
