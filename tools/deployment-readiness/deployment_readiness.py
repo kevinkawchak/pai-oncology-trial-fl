@@ -36,234 +36,82 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Reference checklists — each item cites its authoritative source.
-# ---------------------------------------------------------------------------
+# Reference checklists — each entry is (id, name, description, source).
+# Sources: FDA AI/ML Action Plan 2021, Health Canada GMLP 2021,
+# IEC 62304:2015, ISO 14971:2019, 21 CFR Part 11, HIPAA 45 CFR 164,
+# GDPR Art. 35, ICH E6(R2) 2016, NIST CSF v2.0, AWS Healthcare Lens 2023,
+# ISO 13485:2016, FDA Design Control 1997.
 
-# Model validation checks.
-# Source: FDA Artificial Intelligence/Machine Learning Action Plan, 2021.
-# Source: Health Canada — Guidance on Good ML Practice (GMLP), 2021.
-MODEL_VALIDATION_CHECKS: list[dict[str, str]] = [
-    {
-        "id": "MV-001",
-        "name": "AUC-ROC threshold",
-        "description": "Model AUC-ROC >= 0.80 on held-out test set",
-        "source": "FDA AI/ML Action Plan 2021",
-    },
-    {
-        "id": "MV-002",
-        "name": "Sensitivity threshold",
-        "description": "Sensitivity >= 0.85 for primary endpoint",
-        "source": "FDA AI/ML Action Plan 2021",
-    },
-    {
-        "id": "MV-003",
-        "name": "Specificity threshold",
-        "description": "Specificity >= 0.80 for primary endpoint",
-        "source": "FDA AI/ML Action Plan 2021",
-    },
-    {
-        "id": "MV-004",
-        "name": "Subgroup fairness audit",
-        "description": "Performance parity across demographic subgroups (age, sex, ethnicity)",
-        "source": "Health Canada GMLP 2021",
-    },
-    {
-        "id": "MV-005",
-        "name": "Calibration check",
-        "description": "Brier score <= 0.25 on validation set",
-        "source": "FDA AI/ML Action Plan 2021",
-    },
-    {
-        "id": "MV-006",
-        "name": "Robustness to distribution shift",
-        "description": "Performance degradation <= 10% on external validation cohort",
-        "source": "Health Canada GMLP 2021",
-    },
-    {
-        "id": "MV-007",
-        "name": "Reproducibility verified",
-        "description": "Results reproducible across 3 independent training runs (seed variation)",
-        "source": "FDA AI/ML Action Plan 2021",
-    },
-]
+_CHECK_FIELDS = ("id", "name", "description", "source")
 
-# Safety compliance checks.
-# Source: IEC 62304 — Medical device software lifecycle, 2015.
-# Source: ISO 14971 — Application of risk management to medical devices, 2019.
-SAFETY_COMPLIANCE_CHECKS: list[dict[str, str]] = [
-    {
-        "id": "SC-001",
-        "name": "Dose bound enforcement",
-        "description": "All predicted doses bounded within NCCN/RTOG limits",
-        "source": "NCCN v2024; IEC 62304",
-    },
-    {
-        "id": "SC-002",
-        "name": "Fail-safe mechanism",
-        "description": "System defaults to safe state on prediction failure",
-        "source": "ISO 14971:2019",
-    },
-    {
-        "id": "SC-003",
-        "name": "Anomaly detection",
-        "description": "Out-of-distribution input detection enabled and tested",
-        "source": "IEC 62304:2015",
-    },
-    {
-        "id": "SC-004",
-        "name": "Human-in-the-loop",
-        "description": "Clinical override mechanism available for all predictions",
-        "source": "FDA Guidance on CDS, 2022",
-    },
-    {
-        "id": "SC-005",
-        "name": "Adverse event logging",
-        "description": "All model predictions logged with timestamps for audit trail",
-        "source": "ISO 14971:2019",
-    },
-    {
-        "id": "SC-006",
-        "name": "Risk classification",
-        "description": "Software risk class determined per IEC 62304 (Class A/B/C)",
-        "source": "IEC 62304:2015",
-    },
-]
 
-# Regulatory compliance checks.
-# Source: 21 CFR Part 11 — Electronic Records; Electronic Signatures.
-# Source: HIPAA Security Rule, 45 CFR 164.
-# Source: GDPR Article 35 — Data Protection Impact Assessment.
-REGULATORY_CHECKS: list[dict[str, str]] = [
-    {
-        "id": "RG-001",
-        "name": "21 CFR Part 11 compliance",
-        "description": "Electronic records have audit trails, access controls, and electronic signatures",
-        "source": "21 CFR Part 11",
-    },
-    {
-        "id": "RG-002",
-        "name": "HIPAA de-identification",
-        "description": "All patient data de-identified per Safe Harbor or Expert Determination",
-        "source": "45 CFR 164.514",
-    },
-    {
-        "id": "RG-003",
-        "name": "GDPR DPIA completed",
-        "description": "Data Protection Impact Assessment completed for EU site data",
-        "source": "GDPR Article 35",
-    },
-    {
-        "id": "RG-004",
-        "name": "ICH E6(R2) GCP compliance",
-        "description": "Trial conduct follows Good Clinical Practice guidelines",
-        "source": "ICH E6(R2) 2016",
-    },
-    {
-        "id": "RG-005",
-        "name": "IRB/Ethics approval",
-        "description": "Institutional Review Board approval documented for each site",
-        "source": "21 CFR Part 56",
-    },
-    {
-        "id": "RG-006",
-        "name": "Informed consent verification",
-        "description": "Electronic consent records complete and version-matched",
-        "source": "ICH E6(R2) 2016",
-    },
-]
+def _build_checks(rows: list[tuple[str, str, str, str]]) -> list[dict[str, str]]:
+    """Convert compact tuples into list-of-dict check definitions."""
+    return [dict(zip(_CHECK_FIELDS, r)) for r in rows]
 
-# Infrastructure checks.
-# Source: NIST Cybersecurity Framework v2.0, 2024.
-# Source: AWS Well-Architected Framework — Healthcare Lens, 2023.
-INFRASTRUCTURE_CHECKS: list[dict[str, str]] = [
-    {
-        "id": "IN-001",
-        "name": "Compute capacity",
-        "description": "Sufficient GPU/CPU resources allocated for inference workload",
-        "source": "AWS Well-Architected Healthcare Lens 2023",
-    },
-    {
-        "id": "IN-002",
-        "name": "Network latency",
-        "description": "Inter-site FL communication latency < 500 ms p99",
-        "source": "AWS Well-Architected Healthcare Lens 2023",
-    },
-    {
-        "id": "IN-003",
-        "name": "TLS encryption",
-        "description": "All data in transit encrypted with TLS 1.3",
-        "source": "NIST Cybersecurity Framework v2.0",
-    },
-    {
-        "id": "IN-004",
-        "name": "Encryption at rest",
-        "description": "All data at rest encrypted with AES-256",
-        "source": "NIST Cybersecurity Framework v2.0",
-    },
-    {
-        "id": "IN-005",
-        "name": "Monitoring and alerting",
-        "description": "Health checks, log aggregation, and alerting pipelines operational",
-        "source": "NIST Cybersecurity Framework v2.0",
-    },
-    {
-        "id": "IN-006",
-        "name": "Disaster recovery plan",
-        "description": "Documented DR plan with RTO < 4 hours and RPO < 1 hour",
-        "source": "AWS Well-Architected Healthcare Lens 2023",
-    },
-    {
-        "id": "IN-007",
-        "name": "Backup verification",
-        "description": "Model artifacts and configuration backups tested within last 30 days",
-        "source": "NIST Cybersecurity Framework v2.0",
-    },
-]
 
-# Documentation checks.
-# Source: ISO 13485 — Quality management systems for medical devices, 2016.
-# Source: FDA Design Control Guidance, 1997.
-DOCUMENTATION_CHECKS: list[dict[str, str]] = [
-    {
-        "id": "DC-001",
-        "name": "Standard operating procedures",
-        "description": "SOPs for model training, validation, and deployment documented",
-        "source": "ISO 13485:2016",
-    },
-    {
-        "id": "DC-002",
-        "name": "Training records",
-        "description": "Personnel training records current for all operators",
-        "source": "ISO 13485:2016",
-    },
-    {
-        "id": "DC-003",
-        "name": "Version control",
-        "description": "Model, data, and code versions tracked in version control system",
-        "source": "FDA Design Control Guidance 1997",
-    },
-    {
-        "id": "DC-004",
-        "name": "Change control log",
-        "description": "All changes to production system documented with rationale",
-        "source": "ISO 13485:2016",
-    },
-    {
-        "id": "DC-005",
-        "name": "User documentation",
-        "description": "End-user instructions for use (IFU) reviewed and approved",
-        "source": "FDA Design Control Guidance 1997",
-    },
-    {
-        "id": "DC-006",
-        "name": "Risk management file",
-        "description": "Complete risk management file per ISO 14971 maintained",
-        "source": "ISO 14971:2019",
-    },
-]
+MODEL_VALIDATION_CHECKS = _build_checks(
+    [
+        ("MV-001", "AUC-ROC threshold", "AUC-ROC >= 0.80 on held-out test set", "FDA AI/ML Action Plan 2021"),
+        ("MV-002", "Sensitivity threshold", "Sensitivity >= 0.85 for primary endpoint", "FDA AI/ML Action Plan 2021"),
+        ("MV-003", "Specificity threshold", "Specificity >= 0.80 for primary endpoint", "FDA AI/ML Action Plan 2021"),
+        (
+            "MV-004",
+            "Subgroup fairness audit",
+            "Performance parity across demographic subgroups",
+            "Health Canada GMLP 2021",
+        ),
+        ("MV-005", "Calibration check", "Brier score <= 0.25 on validation set", "FDA AI/ML Action Plan 2021"),
+        ("MV-006", "Robustness check", "Degradation <= 10% on external cohort", "Health Canada GMLP 2021"),
+        ("MV-007", "Reproducibility", "Reproducible across 3 training runs", "FDA AI/ML Action Plan 2021"),
+    ]
+)
 
-# All check categories mapped by name.
+SAFETY_COMPLIANCE_CHECKS = _build_checks(
+    [
+        ("SC-001", "Dose bound enforcement", "Doses bounded within NCCN/RTOG limits", "NCCN v2024; IEC 62304"),
+        ("SC-002", "Fail-safe mechanism", "System defaults to safe state on failure", "ISO 14971:2019"),
+        ("SC-003", "Anomaly detection", "OOD input detection enabled and tested", "IEC 62304:2015"),
+        ("SC-004", "Human-in-the-loop", "Clinical override for all predictions", "FDA CDS Guidance 2022"),
+        ("SC-005", "Adverse event logging", "Predictions logged with timestamps", "ISO 14971:2019"),
+        ("SC-006", "Risk classification", "IEC 62304 risk class determined (A/B/C)", "IEC 62304:2015"),
+    ]
+)
+
+REGULATORY_CHECKS = _build_checks(
+    [
+        ("RG-001", "21 CFR Part 11", "Audit trails, access controls, e-signatures", "21 CFR Part 11"),
+        ("RG-002", "HIPAA de-identification", "Safe Harbor or Expert Determination", "45 CFR 164.514"),
+        ("RG-003", "GDPR DPIA", "Data Protection Impact Assessment for EU sites", "GDPR Article 35"),
+        ("RG-004", "ICH E6(R2) GCP", "Good Clinical Practice guidelines followed", "ICH E6(R2) 2016"),
+        ("RG-005", "IRB/Ethics approval", "IRB approval documented for each site", "21 CFR Part 56"),
+        ("RG-006", "Informed consent", "E-consent records complete and version-matched", "ICH E6(R2) 2016"),
+    ]
+)
+
+INFRASTRUCTURE_CHECKS = _build_checks(
+    [
+        ("IN-001", "Compute capacity", "GPU/CPU resources allocated for inference", "AWS Healthcare Lens 2023"),
+        ("IN-002", "Network latency", "FL communication latency < 500 ms p99", "AWS Healthcare Lens 2023"),
+        ("IN-003", "TLS encryption", "Data in transit encrypted with TLS 1.3", "NIST CSF v2.0"),
+        ("IN-004", "Encryption at rest", "Data at rest encrypted with AES-256", "NIST CSF v2.0"),
+        ("IN-005", "Monitoring", "Health checks and alerting operational", "NIST CSF v2.0"),
+        ("IN-006", "Disaster recovery", "DR plan: RTO < 4h, RPO < 1h", "AWS Healthcare Lens 2023"),
+        ("IN-007", "Backup verification", "Backups tested within last 30 days", "NIST CSF v2.0"),
+    ]
+)
+
+DOCUMENTATION_CHECKS = _build_checks(
+    [
+        ("DC-001", "SOPs", "Training, validation, deployment SOPs", "ISO 13485:2016"),
+        ("DC-002", "Training records", "Personnel training records current", "ISO 13485:2016"),
+        ("DC-003", "Version control", "Model/data/code versions tracked", "FDA Design Control 1997"),
+        ("DC-004", "Change control log", "Production changes documented", "ISO 13485:2016"),
+        ("DC-005", "User documentation", "Instructions for use (IFU) approved", "FDA Design Control 1997"),
+        ("DC-006", "Risk management file", "ISO 14971 risk management file", "ISO 14971:2019"),
+    ]
+)
+
 ALL_CHECK_CATEGORIES: dict[str, list[dict[str, str]]] = {
     "model_validation": MODEL_VALIDATION_CHECKS,
     "safety_compliance": SAFETY_COMPLIANCE_CHECKS,
@@ -307,19 +155,7 @@ class DeploymentDecision(str, Enum):
 
 @dataclass
 class ReadinessCheck:
-    """Result of a single deployment readiness check.
-
-    Attributes:
-        check_id: Unique check identifier (e.g. MV-001).
-        category: Category the check belongs to.
-        name: Short human-readable check name.
-        description: Detailed description of what is checked.
-        status: Result status of the check.
-        notes: Reviewer notes or automated findings.
-        source: Regulatory or standards citation.
-        verified_by: Name or ID of the person who verified.
-        verified_at: ISO 8601 timestamp of verification.
-    """
+    """Result of a single deployment readiness check (id, category, status, source)."""
 
     check_id: str = ""
     category: str = ""
@@ -334,22 +170,7 @@ class ReadinessCheck:
 
 @dataclass
 class ReadinessReport:
-    """Aggregated deployment readiness report.
-
-    Attributes:
-        report_id: Unique report identifier.
-        model_name: Name or identifier of the model being assessed.
-        model_version: Semantic version of the model.
-        generated_at: ISO 8601 timestamp of report generation.
-        decision: Overall deployment decision.
-        total_checks: Total number of checks evaluated.
-        passed: Number of checks that passed.
-        failed: Number of checks that failed.
-        warnings: Number of checks with warnings.
-        requires_verification: Number requiring manual review.
-        checks: Detailed list of individual check results.
-        summary_by_category: Pass/fail counts grouped by category.
-    """
+    """Aggregated deployment readiness report with APPROVED/CONDITIONAL/BLOCKED decision."""
 
     report_id: str = ""
     model_name: str = ""
@@ -368,22 +189,8 @@ class ReadinessReport:
 # ── Core helpers ───────────────────────────────────────────────────────────
 
 
-def build_checklist(
-    categories: list[str] | None = None,
-) -> list[ReadinessCheck]:
-    """Build the full checklist of readiness checks.
-
-    Parameters
-    ----------
-    categories:
-        Optional list of category names to include.  If ``None``, all
-        categories are included.
-
-    Returns
-    -------
-    list[ReadinessCheck]:
-        Ordered list of checks to evaluate.
-    """
+def build_checklist(categories: list[str] | None = None) -> list[ReadinessCheck]:
+    """Build checklist of readiness checks. If *categories* is None, include all."""
     selected = categories or list(ALL_CHECK_CATEGORIES.keys())
     checks: list[ReadinessCheck] = []
     for cat_name in selected:
@@ -406,25 +213,7 @@ def evaluate_checks(
     checks: list[ReadinessCheck],
     overrides: dict[str, str] | None = None,
 ) -> list[ReadinessCheck]:
-    """Evaluate a list of readiness checks.
-
-    Without real system integration, all checks default to
-    ``REQUIRES_VERIFICATION``.  The *overrides* dict allows the caller
-    to set specific check IDs to a known status (e.g. from a CI
-    pipeline or manual review).
-
-    Parameters
-    ----------
-    checks:
-        List of checks to evaluate.
-    overrides:
-        Mapping of ``check_id`` to ``CheckStatus`` value.
-
-    Returns
-    -------
-    list[ReadinessCheck]:
-        Checks with updated statuses.
-    """
+    """Evaluate checks. Defaults to REQUIRES_VERIFICATION; use *overrides* to set specific statuses."""
     overrides = overrides or {}
     now = datetime.now(timezone.utc).isoformat()
     for check in checks:
@@ -447,22 +236,7 @@ def generate_readiness_report(
     model_version: str,
     checks: list[ReadinessCheck],
 ) -> ReadinessReport:
-    """Generate a deployment readiness report from evaluated checks.
-
-    Parameters
-    ----------
-    model_name:
-        Name of the model or system being assessed.
-    model_version:
-        Semantic version string.
-    checks:
-        Evaluated readiness checks.
-
-    Returns
-    -------
-    ReadinessReport:
-        Complete report with deployment decision.
-    """
+    """Generate a deployment readiness report with APPROVED/CONDITIONAL/BLOCKED decision."""
     report = ReadinessReport(
         report_id=f"DR-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
         model_name=model_name,
@@ -514,22 +288,7 @@ def generate_readiness_report(
 
 
 def export_report(report: ReadinessReport, output_path: str, fmt: str = "json") -> str:
-    """Export a readiness report to a file.
-
-    Parameters
-    ----------
-    report:
-        The report to export.
-    output_path:
-        Destination file path.
-    fmt:
-        Export format — currently only ``"json"`` is supported.
-
-    Returns
-    -------
-    str:
-        Path to the written file.
-    """
+    """Export a readiness report to a JSON file. Returns the output path."""
     if fmt != "json":
         raise ValueError(f"Unsupported export format '{fmt}'. Only 'json' is supported.")
 
@@ -597,18 +356,7 @@ def _output(data: Any, as_json: bool) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry-point for the deployment readiness CLI.
-
-    Parameters
-    ----------
-    argv:
-        Optional argument list (defaults to ``sys.argv[1:]``).
-
-    Returns
-    -------
-    int:
-        Exit code — 0 on success, 1 on failure.
-    """
+    """Entry-point for the deployment readiness CLI. Returns 0 on success, 1 on failure."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 

@@ -190,19 +190,8 @@ class TaskType(str, Enum):
 class SimJobConfig:
     """Configuration for a simulation job.
 
-    All numeric parameters are bounded to prevent runaway simulations.
-
-    Attributes:
-        job_id: Unique job identifier (auto-generated if empty).
-        framework: Target simulation framework.
-        task_type: Oncology task to simulate.
-        num_envs: Number of parallel environments (bounded 1-16384).
-        max_steps: Maximum simulation steps per episode (bounded 1-1000000).
-        num_episodes: Number of episodes to run (bounded 1-100000).
-        physics_dt: Physics time-step in seconds (bounded 1e-5 to 0.1).
-        rendering_enabled: Whether to enable visual rendering.
-        seed: Random seed for reproducibility.
-        custom_params: Additional key-value parameters.
+    All numeric parameters bounded: envs 1-16384, steps 1-1M,
+    episodes 1-100K, physics_dt 1e-5 to 0.1s.
     """
 
     job_id: str = ""
@@ -228,23 +217,7 @@ class SimJobConfig:
 
 @dataclass
 class SimJobResult:
-    """Results from a completed simulation job.
-
-    Attributes:
-        job_id: Job identifier matching the configuration.
-        status: Final job status.
-        framework: Framework used for execution.
-        task_type: Task that was simulated.
-        episodes_completed: Number of episodes that finished.
-        total_steps: Total simulation steps executed.
-        wall_time_seconds: Real-world execution time in seconds.
-        mean_reward: Average reward across episodes (RL tasks).
-        success_rate: Fraction of successful episodes (bounded 0-1).
-        max_force_n: Maximum force observed in Newtons.
-        positioning_error_mm: Mean positioning error in millimetres.
-        warnings: Any warnings generated during execution.
-        created_at: ISO 8601 timestamp of job creation.
-    """
+    """Results from a completed simulation job (success_rate bounded 0-1)."""
 
     job_id: str = ""
     status: str = JobStatus.PENDING.value
@@ -271,16 +244,7 @@ class SimJobResult:
 
 
 def detect_available_frameworks() -> dict[str, bool]:
-    """Return a mapping of framework name to availability.
-
-    This check uses ``importlib.util.find_spec`` and does NOT
-    initialise any GPU resources.
-
-    Returns
-    -------
-    dict:
-        Framework name to boolean availability.
-    """
+    """Return framework name to availability mapping (no GPU init)."""
     return {
         SimFramework.ISAAC.value: HAS_ISAAC,
         SimFramework.MUJOCO.value: HAS_MUJOCO,
@@ -290,18 +254,7 @@ def detect_available_frameworks() -> dict[str, bool]:
 
 
 def validate_job_config(config: SimJobConfig) -> list[str]:
-    """Validate a job configuration and return a list of issues.
-
-    Parameters
-    ----------
-    config:
-        The job configuration to validate.
-
-    Returns
-    -------
-    list[str]:
-        Human-readable validation messages (empty if valid).
-    """
+    """Validate a job configuration. Returns list of issues (empty if valid)."""
     issues: list[str] = []
     available = detect_available_frameworks()
 
@@ -336,22 +289,7 @@ def validate_job_config(config: SimJobConfig) -> list[str]:
 
 
 def launch_simulation(config: SimJobConfig) -> SimJobResult:
-    """Launch a simulation job (stub implementation for CLI demonstration).
-
-    In a production deployment this would dispatch the job to the
-    appropriate framework backend. Here it validates the configuration
-    and returns a placeholder result.
-
-    Parameters
-    ----------
-    config:
-        Job configuration.
-
-    Returns
-    -------
-    SimJobResult:
-        Placeholder result with validation information.
-    """
+    """Launch a simulation job (stub — validates config and returns placeholder result)."""
     issues = validate_job_config(config)
     result = SimJobResult(
         job_id=config.job_id,
@@ -376,35 +314,13 @@ def launch_simulation(config: SimJobConfig) -> SimJobResult:
 
 
 def get_job_status(job_id: str) -> SimJobResult:
-    """Retrieve the status of a simulation job (stub).
-
-    Parameters
-    ----------
-    job_id:
-        Unique job identifier.
-
-    Returns
-    -------
-    SimJobResult:
-        Current status of the job.
-    """
+    """Retrieve job status (stub — returns PENDING)."""
     logger.info("Querying status for job %s (stub — returning PENDING).", job_id)
     return SimJobResult(job_id=job_id, status=JobStatus.PENDING.value)
 
 
 def get_job_results(job_id: str) -> SimJobResult:
-    """Retrieve final results of a completed simulation job (stub).
-
-    Parameters
-    ----------
-    job_id:
-        Unique job identifier.
-
-    Returns
-    -------
-    SimJobResult:
-        Placeholder completed result with demo metrics.
-    """
+    """Retrieve completed job results (stub — returns demo metrics)."""
     logger.info("Retrieving results for job %s (stub — returning demo data).", job_id)
     return SimJobResult(
         job_id=job_id,
@@ -482,18 +398,7 @@ def _output(data: Any, as_json: bool) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry-point for the simulation job runner CLI.
-
-    Parameters
-    ----------
-    argv:
-        Optional argument list (defaults to ``sys.argv[1:]``).
-
-    Returns
-    -------
-    int:
-        Exit code — 0 on success, 1 on failure.
-    """
+    """Entry-point for the simulation job runner CLI. Returns 0 on success, 1 on failure."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 

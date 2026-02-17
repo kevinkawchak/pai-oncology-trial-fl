@@ -4,6 +4,40 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 5: v0.5.0 — Domain Examples and Engineering Demonstrations
+
+Consolidates: v0.6.0 (5 core examples) + v0.7.0 (6 physical AI examples) + v0.9.0 (6 agentic AI examples)
+
+Dependencies: Prompt 4
+
+```
+Build 17 production-quality example scripts across three domains for pai-oncology-trial-fl.
+1. Core Examples (examples/) — README.md, 5 scripts (800-1000 LOC each):
+   - 01_federated_training_workflow.py: End-to-end FL pipeline with coordinator setup, FedAvg/FedProx aggregation, DP integration, secure aggregation, convergence monitoring.
+   - 02_digital_twin_planning.py: Patient digital twin construction from imaging data, tumor growth modeling (exponential/logistic/Gompertz), treatment response simulation, multi-organ tracking.
+   - 03_cross_framework_validation.py: Policy validation across Isaac Sim/MuJoCo/PyBullet/Gazebo, kinematic drift analysis, force comparison, cross-engine metrics.
+   - 04_agentic_clinical_workflow.py: Multi-agent clinical decision support with oncologist/radiologist/safety/data agents, unified interface, human-in-the-loop.
+   - 05_outcome_prediction_pipeline.py: ML pipeline for treatment outcome prediction, survival analysis, biomarker integration, fairness auditing.
+2. Physical AI Examples (examples-physical-ai/) — README.md, 6 scripts (1000-1300 LOC each):
+   - 01_realtime_safety_monitoring.py: Force/torque monitoring, emergency stop, workspace bounds, ISO 13482.
+   - 02_multi_sensor_fusion.py: Kalman/complementary filter fusion, optical+IMU+F/T+stereo, latency compensation.
+   - 03_ros2_surgical_deployment.py: ROS2 lifecycle nodes, QoS, URDF, trajectory planning, real-time control.
+   - 04_hand_eye_calibration.py: Tsai-Lenz calibration, fiducial detection, reprojection error, validation.
+   - 05_shared_autonomy_teleoperation.py: Variable autonomy blending, intent prediction, haptic feedback, safety constraints.
+   - 06_robotic_sample_handling.py: Grasp planning, force-controlled manipulation, contamination avoidance, chain-of-custody.
+3. Agentic AI Examples (agentic-ai/examples-agentic-ai/) — README.md, 6 scripts (1000-1300 LOC each):
+   - 01_mcp_oncology_server.py: MCP server with tool registration, resource management, PHI-safe prompts.
+   - 02_react_treatment_planner.py: ReAct agent with thought-action-observation loops, NCCN retrieval, drug interactions.
+   - 03_realtime_adaptive_monitoring_agent.py: Streaming monitor, adaptive thresholds, adverse event tracking, dashboards.
+   - 04_autonomous_simulation_orchestrator.py: Simulation campaign management, parameter sweeps, job scheduling, convergence.
+   - 05_safety_constrained_agent_executor.py: Multi-layer safety (PHI detection, action allowlists, HITL gates, audit trail).
+   - 06_oncology_rag_compliance_agent.py: RAG for regulatory compliance, FDA guidance retrieval, protocol deviation detection.
+4. Updates: per-file-ignores in ruff.toml, README.md structure tree, version bump to 0.5.0.
+Quality gates: ruff check + ruff format pass. RESEARCH USE ONLY disclaimers. Structured logging. Conditional imports with HAS_X. All clinical parameters bounded.
+```
+
+---
+
 ## Prompt 4: v0.4.0 — Core Domain Modules and CLI Tools
 
 Consolidates: v0.4.0 (digital twins: patient modeling, treatment sim, clinical integration) + v0.8.0 (5 CLI tools)

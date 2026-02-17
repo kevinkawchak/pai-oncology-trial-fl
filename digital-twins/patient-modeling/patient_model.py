@@ -2,17 +2,10 @@
 Patient Digital Twin Modeling Engine for Oncology Clinical Trials.
 
 CLINICAL CONTEXT:
-    Patient digital twins provide computational representations of individual
-    oncology patients, capturing tumor growth kinetics, biomarker dynamics,
-    organ function, and physiological state. These models enable treatment
-    response prediction and federated learning feature generation without
-    exposing protected health information (PHI) across institutional boundaries.
-
-    The modeling engine supports multiple tumor histologies (NSCLC, SCLC,
-    breast ductal/lobular, colorectal, pancreatic) and growth dynamics
-    (exponential, logistic, Gompertz, von Bertalanffy). All clinical
-    parameters are bounded to clinically plausible ranges to prevent
-    numerical instability and biologically implausible predictions.
+    Patient digital twins for oncology: tumor growth kinetics, biomarker
+    dynamics, organ function, and physiological state modeling. Supports
+    NSCLC, SCLC, breast, colorectal, pancreatic tumors with exponential,
+    logistic, Gompertz, von Bertalanffy growth. All parameters bounded.
 
 FRAMEWORK REQUIREMENTS:
     Required:
@@ -23,17 +16,10 @@ FRAMEWORK REQUIREMENTS:
         - monai >= 1.3.0   (https://monai.io/)
 
 REFERENCES:
-    - Benzekry et al. (2014). Classical mathematical models for description
-      and prediction of experimental tumor growth. PLoS Comput Biol, 10(8).
-      DOI: 10.1371/journal.pcbi.1003800
-    - Eisenhauer et al. (2009). New response evaluation criteria in solid
-      tumours: Revised RECIST guideline (version 1.1). Eur J Cancer, 45(2).
-      DOI: 10.1016/j.ejca.2008.10.026
-    - Murphy et al. (2016). Differences in predictions of ODE models of
-      tumor growth. J Math Biol, 73(6-7). DOI: 10.1007/s00285-016-1009-5
-    - Ribba et al. (2012). A tumor growth inhibition model for low-grade
-      glioma treated with chemotherapy or radiotherapy. Clinical Cancer
-      Research, 18(18). DOI: 10.1158/1078-0432.CCR-12-0084
+    - Benzekry et al. (2014). Tumor growth models. DOI: 10.1371/journal.pcbi.1003800
+    - Eisenhauer et al. (2009). RECIST 1.1. DOI: 10.1016/j.ejca.2008.10.026
+    - Murphy et al. (2016). ODE tumor models. DOI: 10.1007/s00285-016-1009-5
+    - Ribba et al. (2012). Tumor growth inhibition. DOI: 10.1158/1078-0432.CCR-12-0084
 
 DISCLAIMER:
     RESEARCH USE ONLY. This software is provided for research and educational
@@ -108,12 +94,7 @@ MAX_SIMULATION_DAYS: int = 3650  # 10 years
 # Enum classes
 # ---------------------------------------------------------------------------
 class TumorType(Enum):
-    """Supported tumor histology types for digital twin modeling.
-
-    Each tumor type carries default growth parameters calibrated from
-    published clinical literature. These defaults can be overridden on
-    a per-patient basis during twin configuration.
-    """
+    """Supported tumor histology types for digital twin modeling."""
 
     NSCLC = "non_small_cell_lung_cancer"
     SCLC = "small_cell_lung_cancer"
@@ -130,14 +111,7 @@ class TumorType(Enum):
 
 
 class GrowthModel(Enum):
-    """Mathematical models for tumor volume growth dynamics.
-
-    Each model captures different aspects of tumor biology:
-    - EXPONENTIAL: Constant doubling time, suitable for early-stage tumors
-    - LOGISTIC: Carrying-capacity-limited growth with sigmoidal trajectory
-    - GOMPERTZ: Decelerating growth rate, common in solid tumors
-    - VON_BERTALANFFY: Energy-balance growth model for metabolic modeling
-    """
+    """Mathematical models for tumor volume growth dynamics."""
 
     EXPONENTIAL = "exponential"
     LOGISTIC = "logistic"
@@ -146,11 +120,7 @@ class GrowthModel(Enum):
 
 
 class PatientStatus(Enum):
-    """Patient clinical status within the trial lifecycle.
-
-    Tracks the patient's current phase in treatment to ensure
-    appropriate simulation parameters and constraints are applied.
-    """
+    """Patient clinical status within the trial lifecycle."""
 
     BASELINE = "baseline"
     ON_TREATMENT = "on_treatment"
@@ -246,15 +216,7 @@ class PatientBiomarkers:
         return low <= value <= high
 
     def to_array(self, biomarker_order: Sequence[str] | None = None) -> np.ndarray:
-        """Convert biomarker values to a NumPy array in specified order.
-
-        Args:
-            biomarker_order: Ordered list of biomarker names. If None,
-                uses sorted keys from biomarker_values.
-
-        Returns:
-            1-D float64 array of biomarker values.
-        """
+        """Convert biomarker values to a NumPy array in specified order."""
         if biomarker_order is None:
             biomarker_order = sorted(self.biomarker_values.keys())
         values = [self.biomarker_values.get(name, 0.0) for name in biomarker_order]

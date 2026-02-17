@@ -1,15 +1,9 @@
-"""Multi-site clinical trial monitoring tool for federated oncology studies.
+"""Multi-site clinical trial monitoring for federated oncology studies.
 
-Provides real-time status tracking, alerting, and reporting across
-geographically distributed clinical trial sites participating in
-federated learning experiments. Monitors enrollment rates, data quality,
-protocol compliance, and infrastructure health.
+Monitors enrollment rates, data quality, protocol compliance, and FL
+infrastructure health across distributed clinical trial sites.
 
-DISCLAIMER: RESEARCH USE ONLY — This tool is intended for research and
-educational purposes. It is NOT approved for regulatory submission or
-official trial management. All monitoring outputs must be reviewed by
-qualified clinical research coordinators and principal investigators.
-
+DISCLAIMER: RESEARCH USE ONLY — Not approved for regulatory submission.
 VERSION: 0.4.0
 LICENSE: MIT
 """
@@ -31,13 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Reference thresholds — derived from published clinical trial management
-# best practices.
-# Source: ICH E6(R2) Good Clinical Practice Guidelines, 2016.
-# Source: FDA Guidance for Industry — Oversight of Clinical Investigations,
-#         2013.
-# ---------------------------------------------------------------------------
+# Reference thresholds. Sources: ICH E6(R2) 2016; FDA Oversight Guidance 2013.
 
 # Enrollment rate thresholds (patients per month).
 ENROLLMENT_RATE_THRESHOLDS: dict[str, tuple[float, float]] = {
@@ -196,21 +184,7 @@ class SiteAlert:
 
 @dataclass
 class MonitoringReport:
-    """Aggregated monitoring report across all trial sites.
-
-    Attributes:
-        trial_id: Clinical trial identifier (e.g. NCT number).
-        report_date: ISO 8601 date the report was generated.
-        total_sites: Number of sites included.
-        sites_green: Count of sites with GREEN overall status.
-        sites_yellow: Count of sites with YELLOW status.
-        sites_red: Count of sites with RED status.
-        total_enrolled: Sum of enrolled patients across all sites.
-        overall_enrollment_pct: Percentage of overall enrollment target met.
-        mean_data_quality_pct: Average data quality across sites.
-        alerts: List of alerts generated during evaluation.
-        site_details: Per-site status summaries.
-    """
+    """Aggregated monitoring report with per-site GREEN/YELLOW/RED status and alerts."""
 
     trial_id: str = ""
     report_date: str = ""
@@ -238,120 +212,54 @@ def _classify(value: float, thresholds: dict[str, tuple[float, float]]) -> str:
 
 
 def classify_enrollment(rate_per_month: float) -> EnrollmentStatus:
-    """Classify a site's enrollment performance.
-
-    Parameters
-    ----------
-    rate_per_month:
-        Monthly enrollment rate (bounded 0-100).
-    """
+    """Classify enrollment performance (rate bounded 0-100 patients/month)."""
     rate_per_month = max(ENROLLMENT_RATE_BOUNDS[0], min(rate_per_month, ENROLLMENT_RATE_BOUNDS[1]))
     level = _classify(rate_per_month, ENROLLMENT_RATE_THRESHOLDS)
     return EnrollmentStatus(level)
 
 
 def classify_data_quality(quality_pct: float) -> DataQualityStatus:
-    """Classify a site's data quality.
-
-    Parameters
-    ----------
-    quality_pct:
-        Percentage of clean CRFs (bounded 0-100).
-    """
+    """Classify data quality (percentage of clean CRFs, bounded 0-100)."""
     quality_pct = max(DATA_QUALITY_PCT_BOUNDS[0], min(quality_pct, DATA_QUALITY_PCT_BOUNDS[1]))
     level = _classify(quality_pct, DATA_QUALITY_THRESHOLDS)
     return DataQualityStatus(level)
 
 
 def evaluate_site(metrics: SiteMetrics) -> tuple[SiteStatus, list[SiteAlert]]:
-    """Evaluate a single site and return its status plus any alerts.
-
-    Parameters
-    ----------
-    metrics:
-        Site metrics to evaluate.
-
-    Returns
-    -------
-    tuple:
-        (overall SiteStatus, list of SiteAlert objects).
-    """
+    """Evaluate a single site and return (overall SiteStatus, list of alerts)."""
     alerts: list[SiteAlert] = []
+    sid = metrics.site_id
+    crit, warn = AlertLevel.CRITICAL.value, AlertLevel.WARNING.value
+    enr = classify_enrollment(metrics.enrollment_rate_per_month)
+    dq = classify_data_quality(metrics.data_quality_pct)
+    dev = _classify(metrics.protocol_deviations_per_100, PROTOCOL_DEVIATION_THRESHOLDS)
+    qry = _classify(metrics.query_resolution_days, QUERY_RESOLUTION_DAYS)
 
-    enrollment_status = classify_enrollment(metrics.enrollment_rate_per_month)
-    dq_status = classify_data_quality(metrics.data_quality_pct)
-    deviation_level = _classify(metrics.protocol_deviations_per_100, PROTOCOL_DEVIATION_THRESHOLDS)
-    query_level = _classify(metrics.query_resolution_days, QUERY_RESOLUTION_DAYS)
+    rate = metrics.enrollment_rate_per_month
+    if enr == EnrollmentStatus.RED:
+        alerts.append(SiteAlert(sid, crit, "enrollment", f"Rate {rate:.1f}/mo critically low."))
+    elif enr == EnrollmentStatus.YELLOW:
+        alerts.append(SiteAlert(sid, warn, "enrollment", f"Rate {rate:.1f}/mo below target."))
+    qual = metrics.data_quality_pct
+    if dq == DataQualityStatus.RED:
+        alerts.append(SiteAlert(sid, crit, "data_quality", f"Quality {qual:.1f}% critically low."))
+    elif dq == DataQualityStatus.YELLOW:
+        alerts.append(SiteAlert(sid, warn, "data_quality", f"Quality {qual:.1f}% needs improvement."))
+    if dev == "red":
+        devn = metrics.protocol_deviations_per_100
+        alerts.append(SiteAlert(sid, crit, "protocol_compliance", f"Deviations ({devn:.1f}/100) exceed threshold."))
+    if qry == "red":
+        qd = metrics.query_resolution_days
+        alerts.append(SiteAlert(sid, warn, "query_resolution", f"Resolution time ({qd:.0f}d) exceeds threshold."))
 
-    # Generate alerts for non-green statuses.
-    if enrollment_status == EnrollmentStatus.RED:
-        alerts.append(
-            SiteAlert(
-                site_id=metrics.site_id,
-                level=AlertLevel.CRITICAL.value,
-                category="enrollment",
-                message=f"Enrollment rate {metrics.enrollment_rate_per_month:.1f}/mo is critically low.",
-            )
-        )
-    elif enrollment_status == EnrollmentStatus.YELLOW:
-        alerts.append(
-            SiteAlert(
-                site_id=metrics.site_id,
-                level=AlertLevel.WARNING.value,
-                category="enrollment",
-                message=f"Enrollment rate {metrics.enrollment_rate_per_month:.1f}/mo is below target.",
-            )
-        )
-
-    if dq_status == DataQualityStatus.RED:
-        alerts.append(
-            SiteAlert(
-                site_id=metrics.site_id,
-                level=AlertLevel.CRITICAL.value,
-                category="data_quality",
-                message=f"Data quality {metrics.data_quality_pct:.1f}% is critically low.",
-            )
-        )
-    elif dq_status == DataQualityStatus.YELLOW:
-        alerts.append(
-            SiteAlert(
-                site_id=metrics.site_id,
-                level=AlertLevel.WARNING.value,
-                category="data_quality",
-                message=f"Data quality {metrics.data_quality_pct:.1f}% needs improvement.",
-            )
-        )
-
-    if deviation_level == "red":
-        alerts.append(
-            SiteAlert(
-                site_id=metrics.site_id,
-                level=AlertLevel.CRITICAL.value,
-                category="protocol_compliance",
-                message=f"Protocol deviations ({metrics.protocol_deviations_per_100:.1f}/100) exceed threshold.",
-            )
-        )
-
-    if query_level == "red":
-        alerts.append(
-            SiteAlert(
-                site_id=metrics.site_id,
-                level=AlertLevel.WARNING.value,
-                category="query_resolution",
-                message=f"Query resolution time ({metrics.query_resolution_days:.0f} days) exceeds threshold.",
-            )
-        )
-
-    # Overall status is the worst of all sub-statuses.
-    statuses = [enrollment_status.value, dq_status.value, deviation_level, query_level]
+    statuses = [enr.value, dq.value, dev, qry]
     if "red" in statuses:
         overall = SiteStatus.RED
     elif "yellow" in statuses:
         overall = SiteStatus.YELLOW
     else:
         overall = SiteStatus.GREEN
-
-    logger.info("Site %s evaluated: %s (%d alerts)", metrics.site_id, overall.value, len(alerts))
+    logger.info("Site %s evaluated: %s (%d alerts)", sid, overall.value, len(alerts))
     return overall, alerts
 
 
@@ -360,22 +268,7 @@ def generate_monitoring_report(
     sites: list[SiteMetrics],
     total_target: int = 0,
 ) -> MonitoringReport:
-    """Generate a cross-site monitoring report.
-
-    Parameters
-    ----------
-    trial_id:
-        Clinical trial identifier (e.g. NCT number).
-    sites:
-        List of site metrics to include in the report.
-    total_target:
-        Overall trial enrollment target (bounded 0-10000).
-
-    Returns
-    -------
-    MonitoringReport:
-        Aggregated monitoring report.
-    """
+    """Generate a cross-site monitoring report. Target bounded 0-10000."""
     total_target = max(0, min(total_target, 10000))
     report = MonitoringReport(
         trial_id=trial_id,
@@ -518,18 +411,7 @@ def _output(data: Any, as_json: bool) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry-point for the trial site monitor CLI.
-
-    Parameters
-    ----------
-    argv:
-        Optional argument list (defaults to ``sys.argv[1:]``).
-
-    Returns
-    -------
-    int:
-        Exit code — 0 on success, 1 on failure.
-    """
+    """Entry-point for the trial site monitor CLI. Returns 0 on success, 1 on failure."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 

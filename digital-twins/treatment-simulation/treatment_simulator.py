@@ -2,15 +2,10 @@
 Treatment Simulation Engine for Oncology Digital Twins.
 
 CLINICAL CONTEXT:
-    Multi-modality treatment simulation for oncology clinical trials within
-    the PAI Federated Learning framework. Supports chemotherapy pharmacokinetic/
-    pharmacodynamic modeling, radiation therapy linear-quadratic cell survival,
-    immunotherapy stochastic response dynamics, targeted therapy pathway
-    inhibition, and combination therapy interaction effects.
-
-    All treatment doses are bounded to clinically plausible ranges. Response
-    classification follows RECIST 1.1 criteria. Toxicity grading aligns with
-    CTCAE v5.0 (Common Terminology Criteria for Adverse Events).
+    Multi-modality treatment simulation for oncology clinical trials.
+    Supports chemotherapy PK/PD, radiation LQ model, immunotherapy stochastic
+    response, targeted therapy, and combination therapy. All doses bounded
+    to clinically plausible ranges. RECIST 1.1 response, CTCAE v5.0 toxicity.
 
 FRAMEWORK REQUIREMENTS:
     Required:
@@ -21,16 +16,10 @@ FRAMEWORK REQUIREMENTS:
         - monai >= 1.3.0   (https://monai.io/)
 
 REFERENCES:
-    - Eisenhauer et al. (2009). New response evaluation criteria in solid
-      tumours: Revised RECIST guideline (version 1.1). Eur J Cancer, 45(2).
-      DOI: 10.1016/j.ejca.2008.10.026
-    - National Cancer Institute (2017). Common Terminology Criteria for
-      Adverse Events (CTCAE) v5.0. URL: https://ctep.cancer.gov/
-    - Joiner & van der Kogel (2009). Basic Clinical Radiobiology (4th ed).
-      DOI: 10.1201/b13224
-    - Fang et al. (2022). Physiologically based pharmacokinetic modeling in
-      oncology drug development. CPT: Pharmacometrics Syst Pharmacol, 11(10).
-      DOI: 10.1002/psp4.12845
+    - Eisenhauer et al. (2009). RECIST 1.1. DOI: 10.1016/j.ejca.2008.10.026
+    - NCI (2017). CTCAE v5.0. URL: https://ctep.cancer.gov/
+    - Joiner & van der Kogel (2009). Basic Clinical Radiobiology. DOI: 10.1201/b13224
+    - Fang et al. (2022). PBPK in oncology. DOI: 10.1002/psp4.12845
 
 DISCLAIMER:
     RESEARCH USE ONLY. This software is provided for research and educational
@@ -108,11 +97,7 @@ PK_BIOAVAILABILITY: float = 0.85
 # Enum classes
 # ---------------------------------------------------------------------------
 class TreatmentModality(Enum):
-    """Supported treatment modalities for simulation.
-
-    Each modality uses a distinct mathematical framework for
-    modeling treatment response and toxicity.
-    """
+    """Supported treatment modalities for simulation."""
 
     CHEMOTHERAPY = "chemotherapy"
     RADIATION = "radiation"
@@ -122,14 +107,7 @@ class TreatmentModality(Enum):
 
 
 class ResponseCategory(Enum):
-    """RECIST 1.1 treatment response classification.
-
-    Based on change in sum of longest diameters of target lesions:
-    - COMPLETE_RESPONSE: Disappearance of all target lesions
-    - PARTIAL_RESPONSE: >= 30% decrease in sum of diameters
-    - STABLE_DISEASE: Neither sufficient shrinkage nor increase
-    - PROGRESSIVE_DISEASE: >= 20% increase in sum of diameters
-    """
+    """RECIST 1.1 treatment response classification."""
 
     COMPLETE_RESPONSE = "complete_response"
     PARTIAL_RESPONSE = "partial_response"
@@ -138,15 +116,7 @@ class ResponseCategory(Enum):
 
 
 class ToxicityGrade(Enum):
-    """CTCAE v5.0 toxicity grading scale.
-
-    Grade 0: No adverse event
-    Grade 1: Mild; asymptomatic or mild symptoms
-    Grade 2: Moderate; minimal, local, or noninvasive intervention
-    Grade 3: Severe or medically significant but not life-threatening
-    Grade 4: Life-threatening consequences; urgent intervention
-    Grade 5: Death related to adverse event
-    """
+    """CTCAE v5.0 toxicity grading scale (Grade 0-5)."""
 
     GRADE_0 = 0
     GRADE_1 = 1
@@ -286,15 +256,7 @@ class ToxicityProfile:
 # Helper functions
 # ---------------------------------------------------------------------------
 def _classify_response(volume_reduction_fraction: float) -> ResponseCategory:
-    """Classify treatment response using RECIST 1.1 criteria.
-
-    Args:
-        volume_reduction_fraction: Fractional reduction in tumor volume.
-            Positive values indicate shrinkage; negative values indicate growth.
-
-    Returns:
-        RECIST 1.1 response category.
-    """
+    """Classify treatment response using RECIST 1.1 criteria."""
     if volume_reduction_fraction >= 0.65:
         return ResponseCategory.COMPLETE_RESPONSE
     elif volume_reduction_fraction >= 0.30:
@@ -312,18 +274,7 @@ def _compute_pk_concentration(
     volume_of_distribution_l: float = PK_VOLUME_OF_DISTRIBUTION_L,
     bioavailability: float = PK_BIOAVAILABILITY,
 ) -> float:
-    """Compute plasma drug concentration using one-compartment PK model.
-
-    Args:
-        dose_mg: Administered dose in milligrams (0-200).
-        time_hours: Time since administration in hours.
-        elimination_half_life_hours: Drug elimination half-life in hours.
-        volume_of_distribution_l: Apparent volume of distribution in liters.
-        bioavailability: Fractional bioavailability (0-1).
-
-    Returns:
-        Plasma concentration in mg/L at the specified time.
-    """
+    """Compute plasma concentration (mg/L) using one-compartment PK model."""
     clamped_dose = float(np.clip(dose_mg, MIN_DOSE_MG, MAX_DOSE_MG))
     ke = np.log(2) / max(elimination_half_life_hours, 0.1)
     c0 = (clamped_dose * bioavailability) / max(volume_of_distribution_l, 1.0)
@@ -337,19 +288,7 @@ def _compute_auc(
     volume_of_distribution_l: float = PK_VOLUME_OF_DISTRIBUTION_L,
     bioavailability: float = PK_BIOAVAILABILITY,
 ) -> float:
-    """Compute area under the plasma concentration-time curve (AUC).
-
-    Uses the trapezoidal approximation over 72 hours post-dose.
-
-    Args:
-        dose_mg: Administered dose in milligrams (0-200).
-        elimination_half_life_hours: Drug elimination half-life in hours.
-        volume_of_distribution_l: Volume of distribution in liters.
-        bioavailability: Fractional bioavailability (0-1).
-
-    Returns:
-        AUC in mg*h/L.
-    """
+    """Compute AUC (mg*h/L) using trapezoidal approximation over 72 hours."""
     time_points = np.linspace(0.0, 72.0, 361)
     concentrations = np.array(
         [
@@ -359,7 +298,8 @@ def _compute_auc(
             for t in time_points
         ]
     )
-    auc = float(np.trapz(concentrations, time_points))
+    _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
+    auc = float(_trapz(concentrations, time_points))
     return max(auc, 0.0)
 
 
@@ -370,21 +310,7 @@ def _estimate_toxicity(
     organ_sensitivity: float = 0.5,
     seed: int | None = None,
 ) -> ToxicityProfile:
-    """Estimate toxicity profile based on treatment parameters.
-
-    Uses a stochastic model where toxicity probability increases
-    with dose intensity and cumulative exposure.
-
-    Args:
-        modality: Treatment modality.
-        dose_intensity: Relative dose intensity (0-1).
-        cumulative_cycles: Number of cumulative treatment cycles.
-        organ_sensitivity: Patient organ sensitivity to toxicity (0-1).
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Estimated ToxicityProfile.
-    """
+    """Estimate CTCAE v5.0 toxicity profile using stochastic dose-response model."""
     rng = np.random.default_rng(seed)
     dose_intensity = float(np.clip(dose_intensity, 0.0, 1.0))
     organ_sensitivity = float(np.clip(organ_sensitivity, 0.0, 1.0))
@@ -518,18 +444,7 @@ class TreatmentSimulator:
         protocol: ChemotherapyProtocol | None = None,
         seed: int | None = None,
     ) -> TreatmentOutcome:
-        """Simulate chemotherapy treatment response using PK/PD modeling.
-
-        Models cycle-by-cycle tumor volume reduction accounting for
-        drug exposure (AUC), tumor sensitivity, and inter-cycle regrowth.
-
-        Args:
-            protocol: Chemotherapy protocol parameters. Defaults are used if None.
-            seed: Random seed for stochastic components.
-
-        Returns:
-            TreatmentOutcome with predicted response and toxicity.
-        """
+        """Simulate chemotherapy response using PK/PD modeling with cycle-by-cycle tracking."""
         if protocol is None:
             protocol = ChemotherapyProtocol()
 
@@ -604,19 +519,7 @@ class TreatmentSimulator:
         plan: RadiationPlan | None = None,
         seed: int | None = None,
     ) -> TreatmentOutcome:
-        """Simulate radiation therapy response using the linear-quadratic model.
-
-        The LQ model computes surviving fraction as:
-            SF = exp(-n * (alpha*d + beta*d^2))
-        where n=fractions, d=dose per fraction, alpha/beta=tissue ratio.
-
-        Args:
-            plan: Radiation plan parameters. Defaults are used if None.
-            seed: Random seed for stochastic components.
-
-        Returns:
-            TreatmentOutcome with predicted response and toxicity.
-        """
+        """Simulate radiation response using LQ model: SF = exp(-n*(alpha*d + beta*d^2))."""
         if plan is None:
             plan = RadiationPlan()
 
@@ -698,21 +601,7 @@ class TreatmentSimulator:
         regimen: ImmunotherapyRegimen | None = None,
         seed: int | None = None,
     ) -> TreatmentOutcome:
-        """Simulate immunotherapy response with stochastic immune dynamics.
-
-        Models the probability of immune response based on tumor
-        mutational burden, PD-L1 expression, and tumor immunosensitivity.
-        Responders show exponential tumor decay; non-responders may
-        experience pseudoprogression followed by delayed response or
-        progressive disease.
-
-        Args:
-            regimen: Immunotherapy regimen parameters. Defaults if None.
-            seed: Random seed for reproducibility.
-
-        Returns:
-            TreatmentOutcome with predicted response and toxicity.
-        """
+        """Simulate immunotherapy response with stochastic immune dynamics based on TMB and PD-L1."""
         if regimen is None:
             regimen = ImmunotherapyRegimen()
 
@@ -800,23 +689,7 @@ class TreatmentSimulator:
         sequence: Sequence[TreatmentModality] | None = None,
         seed: int | None = None,
     ) -> TreatmentOutcome:
-        """Simulate combination therapy with multiple modalities.
-
-        Applies therapies sequentially in the specified order, with
-        synergistic and antagonistic interaction effects modeled
-        between modalities.
-
-        Args:
-            chemo_protocol: Chemotherapy parameters (if included).
-            radiation_plan: Radiation parameters (if included).
-            immuno_regimen: Immunotherapy parameters (if included).
-            sequence: Order of treatment modalities. Defaults to
-                [CHEMOTHERAPY, RADIATION, IMMUNOTHERAPY] for provided modalities.
-            seed: Random seed for reproducibility.
-
-        Returns:
-            Combined TreatmentOutcome with per-modality breakdown.
-        """
+        """Simulate sequential combination therapy with synergistic interaction effects."""
         if sequence is None:
             sequence = []
             if chemo_protocol is not None:
@@ -910,17 +783,7 @@ class TreatmentSimulator:
         uncertainty_std: float,
         seed: int | None = None,
     ) -> tuple[float, float]:
-        """Compute 95% confidence interval for volume prediction.
-
-        Args:
-            final_volume: Point estimate of final volume.
-            reduction: Volume reduction fraction.
-            uncertainty_std: Relative standard deviation of uncertainty.
-            seed: Random seed (unused, kept for API consistency).
-
-        Returns:
-            Tuple of (lower_bound, upper_bound) for final volume.
-        """
+        """Compute 95% confidence interval for volume prediction."""
         margin = final_volume * uncertainty_std * 1.96
         ci_low = float(np.clip(final_volume - margin, MIN_VOLUME_CM3, MAX_VOLUME_CM3))
         ci_high = float(np.clip(final_volume + margin, MIN_VOLUME_CM3, MAX_VOLUME_CM3))

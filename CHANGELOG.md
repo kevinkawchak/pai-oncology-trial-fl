@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-02-17
+
+### Added
+
+- **Core Examples** (`examples/`)
+  - `01_federated_training_workflow.py` — End-to-end federated training workflow with site enrollment, data harmonization, multi-round training, convergence monitoring, and cross-site evaluation.
+  - `02_digital_twin_planning.py` — Digital twin treatment planning demonstrating patient twin creation, multi-modality treatment simulation, uncertainty quantification, and clinical report generation.
+  - `03_cross_framework_validation.py` — Cross-framework policy validation across Isaac Sim, MuJoCo, and PyBullet with roundtrip conversion testing and state equivalence verification.
+  - `04_agentic_clinical_workflow.py` — AI-driven clinical workflow using the unified agent interface for treatment planning, literature review, and compliance checking.
+  - `05_outcome_prediction_pipeline.py` — End-to-end prediction pipeline from patient data loading through digital twin feature generation, federated model training, evaluation, and clinical reporting.
+  - `examples/README.md` with overview table and quick start.
+
+- **Physical AI Examples** (`examples-physical-ai/`)
+  - `01_realtime_safety_monitoring.py` — Real-time IEC 80601-2-77 safety monitoring with force limits, workspace boundaries, emergency stop logic, and telemetry streaming.
+  - `02_multi_sensor_fusion.py` — Multi-sensor fusion combining force/torque sensors, cameras, joint encoders, and patient monitoring with extended Kalman filter simulation.
+  - `03_ros2_surgical_deployment.py` — ROS 2 surgical deployment pattern with node lifecycle, service discovery, and action server-based procedure execution.
+  - `04_hand_eye_calibration.py` — AX=XB hand-eye calibration for surgical robots with transformation chain validation and statistical calibration error analysis.
+  - `05_shared_autonomy_teleoperation.py` — Five levels of human-AI shared autonomy (manual, assisted, shared, supervised, autonomous) with safety gate transitions.
+  - `06_robotic_sample_handling.py` — Automated specimen handling with 21 CFR Part 11 audit trails, chain of custody, and electronic signature simulation.
+  - `examples-physical-ai/README.md` with regulatory standards cross-reference.
+
+- **Agentic AI Examples** (`agentic-ai/examples-agentic-ai/`)
+  - `01_mcp_oncology_server.py` — MCP server exposing oncology tools/resources for LLM agents with RobotMode/ProcedurePhase Enums, telemetry dataclass, and 21 CFR Part 11 audit logging.
+  - `02_react_treatment_planner.py` — ReAct agent with thought/action/observation loops for iterative treatment planning using digital twin simulations.
+  - `03_realtime_adaptive_monitoring_agent.py` — Real-time adaptive agent processing streaming multi-modal clinical data with cross-modal correlation and adaptive alerting.
+  - `04_autonomous_simulation_orchestrator.py` — Multi-framework simulation orchestration agent managing jobs across Isaac Sim, MuJoCo, and PyBullet.
+  - `05_safety_constrained_agent_executor.py` — Safety-gated agent with IEC 80601-2-77 / ISO 14971 alignment, pre/post-condition checks, human-in-the-loop, emergency stop, and rollback.
+  - `06_oncology_rag_compliance_agent.py` — RAG agent grounded in FDA guidance, ICH E6(R3), and IEC standards with protocol citation tracking.
+  - `agentic-ai/examples-agentic-ai/README.md` with example table and quick start.
+
+### Changed
+
+- `README.md` — Updated to v0.5.0, added all 17 example scripts to repository structure tree.
+- `pyproject.toml` — Version bumped to 0.5.0.
+- `CITATION.cff` — Updated to v0.5.0.
+- `prompts.md` — Added Prompt 5 (v0.5.0) for domain examples and engineering demonstrations.
+- `ruff.toml` — Per-file-ignores already covered examples-physical-ai/ and agentic-ai/ directories.
+
 ## [0.4.0] - 2026-02-17
 
 ### Added

@@ -1,7 +1,7 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.4.0-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v0.5.0-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
@@ -94,7 +94,26 @@ pai-oncology-trial-fl/
 │   ├── verify_installation.py        #   Dependency verification
 │   └── deploy.sh                     #   Docker deployment
 ├── tests/                            # Comprehensive test suite
-├── examples/                         # Example scripts
+├── examples/                         # Core example scripts (5 numbered)
+│   ├── 01_federated_training_workflow.py
+│   ├── 02_digital_twin_planning.py
+│   ├── 03_cross_framework_validation.py
+│   ├── 04_agentic_clinical_workflow.py
+│   └── 05_outcome_prediction_pipeline.py
+├── examples-physical-ai/             # Physical AI examples (6 numbered)
+│   ├── 01_realtime_safety_monitoring.py
+│   ├── 02_multi_sensor_fusion.py
+│   ├── 03_ros2_surgical_deployment.py
+│   ├── 04_hand_eye_calibration.py
+│   ├── 05_shared_autonomy_teleoperation.py
+│   └── 06_robotic_sample_handling.py
+├── agentic-ai/examples-agentic-ai/   # Agentic AI examples (6 numbered)
+│   ├── 01_mcp_oncology_server.py
+│   ├── 02_react_treatment_planner.py
+│   ├── 03_realtime_adaptive_monitoring_agent.py
+│   ├── 04_autonomous_simulation_orchestrator.py
+│   ├── 05_safety_constrained_agent_executor.py
+│   └── 06_oncology_rag_compliance_agent.py
 ├── docs/                             # Documentation & notebooks
 ├── .github/                          # CI/CD, issue & PR templates
 │   ├── workflows/ci.yml              #   Lint + format + YAML + test
