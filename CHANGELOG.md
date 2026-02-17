@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-02-17
+
+### Added
+
+- **Digital Twins Primary Domain** (`digital-twins/`)
+  - `patient-modeling/patient_model.py` — Patient digital twin modeling engine with TumorType Enum (NSCLC, SCLC, BREAST_DUCTAL, BREAST_LOBULAR, COLORECTAL, PANCREATIC, etc.), GrowthModel Enum (EXPONENTIAL, LOGISTIC, GOMPERTZ, VON_BERTALANFFY), PatientStatus Enum, TumorProfile/PatientBiomarkers/OrganFunction/PatientDigitalTwinConfig dataclasses, PatientPhysiologyEngine with tumor growth kinetics and biomarker evolution, PatientDigitalTwinFactory.
+  - `treatment-simulation/treatment_simulator.py` — Treatment simulation with TreatmentModality Enum (CHEMOTHERAPY, RADIATION, IMMUNOTHERAPY, TARGETED_THERAPY, COMBINATION), ResponseCategory Enum (RECIST criteria), ToxicityGrade Enum (CTCAE grades 0–5), ChemotherapyProtocol/RadiationPlan/ImmunotherapyRegimen/TreatmentOutcome/ToxicityProfile dataclasses, TreatmentSimulator with pharmacokinetic/pharmacodynamic modeling.
+  - `clinical-integration/clinical_integrator.py` — Clinical system integration with ClinicalSystem Enum (EHR, PACS, LIS, RIS, TPS), IntegrationStatus/DataFormat Enums, ClinicalDataPoint/IntegrationConfig/SyncResult/ClinicalReport dataclasses, ClinicalIntegrator for data ingestion and report generation, FederatedClinicalBridge connecting digital twins to the federated learning pipeline.
+  - Subdirectory README.md files with purpose, API overview, and usage examples.
+
+- **CLI Tools** (`tools/`)
+  - `dicom-inspector/dicom_inspector.py` — DICOM medical image inspection with argparse subcommands (inspect, validate, summarize), DicomModality Enum, DicomInspectionResult dataclass, JSON output support.
+  - `dose-calculator/dose_calculator.py` — Radiation and chemotherapy dose calculator with reference constants citing NCCN guidelines and RTOG protocols, DoseUnit/ChemoAgent/RadiationTechnique Enums, DoseCalculation/PatientParameters dataclasses, all doses bounded.
+  - `trial-site-monitor/trial_site_monitor.py` — Multi-site clinical trial monitoring with SiteStatus/EnrollmentStatus/DataQualityStatus Enums (GREEN/YELLOW/RED levels), SiteMetrics/MonitoringReport dataclasses.
+  - `sim-job-runner/sim_job_runner.py` — Cross-framework simulation job launcher with SimFramework/JobStatus/TaskType Enums, SimJobConfig/SimJobResult dataclasses, framework auto-detection.
+  - `deployment-readiness/deployment_readiness.py` — Deployment readiness checker with CheckStatus Enum (PASS/FAIL/WARNING/REQUIRES_VERIFICATION), ReadinessCheck/ReadinessReport dataclasses, validation across model, safety, regulatory, infrastructure, and documentation categories.
+  - `tools/README.md` with directory tree, per-tool CLI usage summaries, and common workflows.
+
+### Changed
+
+- `README.md` — Updated to v0.4.0, added digital-twins/ and tools/ to repository structure tree.
+- `pyproject.toml` — Version bumped to 0.4.0.
+- `CITATION.cff` — Updated to v0.4.0.
+- `prompts.md` — Added Prompt 4 (v0.4.0) for core domain modules and CLI tools.
+
 ## [0.3.0] - 2026-02-17
 
 ### Added

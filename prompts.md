@@ -4,6 +4,30 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 4: v0.4.0 — Core Domain Modules and CLI Tools
+
+Consolidates: v0.4.0 (digital twins: patient modeling, treatment sim, clinical integration) + v0.8.0 (5 CLI tools)
+
+Dependencies: Prompt 3
+
+```
+Build the core domain modules and CLI tools for pai-oncology-trial-fl.
+1. Primary Domain (digital-twins/) — README.md, 3 subdirectories:
+   - patient-modeling/patient_model.py: 500-800 LOC with TumorType/GrowthModel/PatientStatus Enums, TumorProfile/PatientBiomarkers/OrganFunction/PatientDigitalTwinConfig dataclasses, PatientPhysiologyEngine, PatientDigitalTwinFactory.
+   - treatment-simulation/treatment_simulator.py: 500-800 LOC with TreatmentModality/ResponseCategory/ToxicityGrade Enums, ChemotherapyProtocol/RadiationPlan/ImmunotherapyRegimen/TreatmentOutcome dataclasses, TreatmentSimulator.
+   - clinical-integration/clinical_integrator.py: 500-800 LOC with ClinicalSystem/IntegrationStatus/DataFormat Enums, ClinicalIntegrator, FederatedClinicalBridge.
+2. CLI Tools (tools/) — README.md, 5 tools:
+   - dicom-inspector: DICOM inspection with argparse subcommands, JSON output.
+   - dose-calculator: Radiation/chemo dose calculator with NCCN/RTOG reference constants.
+   - trial-site-monitor: Multi-site monitoring with GREEN/YELLOW/RED status Enums.
+   - sim-job-runner: Cross-framework simulation launcher with framework detection.
+   - deployment-readiness: Checklist-based validation with PASS/FAIL/WARNING/REQUIRES_VERIFICATION.
+3. Updates: per-file-ignores in ruff.toml, README.md structure tree.
+Quality gates: ruff check + ruff format pass. RESEARCH USE ONLY disclaimers. Docstrings on all dataclasses/enums. CLI --help. Bounded clinical parameters.
+```
+
+---
+
 ## Prompt 3: v0.3.0 — Repository Foundation, Community Health, and CI/CD Infrastructure
 
 Consolidates: v0.1.0 (initial structure) + v0.2.0 (cooperation model) + v0.3.0/v0.3.1 (standards, version corrections, citations) + v0.5.1 (community health, CI/CD, disclaimers)

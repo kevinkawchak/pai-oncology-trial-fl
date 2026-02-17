@@ -1,7 +1,7 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.3.0-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v0.4.0-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
@@ -78,6 +78,16 @@ pai-oncology-trial-fl/
 ├── reinforcement-learning/           # RL for surgical robotics & treatment
 ├── self-supervised-learning/         # SSL for medical imaging
 ├── generative-ai/                    # Generative AI & agentic workflows
+├── digital-twins/                    # Primary domain: patient digital twins
+│   ├── patient-modeling/             #   Patient physiology engine & twin factory
+│   ├── treatment-simulation/         #   Chemo/radiation/immunotherapy simulation
+│   └── clinical-integration/         #   EHR/PACS/LIS integration & federated bridge
+├── tools/                            # CLI tools for oncology workflows
+│   ├── dicom-inspector/              #   DICOM image inspection & validation
+│   ├── dose-calculator/              #   Radiation & chemotherapy dose calculator
+│   ├── trial-site-monitor/           #   Multi-site trial monitoring (GREEN/YELLOW/RED)
+│   ├── sim-job-runner/               #   Cross-framework simulation job launcher
+│   └── deployment-readiness/         #   Deployment readiness checklist validation
 ├── configs/                          # Training & deployment configuration
 │   └── training_config.yaml          #   PPO/SAC + federated + safety constraints
 ├── scripts/                          # Utility scripts
