@@ -10,6 +10,7 @@ from federated.client import FederatedClient
 from federated.coordinator import FederationCoordinator
 from federated.data_ingestion import DataPartitioner, generate_synthetic_oncology_data
 from federated.model import ModelConfig
+from federated.site_enrollment import SiteEnrollmentManager
 from physical_ai.digital_twin import PatientDigitalTwin, TumorModel
 from privacy.consent_manager import ConsentManager
 from privacy.deidentification import Deidentifier
@@ -21,27 +22,22 @@ class TestEndToEndFederation:
     """Full federated training pipeline with two simulated hospital sites."""
 
     def test_two_site_federation(self):
-        # Configuration
         config = ModelConfig(input_dim=30, hidden_dims=[32, 16], output_dim=2, seed=42)
         num_rounds = 5
 
-        # Generate and partition data
         x, y = generate_synthetic_oncology_data(n_samples=400, seed=42)
         partitioner = DataPartitioner(num_sites=2, strategy="iid", seed=42)
         sites = partitioner.partition(x, y)
 
-        # Create coordinator
         coordinator = FederationCoordinator(model_config=config, num_rounds=num_rounds)
         global_params = coordinator.initialize()
 
-        # Create clients
         clients = []
         for site in sites:
             client = FederatedClient(site.site_id, config)
             client.set_data(site.x_train, site.y_train)
             clients.append(client)
 
-        # Run federated training
         for round_num in range(num_rounds):
             client_updates = []
             sample_counts = []
@@ -57,9 +53,7 @@ class TestEndToEndFederation:
             )
             global_params = coordinator.get_global_parameters()
 
-        # Verify model improved
         final_metrics = coordinator.global_model.evaluate(sites[0].x_test, sites[0].y_test)
-        # Model should achieve at least random chance (50% for 2 classes)
         assert final_metrics["accuracy"] >= 0.45
 
         summary = coordinator.get_training_summary()
@@ -100,24 +94,18 @@ class TestEndToEndFederation:
             coordinator.run_round(updates, client_sample_counts=counts)
             global_params = coordinator.get_global_parameters()
 
-        # DP should have been applied
         assert coordinator.dp.rounds_completed == 3
         privacy = coordinator.dp.get_privacy_spent()
         assert privacy["total_epsilon_spent"] == 15.0
 
     def test_secure_aggregation_matches_plain(self):
-        """Secure aggregation should produce equivalent results to plain FedAvg.
-
-        Uses the *same* client updates for both aggregation methods to
-        isolate the comparison to aggregation logic only.
-        """
+        """Secure aggregation should produce equivalent results to plain FedAvg."""
         config = ModelConfig(input_dim=10, hidden_dims=[8], output_dim=2, seed=42)
 
         x, y = generate_synthetic_oncology_data(n_samples=100, n_features=10, seed=42)
         partitioner = DataPartitioner(num_sites=2, seed=42)
         sites = partitioner.partition(x, y)
 
-        # Train clients once to get updates
         coord_plain = FederationCoordinator(model_config=config)
         global_params = coord_plain.initialize()
         clients = []
@@ -130,29 +118,70 @@ class TestEndToEndFederation:
             c.train_local(global_params, epochs=1, lr=0.01)
         shared_updates = [c.get_parameters() for c in clients]
 
-        # Aggregate with plain FedAvg
         coord_plain.run_round(shared_updates)
         plain_params = coord_plain.get_global_parameters()
 
-        # Aggregate the same updates with secure aggregation
         coord_sa = FederationCoordinator(model_config=config, use_secure_aggregation=True)
         coord_sa.initialize()
         coord_sa.run_round(shared_updates)
         sa_params = coord_sa.get_global_parameters()
 
-        # Results should be very close (masks cancel out)
         for p1, p2 in zip(plain_params, sa_params):
             assert np.allclose(p1, p2, atol=1e-5)
+
+    def test_fedprox_training(self):
+        """FedProx with mu > 0 should complete without errors."""
+        config = ModelConfig(input_dim=30, hidden_dims=[16], output_dim=2, seed=42)
+        x, y = generate_synthetic_oncology_data(n_samples=200, seed=42)
+        partitioner = DataPartitioner(num_sites=2, seed=42)
+        sites = partitioner.partition(x, y)
+
+        coordinator = FederationCoordinator(model_config=config, strategy="fedprox", mu=0.01)
+        global_params = coordinator.initialize()
+
+        clients = []
+        for site in sites:
+            c = FederatedClient(site.site_id, config)
+            c.set_data(site.x_train, site.y_train)
+            clients.append(c)
+
+        for _ in range(3):
+            updates = []
+            counts = []
+            for c in clients:
+                c.train_local(global_params, epochs=3, lr=0.01, mu=coordinator.mu)
+                updates.append(c.get_parameters())
+                counts.append(c.get_sample_count())
+            coordinator.run_round(updates, client_sample_counts=counts)
+            global_params = coordinator.get_global_parameters()
+
+        assert coordinator.current_round == 3
+
+    def test_site_enrollment_workflow(self):
+        """End-to-end site enrollment and activation."""
+        mgr = SiteEnrollmentManager("FL_STUDY_01", min_patients_per_site=5)
+        mgr.enroll_site("site_A", "Hospital A", patient_count=50)
+        mgr.mark_data_ready("site_A")
+        mgr.mark_compliance_passed("site_A")
+        assert mgr.activate_site("site_A") is True
+
+        mgr.enroll_site("site_B", "Hospital B", patient_count=2)
+        mgr.mark_data_ready("site_B")
+        mgr.mark_compliance_passed("site_B")
+        # Too few patients
+        assert mgr.activate_site("site_B") is False
+
+        active = mgr.get_active_sites()
+        assert len(active) == 1
+        assert active[0].site_id == "site_A"
 
 
 class TestEndToEndWithPhysicalAI:
     """Test federation with physical AI digital twin data."""
 
     def test_digital_twin_federation(self):
-        """Train a federated model using digital twin feature vectors."""
         config = ModelConfig(input_dim=30, hidden_dims=[16], output_dim=2, seed=42)
 
-        # Generate patients with digital twins at two sites
         rng = np.random.default_rng(42)
         site_data = []
         for _ in range(2):
@@ -175,7 +204,6 @@ class TestEndToEndWithPhysicalAI:
                     },
                 )
                 features.append(twin.generate_feature_vector())
-                # Label based on tumor aggressiveness
                 labels.append(0 if tumor.growth_rate > 60 else 1)
 
             site_data.append((np.array(features), np.array(labels)))
@@ -199,7 +227,6 @@ class TestEndToEndWithPhysicalAI:
             coordinator.run_round(updates, client_sample_counts=counts)
             global_params = coordinator.get_global_parameters()
 
-        # Model should produce valid predictions
         x_test, y_test = site_data[0]
         metrics = coordinator.global_model.evaluate(x_test, y_test)
         assert 0 <= metrics["accuracy"] <= 1
@@ -209,7 +236,6 @@ class TestEndToEndPrivacy:
     """Test the privacy pipeline end-to-end."""
 
     def test_phi_detection_and_deidentification(self):
-        """Detect and remove PHI from patient records before federation."""
         detector = PHIDetector()
         deid = Deidentifier(method="redact")
 
@@ -228,34 +254,27 @@ class TestEndToEndPrivacy:
         ]
 
         for record in records:
-            # Detect
             phi_matches = detector.scan_record(record)
             assert len(phi_matches) > 0
 
-            # De-identify
             result = deid.deidentify_record(record)
             clean = result.clean_data
 
-            # Verify no PHI remains in clean data
             for key, value in clean.items():
                 remaining = detector.scan_text(str(value))
-                # Only check fields that were detected as PHI
                 if key.lower() in ("patient_name", "ssn", "name", "email", "phone"):
                     assert "[REDACTED]" in str(value) or len(remaining) == 0
 
     def test_consent_enforcement(self):
-        """Verify that only consented patients participate."""
         mgr = ConsentManager()
         mgr.register_consent("P001", "FL_STUDY_01")
         mgr.register_consent("P002", "FL_STUDY_01")
-        # P003 did not consent
 
         all_patients = ["P001", "P002", "P003"]
         eligible = [p for p in all_patients if mgr.verify_consent(p, "FL_STUDY_01")]
         assert eligible == ["P001", "P002"]
 
     def test_compliance_check(self):
-        """Verify compliance checker works with a proper config."""
         checker = ComplianceChecker()
         config = {
             "use_differential_privacy": True,
