@@ -1,0 +1,203 @@
+# Integration Workflow Templates
+# DISCLAIMER: RESEARCH USE ONLY — Not approved for clinical deployment
+# Version: 0.3.0
+# Last Updated: 2026-02-17
+
+workflows:
+  # ── Federated Training with Physical AI ────────────────────────────────────
+  federated_physical_ai_training:
+    name: "Federated Training with Physical AI Integration"
+    description: >
+      End-to-end workflow for training a federated model across multiple
+      hospital sites with physical AI digital twin integration.
+    steps:
+      - id: "data_preparation"
+        name: "Data Preparation & Harmonization"
+        tools:
+          - "federated.data_ingestion"
+          - "federated.data_harmonization"
+        inputs:
+          - "raw_patient_records"
+          - "dicom_images"
+        outputs:
+          - "harmonized_dataset"
+          - "harmonization_report"
+        validation:
+          - "check_phi_removed"
+          - "check_unit_consistency"
+
+      - id: "site_enrollment"
+        name: "Multi-Site Enrollment"
+        tools:
+          - "federated.site_enrollment"
+          - "regulatory.compliance_checker"
+        inputs:
+          - "site_configs"
+        outputs:
+          - "enrolled_sites"
+          - "compliance_report"
+        validation:
+          - "check_irb_approval"
+          - "check_data_readiness"
+
+      - id: "digital_twin_generation"
+        name: "Patient Digital Twin Generation"
+        tools:
+          - "physical_ai.digital_twin"
+        inputs:
+          - "harmonized_dataset"
+        outputs:
+          - "patient_twins"
+          - "feature_vectors"
+        validation:
+          - "check_growth_model_params"
+          - "check_biomarker_ranges"
+
+      - id: "federated_training"
+        name: "Federated Model Training"
+        tools:
+          - "federated.coordinator"
+          - "federated.client"
+          - "federated.secure_aggregation"
+          - "federated.differential_privacy"
+        inputs:
+          - "enrolled_sites"
+          - "feature_vectors"
+          - "model_config"
+        outputs:
+          - "global_model"
+          - "round_results"
+          - "privacy_budget"
+        validation:
+          - "check_convergence"
+          - "check_privacy_budget"
+
+      - id: "model_evaluation"
+        name: "Cross-Site Model Evaluation"
+        tools:
+          - "federated.coordinator"
+          - "physical_ai.surgical_tasks"
+        inputs:
+          - "global_model"
+          - "test_datasets"
+        outputs:
+          - "evaluation_report"
+          - "clinical_metrics"
+        validation:
+          - "check_accuracy_threshold"
+          - "check_fairness_across_sites"
+
+      - id: "model_export"
+        name: "Model Export & Deployment Preparation"
+        tools:
+          - "unification.cross_platform_tools.model_converter"
+          - "unification.cross_platform_tools.validation_suite"
+        inputs:
+          - "global_model"
+          - "deployment_config"
+        outputs:
+          - "exported_model"
+          - "validation_report"
+        validation:
+          - "check_inference_latency"
+          - "check_numerical_equivalence"
+
+  # ── Cross-Framework Simulation Validation ──────────────────────────────────
+  cross_framework_validation:
+    name: "Cross-Framework Simulation Validation"
+    description: >
+      Validates surgical robotics policies across multiple simulation
+      frameworks to ensure consistent behavior.
+    steps:
+      - id: "framework_detection"
+        name: "Detect Available Frameworks"
+        tools:
+          - "unification.cross_platform_tools.framework_detector"
+        outputs:
+          - "available_frameworks"
+          - "system_info"
+
+      - id: "model_conversion"
+        name: "Convert Robot Models"
+        tools:
+          - "unification.cross_platform_tools.model_converter"
+          - "physical_ai.simulation_bridge"
+        inputs:
+          - "source_model"
+          - "target_frameworks"
+        outputs:
+          - "converted_models"
+          - "conversion_report"
+
+      - id: "policy_transfer"
+        name: "Transfer RL Policy Across Frameworks"
+        tools:
+          - "unification.cross_platform_tools.policy_exporter"
+          - "unification.simulation_physics.isaac_mujoco_bridge"
+        inputs:
+          - "trained_policy"
+          - "converted_models"
+        outputs:
+          - "framework_specific_policies"
+
+      - id: "cross_validation"
+        name: "Cross-Framework Validation"
+        tools:
+          - "unification.cross_platform_tools.validation_suite"
+        inputs:
+          - "framework_specific_policies"
+          - "test_scenarios"
+        outputs:
+          - "validation_results"
+          - "discrepancy_report"
+        validation:
+          - "check_state_equivalence"
+          - "check_force_consistency"
+          - "check_trajectory_divergence"
+
+  # ── Regulatory Submission Pipeline ─────────────────────────────────────────
+  regulatory_submission:
+    name: "FDA Regulatory Submission Pipeline"
+    description: >
+      End-to-end pipeline for preparing and tracking FDA submission
+      packages for AI/ML-enabled medical devices.
+    steps:
+      - id: "compliance_check"
+        name: "Pre-Submission Compliance Check"
+        tools:
+          - "regulatory.compliance_checker"
+        inputs:
+          - "system_config"
+          - "training_records"
+        outputs:
+          - "compliance_report"
+
+      - id: "submission_creation"
+        name: "Create FDA Submission Package"
+        tools:
+          - "regulatory.fda_submission"
+        inputs:
+          - "compliance_report"
+          - "submission_pathway"
+        outputs:
+          - "submission_package"
+          - "document_checklist"
+
+      - id: "audit_review"
+        name: "Audit Trail Review"
+        tools:
+          - "privacy.audit_logger"
+        inputs:
+          - "training_audit_logs"
+        outputs:
+          - "audit_summary"
+          - "integrity_verification"
+
+# ── Shared Configuration ─────────────────────────────────────────────────────
+defaults:
+  timeout_seconds: 3600
+  retry_count: 3
+  log_level: "INFO"
+  checkpoint_frequency: "per_step"
+  notification_channels:
+    - "log"

@@ -1,7 +1,46 @@
-numpy>=1.24.0
-scikit-learn>=1.3.0
-pandas>=2.0.0
-cryptography>=41.0.0
-pyyaml>=6.0
-pytest>=7.4.0
-ruff>=0.4.0
+# PAI Oncology Trial FL — Requirements
+# Version: 0.3.0
+# DISCLAIMER: RESEARCH USE ONLY
+
+# ── Core ──────────────────────────────────────────────────────────────────────
+numpy>=1.24.0           # https://github.com/numpy/numpy — Released 2023-06-17
+scipy>=1.11.0           # https://github.com/scipy/scipy — Released 2023-06-25
+scikit-learn>=1.3.0     # https://github.com/scikit-learn/scikit-learn — Released 2023-06-15
+pandas>=2.0.0           # https://github.com/pandas-dev/pandas — Released 2023-04-03
+cryptography>=41.0.0    # https://github.com/pyca/cryptography — Released 2023-06-01
+pyyaml>=6.0             # https://github.com/yaml/pyyaml — Released 2021-10-13
+
+# ── Deep Learning ─────────────────────────────────────────────────────────────
+# torch>=2.5.0          # https://github.com/pytorch/pytorch — Released 2024-10-23 (optional)
+# torchvision>=0.20.0   # https://github.com/pytorch/vision — Released 2024-10-23 (optional)
+
+# ── Medical Imaging ───────────────────────────────────────────────────────────
+# monai>=1.3.0          # https://github.com/Project-MONAI/MONAI — Released 2024-01-17 (optional)
+# pydicom>=2.4.0        # https://github.com/pydicom/pydicom — Released 2023-09-27 (optional)
+# nibabel>=5.2.0        # https://github.com/nipy/nibabel — Released 2024-01-12 (optional)
+
+# ── Agentic AI ────────────────────────────────────────────────────────────────
+# langchain>=0.3.0      # https://github.com/langchain-ai/langchain — Released 2024-09-13 (optional)
+# langgraph>=0.2.0      # https://github.com/langchain-ai/langgraph — Released 2024-08-28 (optional)
+# crewai>=0.80.0        # https://github.com/crewAIInc/crewAI — Released 2024-11-20 (optional)
+# anthropic>=0.39.0     # https://github.com/anthropics/anthropic-sdk-python — Released 2024-11-06 (optional)
+# openai>=1.50.0        # https://github.com/openai/openai-python — Released 2024-10-16 (optional)
+# mcp>=1.1.0            # https://github.com/modelcontextprotocol/python-sdk — Released 2024-12-10 (optional)
+
+# ── Visualization ─────────────────────────────────────────────────────────────
+# matplotlib>=3.8.0     # https://github.com/matplotlib/matplotlib — Released 2023-09-15 (optional)
+# plotly>=5.18.0        # https://github.com/plotly/plotly.py — Released 2023-11-03 (optional)
+
+# ── Deployment ────────────────────────────────────────────────────────────────
+# onnx>=1.15.0          # https://github.com/onnx/onnx — Released 2024-01-23 (optional)
+# onnxruntime>=1.17.0   # https://github.com/microsoft/onnxruntime — Released 2024-02-01 (optional)
+
+# ── Testing / Development ────────────────────────────────────────────────────
+pytest>=7.4.0           # https://github.com/pytest-dev/pytest — Released 2023-06-23
+ruff>=0.4.0             # https://github.com/astral-sh/ruff — Released 2024-04-01
+# mypy>=1.8.0           # https://github.com/python/mypy — Released 2024-01-04 (optional)
+
+# ── Framework-Specific (optional, heavyweight) ────────────────────────────────
+# nvidia-isaac-sim      # NVIDIA Isaac Sim — requires Omniverse (optional)
+# mujoco>=3.1.0         # https://github.com/google-deepmind/mujoco — Released 2024-01-10 (optional)
+# pybullet>=3.2.6       # https://github.com/bulletphysics/bullet3 — Released 2023-06-15 (optional)

@@ -1,0 +1,354 @@
+# =============================================================================
+# Cross-Framework Physics Parameter Equivalence Mapping
+# =============================================================================
+#
+# Maps physics parameters between NVIDIA Isaac Sim (PhysX 5), DeepMind MuJoCo,
+# Gazebo (DART/Bullet), and PyBullet for oncology surgical robotics simulation.
+#
+# DISCLAIMER: RESEARCH USE ONLY
+# These mappings are approximate. Each engine's solver produces subtly different
+# behavior even with "equivalent" parameters. Always run cross-engine calibration
+# before using in federated learning workflows.
+#
+# Reference versions:
+#   Isaac Sim 4.2 (PhysX 5.3)
+#   MuJoCo 3.1
+#   Gazebo Harmonic (DART 6.13 / Bullet 3.25)
+#   PyBullet 3.2.6
+# =============================================================================
+
+metadata:
+  version: "1.0.0"
+  last_updated: "2026-02-17"
+  maintainer: "PAI Oncology Trial FL Contributors"
+  license: "MIT"
+
+# ---------------------------------------------------------------------------
+# Joint parameter equivalences
+# ---------------------------------------------------------------------------
+joint_parameters:
+
+  revolute_joint:
+    description: "Single-axis rotational joint (most common in surgical robots)"
+
+    position:
+      isaac_sim:
+        attribute: "joint.state.position"
+        units: "radians"
+        range: "[-2*pi, 2*pi]"
+        convention: "right-hand rule around joint axis"
+      mujoco:
+        attribute: "data.qpos[jnt_qposadr]"
+        units: "radians"
+        range: "model.jnt_range"
+        convention: "right-hand rule around joint axis"
+      gazebo:
+        attribute: "joint.Position(0)"
+        units: "radians"
+        range: "sdf <limit lower='' upper=''>"
+        convention: "right-hand rule around joint axis"
+      pybullet:
+        attribute: "getJointState()[0]"
+        units: "radians"
+        range: "jointLowerLimit / jointUpperLimit"
+        convention: "right-hand rule around joint axis"
+      notes: "Position convention is consistent across engines. No conversion needed."
+
+    velocity:
+      isaac_sim:
+        attribute: "joint.state.velocity"
+        units: "rad/s"
+      mujoco:
+        attribute: "data.qvel[jnt_dofadr]"
+        units: "rad/s"
+      gazebo:
+        attribute: "joint.Velocity(0)"
+        units: "rad/s"
+      pybullet:
+        attribute: "getJointState()[1]"
+        units: "rad/s"
+      notes: "Velocity convention is consistent. Safety limit: 2*pi rad/s for surgical robots."
+
+    torque:
+      isaac_sim:
+        attribute: "joint.set_drive_target() with stiffness/damping"
+        units: "N*m"
+        notes: "PhysX uses PD drive model: torque = stiffness*(target-pos) + damping*(target_vel-vel)"
+      mujoco:
+        attribute: "data.ctrl[actuator_id] or data.qfrc_applied[dof_id]"
+        units: "N*m"
+        notes: "Actuator model configurable: motor, position, velocity, general"
+      gazebo:
+        attribute: "joint.SetForce(0, torque)"
+        units: "N*m"
+      pybullet:
+        attribute: "setJointMotorControl2(force=torque)"
+        units: "N*m"
+      notes: "Direct torque application is the most portable command mode."
+
+    damping:
+      isaac_sim:
+        attribute: "joint.drive.damping"
+        units: "N*m*s/rad"
+        notes: "Part of the articulation drive API"
+      mujoco:
+        attribute: "model.dof_damping[dof_id]"
+        units: "N*m*s/rad"
+        notes: "Applied as implicit damping force in the constraint solver"
+      gazebo:
+        attribute: "sdf <dynamics><damping>"
+        units: "N*m*s/rad"
+      pybullet:
+        attribute: "changeDynamics(jointDamping=value)"
+        units: "N*m*s/rad"
+      conversion_notes: |
+        MuJoCo damping is applied differently (implicit in constraint) vs PhysX (explicit drive).
+        Effective damping may differ by 5-15% even with identical numeric values.
+        Recommended: calibrate damping per-engine using step response test.
+
+    stiffness:
+      isaac_sim:
+        attribute: "joint.drive.stiffness"
+        units: "N*m/rad"
+      mujoco:
+        attribute: "model.jnt_stiffness[jnt_id]"
+        units: "N*m/rad"
+      gazebo:
+        attribute: "sdf <dynamics><spring_stiffness>"
+        units: "N*m/rad"
+      pybullet:
+        attribute: "Not natively supported; use setJointMotorControl2 with positionGain"
+        units: "N*m/rad (effective)"
+      conversion_notes: |
+        PyBullet does not have native joint stiffness. Approximate using a position
+        servo with proportional gain equal to desired stiffness.
+
+  prismatic_joint:
+    description: "Linear translation joint (used in some biopsy needle insertion mechanisms)"
+
+    position:
+      isaac_sim: { attribute: "joint.state.position", units: "meters" }
+      mujoco: { attribute: "data.qpos[jnt_qposadr]", units: "meters" }
+      gazebo: { attribute: "joint.Position(0)", units: "meters" }
+      pybullet: { attribute: "getJointState()[0]", units: "meters" }
+
+    force:
+      isaac_sim: { attribute: "joint.drive (force mode)", units: "N" }
+      mujoco: { attribute: "data.qfrc_applied[dof_id]", units: "N" }
+      gazebo: { attribute: "joint.SetForce(0, force)", units: "N" }
+      pybullet: { attribute: "setJointMotorControl2(force=value)", units: "N" }
+
+# ---------------------------------------------------------------------------
+# Contact and friction parameters
+# ---------------------------------------------------------------------------
+contact_parameters:
+
+  friction:
+    description: "Surface friction coefficients"
+
+    isaac_sim:
+      model: "Coulomb friction with separate static/dynamic coefficients"
+      attributes:
+        static_friction: "material.static_friction (dimensionless)"
+        dynamic_friction: "material.dynamic_friction (dimensionless)"
+        restitution: "material.restitution (dimensionless, 0=inelastic 1=elastic)"
+      combination_mode: "average (configurable: min, multiply, average, max)"
+
+    mujoco:
+      model: "Coulomb friction with sliding/torsional/rolling"
+      attributes:
+        sliding: "geom.friction[0] (dimensionless)"
+        torsional: "geom.friction[1] (length scale)"
+        rolling: "geom.friction[2] (length scale)"
+        condim: "geom.condim (1=frictionless, 3=sliding, 4=+torsional, 6=+rolling)"
+      combination_mode: "max of each pair (default)"
+
+    gazebo:
+      model: "ODE-style friction (mu, mu2)"
+      attributes:
+        mu: "surface.friction.ode.mu (dimensionless)"
+        mu2: "surface.friction.ode.mu2 (dimensionless)"
+      combination_mode: "multiply or min (configurable)"
+
+    pybullet:
+      model: "Coulomb friction with lateral/spinning/rolling"
+      attributes:
+        lateral_friction: "changeDynamics(lateralFriction=value)"
+        spinning_friction: "changeDynamics(spinningFriction=value)"
+        rolling_friction: "changeDynamics(rollingFriction=value)"
+      combination_mode: "sqrt(a*b) geometric mean"
+
+    conversion_table:
+      mujoco_to_isaac:
+        static_friction: "friction[0] * 1.1"
+        dynamic_friction: "friction[0]"
+        restitution: "0.0 (MuJoCo uses soft contact, not restitution)"
+      isaac_to_mujoco:
+        sliding: "(static_friction + dynamic_friction) / 2.0"
+        torsional: "0.005 (default)"
+        rolling: "0.001 (default)"
+      notes: |
+        Friction models are fundamentally different between soft-contact (MuJoCo)
+        and rigid-contact (PhysX) engines. Numeric equivalence does not guarantee
+        behavioral equivalence. Always validate with a standardized grasp test.
+
+  contact_stiffness:
+    description: "How contacts are resolved (soft vs. rigid)"
+
+    isaac_sim:
+      model: "Rigid contact with penetration recovery (TGS or PGS solver)"
+      attributes:
+        contact_offset: "collider.contact_offset (meters)"
+        rest_offset: "collider.rest_offset (meters)"
+        bounce_threshold: "scene.bounce_threshold_velocity (m/s)"
+
+    mujoco:
+      model: "Soft contact with impedance parameters"
+      attributes:
+        solref: "[timeconst, dampratio] — contact dynamics"
+        solimp: "[dmin, dmax, width, midpoint, power] — contact impedance"
+      notes: |
+        solref[0] = time constant for contact force buildup (seconds)
+        solref[1] = damping ratio (1.0 = critical damping)
+        These have no direct PhysX equivalent.
+
+    conversion_notes: |
+      Isaac Sim (PhysX) and MuJoCo use fundamentally different contact models.
+      PhysX resolves interpenetration via velocity-level constraints with
+      stabilization. MuJoCo uses impedance-based soft contacts that allow
+      controlled penetration. Direct parameter mapping is not meaningful.
+      Recommended approach: tune per-engine to match a reference contact
+      behavior (e.g., measured tissue compliance from cadaver studies).
+
+# ---------------------------------------------------------------------------
+# Solver configuration
+# ---------------------------------------------------------------------------
+solver_parameters:
+
+  timestep:
+    description: "Integration timestep"
+    isaac_sim: { default: 0.016667, units: "seconds", notes: "60 Hz default, configurable" }
+    mujoco: { default: 0.002, units: "seconds", notes: "500 Hz default, model.opt.timestep" }
+    gazebo: { default: 0.001, units: "seconds", notes: "1000 Hz default for real-time" }
+    pybullet: { default: 0.004167, units: "seconds", notes: "240 Hz default" }
+    recommendation: |
+      For surgical robotics, use <= 2ms timestep for stable contact simulation.
+      Isaac Sim can achieve this with sub-stepping (4x sub-steps at 60 Hz render).
+      MuJoCo runs natively at 500 Hz. Gazebo targets real-time at 1000 Hz.
+
+  integrator:
+    isaac_sim: { type: "semi-implicit Euler (PhysX)", configurable: false }
+    mujoco: { type: "semi-implicit Euler (default), RK4 (optional)", configurable: true }
+    gazebo: { type: "depends on physics backend (DART: semi-implicit Euler)" }
+    pybullet: { type: "semi-implicit Euler", configurable: false }
+
+  constraint_solver:
+    isaac_sim:
+      options: ["TGS (Temporal Gauss-Seidel)", "PGS (Projected Gauss-Seidel)"]
+      default: "TGS"
+      iterations: { position: 8, velocity: 2 }
+    mujoco:
+      options: ["Newton", "CG (Conjugate Gradient)"]
+      default: "Newton"
+      iterations: 100
+      tolerance: 1.0e-8
+    gazebo:
+      options: ["DART (Dantzig LCP)", "Bullet (sequential impulse)"]
+      default: "DART"
+    pybullet:
+      options: ["sequential impulse"]
+      default: "sequential impulse"
+      iterations: 50
+
+# ---------------------------------------------------------------------------
+# Gravity
+# ---------------------------------------------------------------------------
+gravity:
+  description: "Gravitational acceleration vector"
+  isaac_sim: { attribute: "scene.gravity", default: [0.0, -9.81, 0.0], convention: "Y-up" }
+  mujoco: { attribute: "model.opt.gravity", default: [0.0, 0.0, -9.81], convention: "Z-up" }
+  gazebo: { attribute: "world.gravity", default: [0.0, 0.0, -9.81], convention: "Z-up" }
+  pybullet: { attribute: "setGravity()", default: [0.0, 0.0, -9.81], convention: "Z-up" }
+  conversion: |
+    Isaac Sim Y-up to MuJoCo/Gazebo/PyBullet Z-up:
+      gravity_z_up = [gravity_y_up[0], -gravity_y_up[2], gravity_y_up[1]]
+
+# ---------------------------------------------------------------------------
+# Tissue and material properties (oncology-specific)
+# ---------------------------------------------------------------------------
+tissue_parameters:
+
+  description: |
+    Material properties for biological tissues encountered in oncology surgical
+    simulation. Values are approximate and vary significantly between patients.
+    Always calibrate against patient-specific imaging data when available.
+
+  liver:
+    youngs_modulus_kpa: { range: [1.0, 10.0], typical: 3.0, source: "Samur et al. 2007" }
+    poissons_ratio: 0.45
+    density_kg_m3: 1060
+    isaac_sim:
+      deformable_body: true
+      fem_material: "NeoHookean"
+      youngs_modulus: 3000  # Pa
+      poissons_ratio: 0.45
+    mujoco:
+      flex_body: true
+      stiffness: 3000  # approximate
+      damping: 100
+    notes: "Liver stiffness increases with fibrosis (cirrhosis can be 5-10x stiffer)"
+
+  lung:
+    youngs_modulus_kpa: { range: [0.5, 5.0], typical: 1.5 }
+    poissons_ratio: 0.40
+    density_kg_m3: 400  # inflated lung
+    notes: "Highly anisotropic; stiffness depends on inflation state"
+
+  brain:
+    youngs_modulus_kpa: { range: [0.5, 3.0], typical: 1.0 }
+    poissons_ratio: 0.48  # nearly incompressible
+    density_kg_m3: 1040
+    notes: "Extremely soft; requires very fine mesh and small timestep"
+
+  bone:
+    youngs_modulus_gpa: { range: [10.0, 20.0], typical: 15.0 }
+    poissons_ratio: 0.30
+    density_kg_m3: 1900
+    notes: "Cortical bone; cancellous bone is 10-100x softer"
+
+  tumor_generic:
+    youngs_modulus_kpa: { range: [2.0, 50.0], typical: 10.0 }
+    poissons_ratio: 0.45
+    density_kg_m3: 1080
+    notes: |
+      Tumor stiffness varies enormously by type, grade, and treatment history.
+      Elastography data from pre-operative imaging should be used when available.
+
+# ---------------------------------------------------------------------------
+# Surgical instrument parameters
+# ---------------------------------------------------------------------------
+instrument_parameters:
+
+  biopsy_needle:
+    description: "Standard 14-18 gauge core biopsy needle"
+    length_mm: 150
+    outer_diameter_mm: { range: [1.27, 2.11] }  # 14-18 gauge
+    insertion_force_n: { range: [0.5, 5.0], depends_on: "tissue type and depth" }
+    isaac_sim:
+      collision_shape: "capsule"
+      mass_kg: 0.015
+    mujoco:
+      geom_type: "capsule"
+      mass: 0.015
+    notes: "Needle deflection modeling requires flexible body or FEM"
+
+  forceps:
+    description: "Laparoscopic grasping forceps"
+    jaw_opening_mm: 15
+    grip_force_n: { range: [1.0, 20.0] }
+    isaac_sim:
+      collision_shape: "convex_mesh"
+      articulation: true
+    mujoco:
+      geom_type: "mesh"
+      tendon_driven: false

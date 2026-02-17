@@ -177,9 +177,7 @@ class SimulationBridge:
             conv = np.array(converted.joint_limits)
             results["joint_limits_match"] = bool(np.allclose(orig, conv, atol=tolerance))
         else:
-            results["joint_limits_match"] = len(original.joint_limits) == len(
-                converted.joint_limits
-            )
+            results["joint_limits_match"] = len(original.joint_limits) == len(converted.joint_limits)
 
         all_pass = all(results.values())
         logger.info(
@@ -192,7 +190,4 @@ class SimulationBridge:
     @staticmethod
     def get_supported_conversions() -> list[dict[str, str]]:
         """List all supported format conversion paths."""
-        return [
-            {"from": src.value, "to": dst.value, "steps": steps}
-            for (src, dst), steps in CONVERSION_PATHS.items()
-        ]
+        return [{"from": src.value, "to": dst.value, "steps": steps} for (src, dst), steps in CONVERSION_PATHS.items()]

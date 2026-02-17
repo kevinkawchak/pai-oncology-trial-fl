@@ -73,9 +73,7 @@ class AuditEvent:
 
     def _compute_hash(self) -> str:
         """Compute integrity hash for tamper detection."""
-        payload = (
-            f"{self.event_type.value}:{self.actor}:{self.resource}:{self.action}:{self.timestamp}"
-        )
+        payload = f"{self.event_type.value}:{self.actor}:{self.resource}:{self.action}:{self.timestamp}"
         return hashlib.sha256(payload.encode()).hexdigest()[:32]
 
     def to_dict(self) -> dict:

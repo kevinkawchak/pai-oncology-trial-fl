@@ -34,9 +34,7 @@ class GrowthModel:
         return volume * (2.0 ** (days / max(growth_rate, 1.0)))
 
     @staticmethod
-    def logistic(
-        volume: float, growth_rate: float, days: int, carrying_capacity: float = 100.0
-    ) -> float:
+    def logistic(volume: float, growth_rate: float, days: int, carrying_capacity: float = 100.0) -> float:
         """Logistic growth with carrying capacity (cm3)."""
         k = np.log(2) / max(growth_rate, 1.0)
         ratio = volume / carrying_capacity
@@ -85,13 +83,9 @@ class TumorModel:
     def simulate_growth(self, days: int) -> float:
         """Simulate untreated tumor growth over a number of days."""
         if self.growth_model == "logistic":
-            return GrowthModel.logistic(
-                self.volume_cm3, self.growth_rate, days, self.carrying_capacity
-            )
+            return GrowthModel.logistic(self.volume_cm3, self.growth_rate, days, self.carrying_capacity)
         if self.growth_model == "gompertz":
-            return GrowthModel.gompertz(
-                self.volume_cm3, self.growth_rate, days, self.carrying_capacity
-            )
+            return GrowthModel.gompertz(self.volume_cm3, self.growth_rate, days, self.carrying_capacity)
         return GrowthModel.exponential(self.volume_cm3, self.growth_rate, days)
 
     def simulate_chemo_response(self, dose_mg: float, cycles: int) -> float:
@@ -109,9 +103,7 @@ class TumorModel:
         alpha = 0.3 * self.radio_sensitivity
         beta = 0.03 * self.radio_sensitivity
         dose_per_fraction = dose_gy / max(fractions, 1)
-        surviving_fraction = np.exp(
-            -fractions * (alpha * dose_per_fraction + beta * dose_per_fraction**2)
-        )
+        surviving_fraction = np.exp(-fractions * (alpha * dose_per_fraction + beta * dose_per_fraction**2))
         return float(max(self.volume_cm3 * surviving_fraction, 0.01))
 
     def simulate_immunotherapy_response(
@@ -332,15 +324,9 @@ class PatientDigitalTwin:
 
         for i in range(n_samples):
             # Perturb sensitivities
-            self.tumor.chemo_sensitivity = float(
-                np.clip(original_chemo + rng.normal(0, param_noise_std), 0.0, 1.0)
-            )
-            self.tumor.radio_sensitivity = float(
-                np.clip(original_radio + rng.normal(0, param_noise_std), 0.0, 1.0)
-            )
-            self.tumor.immuno_sensitivity = float(
-                np.clip(original_immuno + rng.normal(0, param_noise_std), 0.0, 1.0)
-            )
+            self.tumor.chemo_sensitivity = float(np.clip(original_chemo + rng.normal(0, param_noise_std), 0.0, 1.0))
+            self.tumor.radio_sensitivity = float(np.clip(original_radio + rng.normal(0, param_noise_std), 0.0, 1.0))
+            self.tumor.immuno_sensitivity = float(np.clip(original_immuno + rng.normal(0, param_noise_std), 0.0, 1.0))
 
             result = self.simulate_treatment(treatment_type, seed=seed + i, **kwargs)
             volumes.append(result["predicted_volume_cm3"])

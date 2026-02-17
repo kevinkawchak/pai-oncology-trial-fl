@@ -1,147 +1,224 @@
 # PAI Oncology Trial FL
 
-Federated machine learning framework for physical AI oncology clinical trials.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/badge/release-v0.3.0-green.svg)](CHANGELOG.md)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-Enables multiple hospitals and research centers to collaboratively train AI models for tumor response prediction, surgical planning, and treatment optimization — **without exchanging raw patient data**.
+Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
 
-## Key Capabilities
-
-- **Federated Learning** — Train models across institutions using FedAvg, FedProx, or SCAFFOLD with configurable rounds, client weighting, convergence detection, and evaluation.
-- **Physical AI Integration** — Patient digital twins with multiple tumor growth models, surgical robot telemetry with clinical threshold evaluation, multi-modal sensor fusion, cross-platform simulation interoperability, and framework detection.
-- **Privacy Preservation** — Differential privacy (Gaussian mechanism with budget tracking), secure aggregation (mask-based protocol), automated PHI detection/de-identification for the 18 HIPAA identifiers, role-based access control, and breach response protocol.
-- **Regulatory Compliance** — Automated HIPAA/GDPR/FDA compliance checks, consent management, audit logging with integrity verification, DUA/IRB templates, and FDA submission tracking for AI/ML devices.
-- **Data Harmonization** — DICOM/FHIR vocabulary mapping, unit conversion, and feature normalisation for heterogeneous multi-site data.
-- **Site Enrollment** — Multi-site enrollment lifecycle management with readiness validation, quality-weighted site selection, and audit trail.
-
-## Architecture
-
-```
-┌───────────────────────────────────────────────────────────┐
-│                      Coordinator                           │
-│  ┌───────────┐  ┌──────────┐  ┌───────────┐  ┌────────┐ │
-│  │  FedAvg / │  │ Secure   │  │Differential│  │Conver- │ │
-│  │  FedProx /│  │ Aggreg.  │  │  Privacy   │  │gence   │ │
-│  │  SCAFFOLD │  │          │  │            │  │Detect  │ │
-│  └─────┬─────┘  └────┬─────┘  └─────┬──────┘  └────────┘ │
-│        └──────┬───────┘              │                     │
-│               │ model params only    │                     │
-└───────────────┼──────────────────────┼─────────────────────┘
-                │                      │
-   ┌────────────┼──────────────────────┼──────────┐
-   │            │                      │          │
-┌──┴──────┐ ┌──┴──────┐ ┌──────────┐ ┌┴────────┐ │
-│ Site A  │ │ Site B  │ │ Site C   │ │ Site D  │ │
-│ Hospital│ │ Hospital│ │ Research │ │ Pharma  │ │
-│         │ │         │ │ Center   │ │ Lab     │ │
-│ ┌─────┐ │ │ ┌─────┐ │ │ ┌──────┐ │ │ ┌─────┐ │ │
-│ │Local│ │ │ │Local│ │ │ │Local │ │ │ │Local│ │ │
-│ │Model│ │ │ │Model│ │ │ │Model │ │ │ │Model│ │ │
-│ └─────┘ │ │ └─────┘ │ │ └──────┘ │ │ └─────┘ │ │
-│ ┌─────┐ │ │ ┌─────┐ │ │ ┌──────┐ │ │ ┌─────┐ │ │
-│ │Data │ │ │ │Data │ │ │ │Data  │ │ │ │Data │ │ │
-│ │(PHI │ │ │ │(PHI │ │ │ │(PHI  │ │ │ │(PHI │ │ │
-│ │free)│ │ │ │free)│ │ │ │free) │ │ │ │free)│ │ │
-│ └─────┘ │ │ └─────┘ │ │ └──────┘ │ │ └─────┘ │ │
-└─────────┘ └─────────┘ └──────────┘ └─────────┘ │
-   └──────────────────────────────────────────────┘
-            Raw data never leaves sites
-```
-
-## Project Structure
-
-```
-pai-oncology-trial-fl/
-├── federated/                     # Core federated learning framework
-│   ├── coordinator.py             #   FedAvg / FedProx / SCAFFOLD coordinator
-│   ├── client.py                  #   Simulated hospital nodes
-│   ├── model.py                   #   Numpy-based MLP model
-│   ├── secure_aggregation.py      #   Mask-based secure aggregation
-│   ├── differential_privacy.py    #   Gaussian mechanism DP
-│   ├── data_ingestion.py          #   Data generation & partitioning
-│   ├── data_harmonization.py      #   DICOM/FHIR vocabulary mapping & normalisation
-│   └── site_enrollment.py         #   Multi-site enrollment management
-├── physical_ai/                   # Physical AI integration
-│   ├── digital_twin.py            #   Patient digital twins (exponential/logistic/Gompertz)
-│   ├── robotic_integration.py     #   Surgical robot interface
-│   ├── sensor_fusion.py           #   Multi-modal sensor fusion
-│   ├── simulation_bridge.py       #   Cross-platform simulation (URDF/MJCF/SDF/USD)
-│   ├── framework_detection.py     #   Simulation framework detection & pipeline
-│   └── surgical_tasks.py          #   Surgical task definitions & clinical thresholds
-├── privacy/                       # Privacy infrastructure
-│   ├── phi_detector.py            #   PHI detection (18 HIPAA IDs)
-│   ├── deidentification.py        #   De-identification pipeline
-│   ├── consent_manager.py         #   Consent & DUA management
-│   ├── audit_logger.py            #   Audit logging with integrity hashing
-│   ├── access_control.py          #   Role-based access control (RBAC)
-│   ├── breach_response.py         #   Breach detection & incident response
-│   └── dua_templates/             #   DUA templates
-├── regulatory/                    # Regulatory compliance
-│   ├── compliance_checker.py      #   HIPAA/GDPR/FDA checks
-│   ├── fda_submission.py          #   FDA submission tracking (510k/De Novo/PMA)
-│   └── templates/                 #   IRB & consent templates
-├── tests/                         # Comprehensive test suite
-├── examples/                      # Example scripts
-│   ├── run_federation.py          #   Full simulation (FedAvg/FedProx/SCAFFOLD)
-│   └── generate_synthetic_data.py #   Data generation
-├── docs/                          # Documentation
-│   └── federated_training_demo.ipynb
-├── scripts/                       # Deployment scripts
-│   └── deploy.sh                  #   Docker deployment
-├── Dockerfile
-├── docker-compose.yml
-├── pyproject.toml
-├── requirements.txt
-├── environment.yml
-├── CHANGELOG.md
-├── CITATION.cff
-└── prompts.md
-```
+> **Responsible-Use Notice:** This repository provides research-grade tooling for engineers building
+> federated learning systems for oncology clinical trials. All modules are intended for research and
+> development use only. Independent clinical validation, IRB approval, and regulatory clearance are
+> required before any component is used in a clinical setting. Patient safety is the highest priority.
 
 ## Quick Start
 
-### Installation
-
 ```bash
-# Clone the repository
+# Clone
 git clone https://github.com/kevinkawchak/pai-oncology-trial-fl.git
 cd pai-oncology-trial-fl
 
-# Option 1: pip
+# Install
 pip install -e ".[dev]"
 
-# Option 2: Conda
-conda env create -f environment.yml
-conda activate pai-oncology-fl
-pip install -e .
-
-# Option 3: Docker
-docker compose build
+# Verify
+python scripts/verify_installation.py
 ```
 
-### Run a Federated Simulation
+## Repository Structure
 
-```bash
-# Basic 3-site FedAvg simulation
-python examples/run_federation.py
-
-# FedProx with non-IID data handling
-python examples/run_federation.py --strategy fedprox --mu 0.01 --num-sites 4
-
-# With differential privacy and secure aggregation
-python examples/run_federation.py --num-sites 4 --rounds 20 --dp-epsilon 2.0 --secure-agg
-
-# Generate synthetic data to CSV
-python examples/generate_synthetic_data.py --output-dir data/ --num-sites 3
-
-# Docker deployment
-./scripts/deploy.sh --sites 3
+```
+pai-oncology-trial-fl/
+├── federated/                        # Core federated learning framework
+│   ├── coordinator.py                #   FedAvg / FedProx / SCAFFOLD coordinator
+│   ├── client.py                     #   Simulated hospital nodes
+│   ├── model.py                      #   Numpy-based MLP model
+│   ├── secure_aggregation.py         #   Mask-based secure aggregation
+│   ├── differential_privacy.py       #   Gaussian mechanism DP
+│   ├── data_ingestion.py             #   Data generation & partitioning
+│   ├── data_harmonization.py         #   DICOM/FHIR vocabulary mapping & normalisation
+│   └── site_enrollment.py            #   Multi-site enrollment management
+├── physical_ai/                      # Physical AI integration
+│   ├── digital_twin.py               #   Patient digital twins (exponential/logistic/Gompertz)
+│   ├── robotic_integration.py        #   Surgical robot interface
+│   ├── sensor_fusion.py              #   Multi-modal sensor fusion
+│   ├── simulation_bridge.py          #   Cross-platform simulation (URDF/MJCF/SDF/USD)
+│   ├── framework_detection.py        #   Simulation framework detection & pipeline
+│   └── surgical_tasks.py             #   Surgical task definitions & clinical thresholds
+├── privacy/                          # Privacy infrastructure
+│   ├── phi_detector.py               #   PHI detection (18 HIPAA IDs)
+│   ├── deidentification.py           #   De-identification pipeline
+│   ├── consent_manager.py            #   Consent & DUA management
+│   ├── audit_logger.py               #   Audit logging with integrity hashing
+│   ├── access_control.py             #   Role-based access control (RBAC)
+│   ├── breach_response.py            #   Breach detection & incident response
+│   └── dua_templates/                #   DUA templates
+├── regulatory/                       # Regulatory compliance
+│   ├── compliance_checker.py         #   HIPAA/GDPR/FDA checks
+│   ├── fda_submission.py             #   FDA submission tracking (510k/De Novo/PMA)
+│   └── templates/                    #   IRB & consent templates
+├── unification/                      # Cross-framework unification layer
+│   ├── simulation_physics/           #   Isaac ↔ MuJoCo bridge, parameter mapping
+│   ├── agentic_generative_ai/        #   Unified agent interface (CrewAI/LangGraph/AutoGen)
+│   ├── surgical_robotics/            #   Surgical robotics unification
+│   ├── cross_platform_tools/         #   Framework detector, model converter, policy exporter
+│   ├── standards_protocols/          #   Data formats, communication, safety standards
+│   └── integration_workflows/        #   Workflow templates
+├── q1-2026-standards/                # Q1 2026 standards objectives
+│   ├── objective-1-model-conversion/ #   Cross-framework model conversion pipeline
+│   ├── objective-2-model-registry/   #   Federated model registry & validation
+│   ├── objective-3-benchmarking/     #   Cross-platform benchmark runner
+│   └── implementation-guide/         #   Timeline & compliance checklist
+├── frameworks/                       # Framework integration guides
+│   ├── nvidia-isaac/                 #   NVIDIA Isaac Sim/Lab integration
+│   ├── mujoco/                       #   MuJoCo integration
+│   ├── gazebo/                       #   Gazebo + ROS 2 integration
+│   └── pybullet/                     #   PyBullet integration
+├── supervised-learning/              # Supervised learning for oncology
+├── reinforcement-learning/           # RL for surgical robotics & treatment
+├── self-supervised-learning/         # SSL for medical imaging
+├── generative-ai/                    # Generative AI & agentic workflows
+├── configs/                          # Training & deployment configuration
+│   └── training_config.yaml          #   PPO/SAC + federated + safety constraints
+├── scripts/                          # Utility scripts
+│   ├── verify_installation.py        #   Dependency verification
+│   └── deploy.sh                     #   Docker deployment
+├── tests/                            # Comprehensive test suite
+├── examples/                         # Example scripts
+├── docs/                             # Documentation & notebooks
+├── .github/                          # CI/CD, issue & PR templates
+│   ├── workflows/ci.yml              #   Lint + format + YAML + test
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── ISSUE_TEMPLATE/
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── SUPPORT.md
+├── CHANGELOG.md
+├── CITATION.cff
+├── LICENSE
+├── requirements.txt
+├── pyproject.toml
+├── ruff.toml
+├── posts.md
+└── prompts.md
 ```
 
-### Run Tests
+## Core Technologies
 
-```bash
-pytest tests/ -v
-```
+| Framework | Version | Last Update | Use Case | Unification Status |
+|-----------|---------|-------------|----------|--------------------|
+| NumPy | ≥1.24.0 | 2023-06-17 | Core computation, federated MLP | Integrated |
+| SciPy | ≥1.11.0 | 2023-06-25 | Statistical analysis, optimization | Integrated |
+| PyTorch | ≥2.5.0 | 2024-10-23 | Deep learning, model training | Bridge available |
+| NVIDIA Isaac Sim | 4.2.0 | 2024-11-15 | High-fidelity surgical simulation | Bridge available |
+| MuJoCo | ≥3.1.0 | 2024-01-10 | Physics simulation, contact modeling | Bridge available |
+| Gazebo | Harmonic | 2024-09-20 | ROS 2 integration, sensor simulation | Guide available |
+| PyBullet | ≥3.2.6 | 2023-06-15 | Rapid prototyping, lightweight sim | Guide available |
+| MONAI | ≥1.3.0 | 2024-01-17 | Medical image analysis | Optional |
+| LangChain | ≥0.3.0 | 2024-09-13 | Agentic AI workflows | Interface available |
+| LangGraph | ≥0.2.0 | 2024-08-28 | Stateful agent graphs | Interface available |
+| CrewAI | ≥0.80.0 | 2024-11-20 | Multi-agent orchestration | Interface available |
+| ONNX | ≥1.15.0 | 2024-01-23 | Model export, cross-platform deploy | Converter available |
+
+## Unification Framework
+
+The `unification/` layer provides cross-framework interoperability for oncology clinical trial systems:
+
+1. **Simulation Physics** — Bidirectional state conversion between Isaac Sim and MuJoCo, physics parameter mapping across frameworks, enabling seamless sim-to-sim transfer for surgical robotics validation.
+
+2. **Agentic Generative AI** — Unified agent interface supporting CrewAI, LangGraph, AutoGen, and custom backends with tool format conversion (MCP, OpenAI, Anthropic) for clinical workflow automation.
+
+3. **Surgical Robotics** — Standards-based integration layer for robotic surgical systems across simulation and physical platforms.
+
+4. **Cross-Platform Tools** — Framework detection, model format conversion, policy export, and validation suite for ensuring reproducibility across heterogeneous environments.
+
+5. **Standards & Protocols** — Data format specifications, communication protocols, and safety standards aligned with IEC 80601-2-77 and ISO 14971.
+
+## Key Capabilities
+
+### 1. Federated Learning
+
+Multi-site model training with FedAvg, FedProx, and SCAFFOLD aggregation strategies. Includes convergence detection, differential privacy (Gaussian mechanism with budget tracking), secure aggregation (mask-based protocol), and site enrollment lifecycle management.
+
+### 2. Physical AI Integration
+
+Patient digital twins with exponential, logistic, and Gompertz tumor growth models. Chemotherapy, radiation, immunotherapy, and combination therapy simulation with Monte-Carlo uncertainty quantification. Surgical robot interface with telemetry and clinical threshold evaluation.
+
+### 3. Privacy & Compliance
+
+Automated PHI detection for all 18 HIPAA identifiers, de-identification pipeline, role-based access control, breach response protocol, consent management, and audit logging with SHA-256 integrity verification.
+
+### 4. Regulatory Infrastructure
+
+HIPAA/GDPR/FDA 21 CFR Part 11 compliance validation, FDA submission tracking for AI/ML devices (Pre-Submission, De Novo, 510(k), PMA, Breakthrough Device), IRB protocol and informed consent templates.
+
+### 5. Cross-Framework Unification
+
+Framework-agnostic simulation bridge (URDF/MJCF/SDF/USD), cross-platform model conversion, unified agent interface for multiple LLM backends, and physics parameter mapping across simulation engines.
+
+### 6. Standards & Benchmarking
+
+Q1 2026 standards objectives for model format conversion, federated model registry with validation, and cross-platform benchmark runner for reproducible performance evaluation.
+
+## Dependencies
+
+### Core (required)
+- `numpy>=1.24.0` — Array computation
+- `scipy>=1.11.0` — Scientific computing
+- `scikit-learn>=1.3.0` — ML algorithms
+- `pandas>=2.0.0` — Data manipulation
+- `cryptography>=41.0.0` — Encryption
+- `pyyaml>=6.0` — Configuration parsing
+
+### Framework-Specific (optional)
+- `torch>=2.5.0` — Deep learning
+- `monai>=1.3.0` — Medical imaging
+- `pydicom>=2.4.0` — DICOM parsing
+- `mujoco>=3.1.0` — Physics simulation
+
+### Agentic AI (optional)
+- `langchain>=0.3.0` — LLM chains
+- `langgraph>=0.2.0` — Agent graphs
+- `crewai>=0.80.0` — Multi-agent
+- `anthropic>=0.39.0` — Claude API
+- `openai>=1.50.0` — OpenAI API
+
+### Visualization (optional)
+- `matplotlib>=3.8.0` — Plotting
+- `plotly>=5.18.0` — Interactive charts
+
+### Deployment (optional)
+- `onnx>=1.15.0` — Model export
+- `onnxruntime>=1.17.0` — Inference
+
+### Testing / Development
+- `pytest>=7.4.0` — Testing
+- `ruff>=0.4.0` — Linting
+
+## Actively Maintained Repositories
+
+| Repository | Last Commit | URL |
+|------------|-------------|-----|
+| PyTorch | 2024-10-23 | https://github.com/pytorch/pytorch |
+| MONAI | 2024-01-17 | https://github.com/Project-MONAI/MONAI |
+| MuJoCo | 2024-01-10 | https://github.com/google-deepmind/mujoco |
+| LangChain | 2024-09-13 | https://github.com/langchain-ai/langchain |
+| LangGraph | 2024-08-28 | https://github.com/langchain-ai/langgraph |
+| CrewAI | 2024-11-20 | https://github.com/crewAIInc/crewAI |
+| Anthropic SDK | 2024-11-06 | https://github.com/anthropics/anthropic-sdk-python |
+| Ruff | 2024-04-01 | https://github.com/astral-sh/ruff |
+
+## Multi-Organization Cooperation
+
+| Organization Type | Integration Points |
+|-------------------|--------------------|
+| Academic Medical Centers | Federated training nodes, digital twin data, IRB coordination |
+| Community Hospitals | Site enrollment, data harmonization, local model training |
+| Pharmaceutical Companies | Treatment simulation, regulatory submission, compliance validation |
+| Robotics Manufacturers | Simulation framework integration, surgical task definitions |
+| Regulatory Bodies (FDA) | Submission tracking, 510(k)/De Novo/PMA workflow, compliance checks |
+| Standards Organizations | IEC 80601-2-77, ISO 14971, ICH E6(R3) alignment |
 
 ## Usage Guide
 
@@ -150,48 +227,12 @@ pytest tests/ -v
 ```python
 from federated.data_ingestion import generate_synthetic_oncology_data, DataPartitioner
 
-# Generate 1000 synthetic patient records with 30 clinical features
 X, y = generate_synthetic_oncology_data(n_samples=1000, n_features=30, n_classes=2)
-
-# Split across 3 hospital sites (IID)
 partitioner = DataPartitioner(num_sites=3, strategy="iid")
 sites = partitioner.partition(X, y)
 ```
 
-### 2. Harmonize Multi-Site Data
-
-```python
-from federated.data_harmonization import DataHarmonizer
-
-harmonizer = DataHarmonizer(normalisation="zscore")
-
-# Map FHIR/DICOM codes to canonical field names
-record = {"observation-tumor-volume": 3.5, "observation-ki67": 0.25}
-mapped = harmonizer.map_record(record)
-
-# Convert units
-value_cm = harmonizer.convert_units(15.0, "mm", "cm")  # 1.5
-
-# Normalise features
-normalised, stats = harmonizer.normalise_features(X, method="zscore")
-```
-
-### 3. Enroll Sites
-
-```python
-from federated.site_enrollment import SiteEnrollmentManager
-
-mgr = SiteEnrollmentManager("FL_STUDY_01", min_patients_per_site=20)
-mgr.enroll_site("hospital_A", "Memorial Cancer Center", patient_count=200)
-mgr.mark_data_ready("hospital_A")
-mgr.mark_compliance_passed("hospital_A")
-mgr.activate_site("hospital_A")
-
-# Select sites for a training round
-active = mgr.select_sites_for_round(max_sites=5)
-```
-
-### 4. Run Federated Training
+### 2. Run Federated Training
 
 ```python
 from federated.coordinator import FederationCoordinator
@@ -199,210 +240,42 @@ from federated.client import FederatedClient
 from federated.model import ModelConfig
 
 config = ModelConfig(input_dim=30, hidden_dims=[64, 32], output_dim=2)
-
-# Choose aggregation strategy: "fedavg", "fedprox", or "scaffold"
 coordinator = FederationCoordinator(
-    model_config=config,
-    num_rounds=10,
-    strategy="fedprox",
-    mu=0.01,  # proximal term for FedProx
+    model_config=config, num_rounds=10, strategy="fedprox", mu=0.01,
 )
 global_params = coordinator.initialize()
 
-# Create clients for each site
-clients = []
-for site in sites:
-    client = FederatedClient(site.site_id, config)
-    client.set_data(site.x_train, site.y_train)
-    clients.append(client)
+clients = [FederatedClient(s.site_id, config) for s in sites]
+for c, s in zip(clients, sites):
+    c.set_data(s.x_train, s.y_train)
 
-# Federated training loop
 for round_num in range(10):
-    updates, counts = [], []
-    for client in clients:
-        client.train_local(global_params, epochs=5, lr=0.01, mu=0.01)
-        updates.append(client.get_parameters())
-        counts.append(client.get_sample_count())
-
-    result = coordinator.run_round(
-        updates, client_sample_counts=counts,
-        eval_data=(sites[0].x_test, sites[0].y_test)
-    )
+    updates = [c.train_local(global_params, epochs=5, lr=0.01, mu=0.01) or c.get_parameters() for c in clients]
+    counts = [c.get_sample_count() for c in clients]
+    result = coordinator.run_round(updates, client_sample_counts=counts)
     global_params = coordinator.get_global_parameters()
-    print(f"Round {round_num+1}: accuracy={result.global_metrics['accuracy']:.4f}")
-
     if result.converged:
-        print("Training converged.")
         break
 ```
 
-### 5. Enable Privacy Protections
-
-```python
-# With differential privacy and secure aggregation
-coordinator = FederationCoordinator(
-    model_config=config,
-    use_differential_privacy=True,
-    dp_epsilon=2.0,
-    dp_delta=1e-5,
-    use_secure_aggregation=True,
-)
-```
-
-### 6. Integrate Physical AI Digital Twins
+### 3. Patient Digital Twin Simulation
 
 ```python
 from physical_ai.digital_twin import PatientDigitalTwin, TumorModel
 
 twin = PatientDigitalTwin(
     "patient_001",
-    tumor=TumorModel(
-        volume_cm3=3.5,
-        chemo_sensitivity=0.6,
-        growth_model="gompertz",  # exponential, logistic, or gompertz
-    ),
+    tumor=TumorModel(volume_cm3=3.5, chemo_sensitivity=0.6, growth_model="gompertz"),
     biomarkers={"pdl1": 0.7, "ki67": 0.3},
 )
-
-# Simulate treatment response
 result = twin.simulate_treatment("chemotherapy", dose_mg=75, cycles=4)
-print(f"Predicted response: {result['response_category']}")
-
-# Simulate combination therapy
-combo = twin.simulate_treatment(
-    "combination",
-    chemo_dose_mg=75, chemo_cycles=4,
-    radiation_dose_gy=60, radiation_fractions=30,
-)
-print(f"Combined reduction: {combo['volume_reduction_pct']:.1f}%")
-
-# Uncertainty quantification
-uq = twin.simulate_with_uncertainty("chemotherapy", n_samples=100, dose_mg=75, cycles=4)
-print(f"Mean volume: {uq['mean_volume_cm3']:.2f} +/- {uq['std_volume_cm3']:.2f}")
-
-# Generate feature vector for federated model
-features = twin.generate_feature_vector()
 ```
 
-### 7. Evaluate Surgical Tasks
+### 4. Verify Installation
 
-```python
-from physical_ai.surgical_tasks import STANDARD_TASKS, ProcedureType, SurgicalTaskEvaluator
-
-task_def = STANDARD_TASKS[ProcedureType.NEEDLE_BIOPSY]
-evaluator = SurgicalTaskEvaluator(task_def)
-
-result = evaluator.evaluate(
-    position_errors_mm=[0.5, 0.8, 1.2],
-    forces_n=[1.0, 1.5, 2.0],
-    collisions=0,
-    total_attempts=100,
-    procedure_time_s=45.0,
-)
-print(f"Clinical ready: {result['clinical_ready']}")
+```bash
+python scripts/verify_installation.py
 ```
-
-### 8. Run Compliance Checks
-
-```python
-from regulatory.compliance_checker import ComplianceChecker
-
-checker = ComplianceChecker()
-report = checker.check_federation_config({
-    "use_differential_privacy": True,
-    "use_secure_aggregation": True,
-    "use_deidentification": True,
-    "audit_logging_enabled": True,
-    "consent_management_enabled": True,
-    "encryption_in_transit": True,
-})
-print(f"Compliance: {report.overall_status.value}")
-```
-
-### 9. Track FDA Submissions
-
-```python
-from regulatory.fda_submission import FDASubmissionTracker
-
-tracker = FDASubmissionTracker()
-pkg = tracker.create_submission(
-    "SUB_001", pathway="de_novo",
-    device_name="PAI Tumor Response Predictor",
-    indication="AI-assisted tumor treatment response prediction",
-)
-print(f"Documents required: {len(pkg.documents)}")
-readiness = tracker.get_readiness_report("SUB_001")
-print(f"Ready: {readiness['ready_for_submission']}")
-```
-
-## Modules
-
-### Federated Learning (`federated/`)
-
-| Module | Description |
-|--------|-------------|
-| `coordinator.py` | Orchestrates training rounds with FedAvg, FedProx, or SCAFFOLD strategies. Includes convergence detection. |
-| `client.py` | Simulated hospital node with local training, FedProx proximal term, and SCAFFOLD control variates. |
-| `model.py` | Numpy-based MLP with backpropagation, supporting parameter extraction/injection. |
-| `secure_aggregation.py` | Pairwise mask protocol — coordinator sees only the aggregate, not individual updates. |
-| `differential_privacy.py` | Gaussian mechanism with gradient clipping, noise calibration, and epsilon budget tracking. |
-| `data_ingestion.py` | Synthetic oncology data generation with IID and non-IID site partitioning. |
-| `data_harmonization.py` | DICOM/FHIR vocabulary mapping, unit conversion, and feature normalisation for heterogeneous data. |
-| `site_enrollment.py` | Multi-site enrollment lifecycle with readiness checks, quality scoring, and audit trail. |
-
-### Physical AI (`physical_ai/`)
-
-| Module | Description |
-|--------|-------------|
-| `digital_twin.py` | Patient digital twins with exponential, logistic, and Gompertz growth models. Supports chemotherapy, radiation, immunotherapy, and combination therapy simulation with Monte-Carlo uncertainty quantification. |
-| `robotic_integration.py` | Surgical robot interface for procedure planning, execution, and telemetry collection. |
-| `sensor_fusion.py` | Multi-modal clinical sensor fusion with real-time Z-score anomaly detection. |
-| `simulation_bridge.py` | Cross-platform robot model conversion (URDF/MJCF/SDF/USD) with physics validation. |
-| `framework_detection.py` | Detects installed simulation frameworks (Isaac Lab, MuJoCo, Gazebo, PyBullet) and recommends training/validation/deployment pipeline. |
-| `surgical_tasks.py` | Standardised surgical task definitions for oncology procedures with clinical accuracy thresholds and RL reward structures. |
-
-### Privacy (`privacy/`)
-
-| Module | Description |
-|--------|-------------|
-| `phi_detector.py` | Detects all 18 HIPAA identifiers using regex and field-name analysis. |
-| `deidentification.py` | Removes PHI via redact, hash, generalize, or replace strategies. |
-| `consent_manager.py` | Tracks patient consent with support for registration, verification, and revocation. |
-| `audit_logger.py` | Append-only event log with SHA-256 integrity hashing for tamper detection. |
-| `access_control.py` | Role-based access control with six roles and thirteen permissions. All access decisions logged. |
-| `breach_response.py` | Breach detection with auto-escalation, incident lifecycle management, and regulatory reporting. |
-
-### Regulatory (`regulatory/`)
-
-| Module | Description |
-|--------|-------------|
-| `compliance_checker.py` | Validates federation configs against HIPAA, GDPR, and FDA 21 CFR Part 11. |
-| `fda_submission.py` | Tracks FDA submission packages for AI/ML devices (Pre-Submission, De Novo, 510(k), PMA, Breakthrough). |
-| `templates/` | IRB protocol and informed consent templates for multi-site trials. |
-
-## Regulatory Compliance
-
-The platform includes infrastructure for:
-
-- **HIPAA** — PHI detection and de-identification, audit logging, access control, breach response protocol.
-- **GDPR** — Consent management, right to erasure support, data minimization via DP.
-- **FDA 21 CFR Part 11** — Audit trail requirements for electronic records.
-- **FDA AI/ML Guidance** — Submission tracking for 510(k), De Novo, PMA, and Breakthrough Device pathways.
-- **ICH-GCP** — IRB protocol templates and informed consent forms.
-- **DUA Templates** — Standard and multi-site Data Use Agreement templates.
-
-## Requirements
-
-- Python >= 3.10
-- numpy >= 1.24.0
-- scikit-learn >= 1.3.0
-- pandas >= 2.0.0
-- cryptography >= 41.0.0
-- pyyaml >= 6.0
-
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.
 
 ## Citation
 
@@ -412,10 +285,23 @@ MIT License. See [LICENSE](LICENSE) for details.
   author = {Kawchak, Kevin},
   year = {2026},
   url = {https://github.com/kevinkawchak/pai-oncology-trial-fl},
-  version = {0.2.0}
+  version = {0.3.0}
 }
 ```
 
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for requirements:
+
+- **Recency** — Dependencies and references within 3 months of latest stable release.
+- **Oncology Relevance** — All contributions must relate to oncology clinical trial workflows.
+- **Reproducibility** — Include seed configuration, hardware specs, and version pinning.
+- **Cross-Platform Compatibility** — Test across Python 3.10, 3.11, and 3.12.
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.
+
 ## Related
 
-- [physical-ai-oncology-trials](https://github.com/kevinkawchak/physical-ai-oncology-trials) — Physical AI toolkit for oncology clinical trials (simulation, digital twins, agentic AI, regulatory compliance).
+- [physical-ai-oncology-trials](https://github.com/kevinkawchak/physical-ai-oncology-trials) — Physical AI toolkit for oncology clinical trials.

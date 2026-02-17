@@ -8,7 +8,7 @@ authors:
 repository-code: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 url: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 license: MIT
-version: "0.2.0"
+version: "0.3.0"
 date-released: "2026-02-17"
 keywords:
   - federated-learning
@@ -21,6 +21,10 @@ keywords:
   - surgical-robotics
   - data-harmonization
   - fda-compliance
+  - unification-framework
+  - agentic-ai
+  - simulation-physics
+  - cross-platform
 abstract: >-
   A federated machine learning framework for physical AI oncology
   clinical trials. Enables multiple hospitals to collaboratively train

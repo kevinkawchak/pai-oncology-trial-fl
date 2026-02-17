@@ -1,0 +1,281 @@
+# Training Configuration for Physical AI Federated Learning in Oncology Clinical Trials
+# DISCLAIMER: RESEARCH USE ONLY — Not approved for clinical deployment without independent validation.
+# Version: 0.3.0
+# Last Updated: 2026-02-17
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+environment:
+  simulation_framework: "isaac_sim"  # Options: isaac_sim, mujoco, gazebo, pybullet
+  simulation_version: "4.2.0"
+  physics_engine: "physx"  # Options: physx, bullet, ode, dart
+  physics_dt: 0.002  # 500 Hz physics step (seconds)
+  control_dt: 0.02   # 50 Hz control step (seconds)
+  rendering: false    # Disable rendering for headless training
+  gpu_id: 0
+  seed: 42
+  max_episode_length: 1000
+  num_parallel_envs: 64
+
+  # Clinical environment parameters
+  clinical_scene:
+    operating_room_type: "hybrid_or"  # Options: hybrid_or, interventional_suite, brachytherapy_suite
+    patient_model: "supine_torso"
+    lighting_conditions: "surgical_led"
+    instrument_set: "oncology_standard"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain Randomization
+# ─────────────────────────────────────────────────────────────────────────────
+domain_randomization:
+  enabled: true
+  randomize_every_n_episodes: 1
+
+  # Tissue property randomization (oncology-specific)
+  tissue_properties:
+    stiffness_range: [0.5, 5.0]       # kPa — typical soft tissue range
+    damping_range: [0.01, 0.1]        # Ns/m
+    friction_range: [0.3, 0.8]        # Coefficient of friction
+    density_range: [950.0, 1100.0]    # kg/m³ — soft tissue density range
+    tumor_stiffness_multiplier: [1.5, 4.0]  # Tumors are typically stiffer
+
+  # Instrument property randomization
+  instrument_properties:
+    joint_friction_range: [0.001, 0.01]
+    cable_stiffness_range: [100.0, 500.0]  # N/m
+    tip_offset_range: [-0.002, 0.002]      # meters — manufacturing tolerance
+
+  # Visual randomization
+  visual:
+    lighting_intensity_range: [0.6, 1.4]
+    camera_position_noise: 0.005  # meters
+    texture_randomization: true
+    blood_occlusion_probability: 0.1
+
+  # Patient variability
+  patient_variability:
+    anatomy_scale_range: [0.85, 1.15]
+    tumor_size_range: [0.005, 0.05]   # meters (5mm to 50mm)
+    tumor_depth_range: [0.01, 0.08]   # meters below surface
+    organ_displacement_range: [0.0, 0.01]  # meters — respiratory motion
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Algorithm Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+algorithm:
+  # Primary algorithm
+  primary: "ppo"
+  alternative: "sac"  # Soft Actor-Critic for comparison
+
+  ppo:
+    learning_rate: 0.0003
+    gamma: 0.99
+    gae_lambda: 0.95
+    clip_range: 0.2
+    clip_range_vf: null  # No value function clipping
+    entropy_coefficient: 0.01
+    value_function_coefficient: 0.5
+    max_grad_norm: 0.5
+    n_steps: 2048
+    n_epochs: 10
+    batch_size: 64
+    normalize_advantage: true
+
+  sac:
+    learning_rate: 0.0003
+    gamma: 0.99
+    tau: 0.005
+    buffer_size: 1000000
+    learning_starts: 10000
+    batch_size: 256
+    train_freq: 1
+    gradient_steps: 1
+    target_entropy: "auto"
+
+  # Federated learning parameters
+  federated:
+    aggregation_strategy: "fedprox"  # Options: fedavg, fedprox, scaffold
+    num_rounds: 100
+    clients_per_round: 4
+    local_epochs: 5
+    mu: 0.01  # FedProx proximal term
+    convergence_window: 10
+    convergence_threshold: 0.001
+    differential_privacy:
+      enabled: true
+      epsilon: 8.0
+      delta: 1.0e-5
+      max_grad_norm: 1.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Network Architecture
+# ─────────────────────────────────────────────────────────────────────────────
+network:
+  policy_type: "mlp"  # Options: mlp, cnn, attention
+
+  mlp:
+    hidden_layers: [256, 256, 128]
+    activation: "elu"
+    output_activation: "tanh"  # Bounded actions for safety
+    use_layer_norm: true
+    dropout: 0.0
+
+  cnn:  # For image-based observations (endoscopic view)
+    channels: [32, 64, 64]
+    kernel_sizes: [8, 4, 3]
+    strides: [4, 2, 1]
+    flatten_dim: 512
+
+  attention:  # For multi-instrument coordination
+    num_heads: 4
+    embed_dim: 128
+    num_layers: 2
+    feedforward_dim: 256
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Safety Constraints
+# ─────────────────────────────────────────────────────────────────────────────
+safety_constraints:
+  # Force limits (critical for patient safety)
+  max_contact_force: 5.0      # Newtons — tissue damage threshold
+  max_insertion_force: 2.0    # Newtons — needle insertion limit
+  max_lateral_force: 1.0      # Newtons — lateral tissue displacement
+  max_torque: 0.5             # Nm — joint torque limit
+
+  # Workspace boundaries (relative to target site)
+  workspace_bounds:
+    x_range: [-0.15, 0.15]  # meters
+    y_range: [-0.15, 0.15]
+    z_range: [-0.10, 0.05]
+
+  # Velocity limits
+  max_linear_velocity: 0.05   # m/s — safe instrument speed
+  max_angular_velocity: 0.5   # rad/s
+  max_joint_velocity: 1.0     # rad/s
+
+  # Critical structure avoidance
+  no_go_zone_margin: 0.005    # meters — safety margin around critical structures
+  emergency_stop_force: 8.0   # Newtons — immediate halt threshold
+
+  # Reward shaping for safety
+  force_penalty_weight: 10.0
+  boundary_penalty_weight: 50.0
+  velocity_penalty_weight: 5.0
+  no_go_violation_penalty: 100.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Training Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+training:
+  total_timesteps: 10000000
+  eval_frequency: 50000
+  eval_episodes: 20
+  save_frequency: 100000
+  log_frequency: 1000
+
+  # Curriculum learning
+  curriculum:
+    enabled: true
+    stages:
+      - name: "basic_reach"
+        timesteps: 2000000
+        task_difficulty: 0.2
+        domain_randomization_scale: 0.3
+      - name: "guided_insertion"
+        timesteps: 3000000
+        task_difficulty: 0.5
+        domain_randomization_scale: 0.6
+      - name: "full_procedure"
+        timesteps: 5000000
+        task_difficulty: 1.0
+        domain_randomization_scale: 1.0
+
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 20  # eval periods
+    min_improvement: 0.01
+
+  # Checkpointing
+  checkpoint:
+    save_best: true
+    save_last: true
+    keep_n_best: 3
+    metric: "eval/success_rate"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Evaluation Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+evaluation:
+  # Clinical accuracy metrics
+  metrics:
+    - name: "target_accuracy"
+      description: "Distance to target site (mm)"
+      threshold: 2.0  # Clinical requirement: sub-2mm accuracy
+    - name: "force_compliance"
+      description: "Percentage of time within force limits"
+      threshold: 0.99  # 99% compliance required
+    - name: "procedure_success_rate"
+      description: "Successful procedure completion rate"
+      threshold: 0.95
+    - name: "no_go_violations"
+      description: "Number of critical structure violations"
+      threshold: 0  # Zero tolerance
+    - name: "procedure_time"
+      description: "Time to complete procedure (seconds)"
+      threshold: 300  # 5 minutes max
+
+  # Cross-site evaluation
+  cross_site:
+    enabled: true
+    sites: ["site_a", "site_b", "site_c", "site_d"]
+    holdout_fraction: 0.2
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Deployment Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+deployment:
+  export_format: "onnx"  # Options: onnx, torchscript, safetensors
+  quantization: "fp16"   # Options: fp32, fp16, int8
+  target_inference_time_ms: 10  # Real-time control requirement
+  target_platform: "jetson_orin"  # Options: jetson_orin, x86_gpu, cpu_only
+
+  # Safety wrapper
+  safety_wrapper:
+    enabled: true
+    force_monitoring: true
+    workspace_monitoring: true
+    watchdog_timeout_ms: 50
+
+  # Regulatory
+  regulatory:
+    fda_class: "II"  # Class II medical device
+    intended_use: "surgical_assistance"
+    risk_classification: "moderate"
+    requires_510k: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain-Specific Transfer Settings
+# ─────────────────────────────────────────────────────────────────────────────
+transfer:
+  # Sim-to-real transfer
+  sim_to_real:
+    enabled: true
+    adaptation_method: "domain_randomization"  # Options: domain_randomization, system_identification, adaptive
+    fine_tune_steps: 50000
+    real_data_fraction: 0.1
+
+  # Cross-procedure transfer
+  cross_procedure:
+    enabled: false
+    source_procedure: "needle_biopsy"
+    target_procedure: "tissue_resection"
+    frozen_layers: ["feature_extractor"]
+    trainable_layers: ["policy_head", "value_head"]
+
+  # Cross-site transfer (federated)
+  cross_site:
+    personalization: true
+    personalization_epochs: 3
+    global_model_weight: 0.7  # Blend between global and local

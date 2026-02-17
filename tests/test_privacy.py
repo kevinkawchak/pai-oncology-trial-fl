@@ -291,9 +291,7 @@ class TestBreachResponseProtocol:
         result1 = brp.report_indicator(BreachIndicator("failed_auth", "Failed login attempt"))
         assert result1 is None
         # Second indicator — should auto-escalate
-        result2 = brp.report_indicator(
-            BreachIndicator("anomalous_access", "Unusual data access pattern")
-        )
+        result2 = brp.report_indicator(BreachIndicator("anomalous_access", "Unusual data access pattern"))
         assert result2 is not None
         assert result2.startswith("INC-")
 

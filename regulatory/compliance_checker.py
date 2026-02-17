@@ -150,11 +150,7 @@ class ComplianceChecker:
                 check_id="hipaa_deident",
                 regulation=Regulation.HIPAA,
                 description="PHI de-identification is enabled",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("use_deidentification", False)
-                    else CheckStatus.FAIL
-                ),
+                status=(CheckStatus.PASS if config.get("use_deidentification", False) else CheckStatus.FAIL),
                 details="HIPAA Safe Harbor requires de-identification of 18 identifiers.",
             )
         )
@@ -165,11 +161,7 @@ class ComplianceChecker:
                 check_id="hipaa_audit",
                 regulation=Regulation.HIPAA,
                 description="Audit logging is enabled",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("audit_logging_enabled", False)
-                    else CheckStatus.FAIL
-                ),
+                status=(CheckStatus.PASS if config.get("audit_logging_enabled", False) else CheckStatus.FAIL),
                 details="HIPAA requires audit trails for all PHI access.",
             )
         )
@@ -180,11 +172,7 @@ class ComplianceChecker:
                 check_id="hipaa_encryption",
                 regulation=Regulation.HIPAA,
                 description="Encryption in transit is enabled",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("encryption_in_transit", False)
-                    else CheckStatus.WARNING
-                ),
+                status=(CheckStatus.PASS if config.get("encryption_in_transit", False) else CheckStatus.WARNING),
                 details="HIPAA recommends encryption for data in transit.",
             )
         )
@@ -215,11 +203,7 @@ class ComplianceChecker:
                 check_id="gdpr_consent",
                 regulation=Regulation.GDPR,
                 description="Consent management is enabled",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("consent_management_enabled", False)
-                    else CheckStatus.FAIL
-                ),
+                status=(CheckStatus.PASS if config.get("consent_management_enabled", False) else CheckStatus.FAIL),
                 details="GDPR requires explicit consent for data processing.",
             )
         )
@@ -230,11 +214,7 @@ class ComplianceChecker:
                 check_id="gdpr_minimization",
                 regulation=Regulation.GDPR,
                 description="Data minimization via differential privacy",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("use_differential_privacy", False)
-                    else CheckStatus.WARNING
-                ),
+                status=(CheckStatus.PASS if config.get("use_differential_privacy", False) else CheckStatus.WARNING),
                 details="GDPR data minimization principle recommends DP.",
             )
         )
@@ -245,11 +225,7 @@ class ComplianceChecker:
                 check_id="gdpr_erasure",
                 regulation=Regulation.GDPR,
                 description="Consent revocation is supported",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("consent_management_enabled", False)
-                    else CheckStatus.FAIL
-                ),
+                status=(CheckStatus.PASS if config.get("consent_management_enabled", False) else CheckStatus.FAIL),
                 details="GDPR right to erasure requires consent revocation.",
             )
         )
@@ -266,11 +242,7 @@ class ComplianceChecker:
                 check_id="fda_audit_trail",
                 regulation=Regulation.FDA_21CFR11,
                 description="Audit trail for electronic records",
-                status=(
-                    CheckStatus.PASS
-                    if config.get("audit_logging_enabled", False)
-                    else CheckStatus.FAIL
-                ),
+                status=(CheckStatus.PASS if config.get("audit_logging_enabled", False) else CheckStatus.FAIL),
                 details="21 CFR Part 11 requires audit trails for electronic records.",
             )
         )

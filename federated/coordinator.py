@@ -206,9 +206,7 @@ class FederationCoordinator:
             raise RuntimeError("Coordinator not initialized. Call initialize() first.")
 
         if len(client_updates) < self.min_clients:
-            raise ValueError(
-                f"Received {len(client_updates)} client updates, but minimum is {self.min_clients}."
-            )
+            raise ValueError(f"Received {len(client_updates)} client updates, but minimum is {self.min_clients}.")
 
         start = time.time()
         self.current_round += 1
@@ -236,9 +234,7 @@ class FederationCoordinator:
 
         # Differential privacy noise
         if self.dp is not None:
-            aggregated = self.dp.add_noise_to_parameters(
-                aggregated, num_clients=len(client_updates)
-            )
+            aggregated = self.dp.add_noise_to_parameters(aggregated, num_clients=len(client_updates))
 
         self.global_model.set_parameters(aggregated)
 
@@ -320,9 +316,7 @@ class FederationCoordinator:
             return False
 
         accuracies = [
-            r.global_metrics.get("accuracy", 0.0)
-            for r in self.round_history
-            if "accuracy" in r.global_metrics
+            r.global_metrics.get("accuracy", 0.0) for r in self.round_history if "accuracy" in r.global_metrics
         ]
         accuracies.append(metrics["accuracy"])
 

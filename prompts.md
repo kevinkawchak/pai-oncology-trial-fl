@@ -4,6 +4,30 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 3: v0.3.0 — Repository Foundation, Community Health, and CI/CD Infrastructure
+
+Consolidates: v0.1.0 (initial structure) + v0.2.0 (cooperation model) + v0.3.0/v0.3.1 (standards, version corrections, citations) + v0.5.1 (community health, CI/CD, disclaimers)
+
+Dependencies: None (first prompt)
+
+```
+Create a new GitHub repository called [REPO_NAME] for [DOMAIN_FOCUS] in oncology clinical trials. Build the complete foundation in a single submission.
+1. Repository Root Files — README.md with badges, responsible-use notice, Quick Start, Repository Structure tree, Core Technologies table, Unification Framework section, Key Capabilities, Dependencies, Actively Maintained Repositories table, Multi-Organization Cooperation table, Citation, Contributing, License.
+2. Unification Framework (unification/) — simulation_physics/ with Isaac-MuJoCo bridge and parameter mapping, agentic_generative_ai/ with unified agent interface, surgical_robotics/, cross_platform_tools/ with framework detector/model converter/policy exporter/validation suite, standards_protocols/, integration_workflows/.
+3. Standards (q1-2026-standards/) — 3 objectives: model conversion pipeline, model registry with validator, cross-platform benchmark runner. Implementation guide with timeline and compliance checklist.
+4. Framework Integration Guides (frameworks/) — nvidia-isaac/, mujoco/, gazebo/, pybullet/ with INTEGRATION.md each.
+5. Learning Domain Directories — supervised-learning/, reinforcement-learning/, self-supervised-learning/, generative-ai/ with strengths.md, limitations.md, results.md.
+6. Configuration (configs/) — training_config.yaml with environment, domain randomization, algorithm, network, safety constraints, training, evaluation, deployment, transfer settings.
+7. Verification (scripts/) — verify_installation.py with importlib-based detection, colored output, graceful handling.
+8. Community Health — CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md, SUPPORT.md, .github/PULL_REQUEST_TEMPLATE.md, .github/ISSUE_TEMPLATE/bug_report.md, .github/ISSUE_TEMPLATE/feature_request.md.
+9. CI/CD (.github/workflows/ci.yml) — lint-and-format (ruff + yamllint), validate-scripts (py_compile), test (pytest). Matrix 3.10/3.11/3.12.
+10. Linting (ruff.toml) — line-length 120, per-file-ignores for all directories.
+11. Tests — tests/__init__.py placeholder.
+Quality gates: ruff check + ruff format --check pass. yamllint -d relaxed pass. RESEARCH USE ONLY disclaimers. Structured logging. Conditional imports with HAS_X.
+```
+
+---
+
 ## Prompt 1: v0.1.0 — Integration and Implementation
 
 ```

@@ -1,0 +1,25 @@
+line-length = 120
+target-version = "py310"
+
+[lint]
+select = ["E", "F", "W"]
+ignore = ["F841", "E741", "E501", "F823"]
+
+[lint.per-file-ignores]
+"examples/*.py" = ["F401", "F811"]
+"examples-physical-ai/*.py" = ["F401", "F811"]
+"agentic-ai/examples-agentic-ai/*.py" = ["F401", "F811"]
+"supervised-learning/*.py" = ["F401"]
+"reinforcement-learning/*.py" = ["F401"]
+"self-supervised-learning/*.py" = ["F401"]
+"generative-ai/*.py" = ["F401"]
+"unification/**/*.py" = ["F401", "F402"]
+"q1-2026-standards/**/*.py" = ["F401", "F402", "F821"]
+"scripts/*.py" = ["F401"]
+"tools/**/*.py" = ["F401"]
+"digital-twins/**/*.py" = ["F401", "F402"]
+"federated/*.py" = ["F401"]
+"physical_ai/*.py" = ["F401"]
+"privacy/*.py" = ["F401"]
+"regulatory/*.py" = ["F401"]
+"tests/*.py" = ["F401", "F811"]

@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-02-17
+
+### Added
+
+- **Unification Framework** (`unification/`)
+  - `unification/simulation_physics/isaac_mujoco_bridge.py` — Bidirectional state conversion between NVIDIA Isaac Sim and MuJoCo with dataclass configs, Enum states, conditional imports, and structured logging.
+  - `unification/simulation_physics/physics_parameter_mapping.yaml` — Cross-framework physics parameter equivalences (gravity, friction, damping, solver settings).
+  - `unification/agentic_generative_ai/unified_agent_interface.py` — Unified agent interface with AgentBackend Enum (CrewAI/LangGraph/AutoGen/Custom), AgentRole Enum, Tool dataclass with `to_mcp_format()`, `to_openai_format()`, `to_anthropic_format()` methods.
+  - `unification/cross_platform_tools/framework_detector.py` — @dataclass FrameworkInfo + SystemInfo, CLI with `--verbose`/`--json` flags.
+  - `unification/cross_platform_tools/model_converter.py` — Cross-platform model format conversion (PyTorch, ONNX, SafeTensors, TorchScript).
+  - `unification/cross_platform_tools/policy_exporter.py` — RL policy export across simulation frameworks.
+  - `unification/cross_platform_tools/validation_suite.py` — Enum-based validation result states, cross-platform policy validation.
+  - `unification/standards_protocols/` — Data formats, communication protocols, and safety standards documentation.
+  - `unification/integration_workflows/workflow_templates.yaml` — Integration workflow templates.
+  - `unification/surgical_robotics/` — Challenges and opportunities in unified surgical robotics.
+  - `unification/README.md` — Core principles, directory structure, quarterly roadmap (Q1–Q4 2026).
+
+- **Q1 2026 Standards** (`q1-2026-standards/`)
+  - `objective-1-model-conversion/conversion_pipeline.py` — Model format conversion pipeline with Enum-based format types, ConversionConfig/ConversionResult dataclasses.
+  - `objective-2-model-registry/model_registry.yaml` — Schema for federated model registry entries.
+  - `objective-2-model-registry/model_validator.py` — Model validation with ValidationStatus Enum, ModelMetadata dataclass.
+  - `objective-3-benchmarking/benchmark_runner.py` — Cross-platform benchmark runner with BenchmarkMetric Enum, latency/accuracy/memory tests.
+  - `implementation-guide/timeline.md` — Q1 2026 implementation milestones.
+  - `implementation-guide/compliance_checklist.md` — Standards adoption compliance checklist.
+  - `q1-2026-standards/README.md` — Three objectives with status and deliverables.
+
+- **Framework Integration Guides** (`frameworks/`)
+  - `nvidia-isaac/INTEGRATION.md` — NVIDIA Isaac Sim/Lab system requirements, installation, code snippets.
+  - `mujoco/INTEGRATION.md` — MuJoCo integration with physics parameter tuning for medical robotics.
+  - `gazebo/INTEGRATION.md` — Gazebo + ROS 2 Humble/Iron integration for clinical robotics.
+  - `pybullet/INTEGRATION.md` — PyBullet rapid prototyping guide.
+
+- **Learning Domain Directories**
+  - `supervised-learning/` — Strengths, limitations, and illustrative results for supervised learning in oncology.
+  - `reinforcement-learning/` — Strengths, limitations, and illustrative results for RL in surgical robotics and treatment planning.
+  - `self-supervised-learning/` — Strengths, limitations, and illustrative results for SSL in medical imaging.
+  - `generative-ai/` — Strengths, limitations, and illustrative results for generative AI in oncology.
+
+- **Configuration** (`configs/`)
+  - `training_config.yaml` — Comprehensive training configuration with environment, domain randomization, PPO/SAC algorithms, federated learning parameters, network architecture, safety constraints, curriculum learning, evaluation metrics, deployment, and sim-to-real transfer settings.
+
+- **Verification** (`scripts/`)
+  - `verify_installation.py` — importlib-based dependency verification with colored output, version validation, and graceful handling of missing optional packages.
+
+- **Community Health**
+  - `CODE_OF_CONDUCT.md` — Contributor Covenant v2.1 adapted for clinical software (patient safety, data privacy, scientific integrity).
+  - `CONTRIBUTING.md` — Contribution types, recency/oncology/reproducibility requirements, development workflow, benchmark data policy, safety/compliance section.
+  - `SECURITY.md` — Vulnerability reporting (7-day acknowledgment / 30-day fix SLA), supported versions, deployer responsibilities.
+  - `SUPPORT.md` — Getting help, upstream framework support table, regulatory disclaimer.
+  - `.github/PULL_REQUEST_TEMPLATE.md` — Summary, 7 change type categories, safety/compliance checklist.
+  - `.github/ISSUE_TEMPLATE/bug_report.md` — Environment, reproduction steps, expected/actual behavior.
+  - `.github/ISSUE_TEMPLATE/feature_request.md` — Domain category checkboxes, clinical relevance, implementation notes.
+
+- **CI/CD Enhancements**
+  - `.github/workflows/ci.yml` — Added yamllint for YAML validation, validate-scripts job, explicit `permissions: contents read`, ruff `--output-format=github`.
+  - `ruff.toml` — Standalone ruff configuration with line-length 120, per-file-ignores for all directories.
+
+- **Root Files**
+  - `posts.md` — Placeholder for external references and publications.
+  - `releases.md/v0.3.0.md` — Release notes for v0.3.0.
+
+### Changed
+
+- `README.md` — Added badges (MIT license, v0.3.0, Python 3.10+), responsible-use notice, repository structure tree with all new directories, Core Technologies table, Unification Framework section, Multi-Organization Cooperation table, expanded dependency listing, contributing guidelines summary.
+- `requirements.txt` — Expanded with grouped dependencies (Core, Deep Learning, Medical Imaging, Agentic AI, Visualization, Deployment, Testing), pinned versions with release dates and GitHub URLs.
+- `pyproject.toml` — Version bumped to 0.3.0. Ruff configuration moved to standalone `ruff.toml`. Added `unification*` to setuptools package discovery.
+- `CITATION.cff` — Updated to v0.3.0, added `unification-framework`, `agentic-ai`, `simulation-physics`, `cross-platform` keywords.
+- `.github/workflows/ci.yml` — Enhanced with yamllint, validate-scripts job, permissions, output format.
+
 ## [0.2.0] - 2026-02-17
 
 ### Added
