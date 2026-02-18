@@ -22,8 +22,8 @@ class TestBridgeState:
     """Tests for the BridgeState enum."""
 
     def test_members(self):
-        """BridgeState has seven members."""
-        expected = {"UNINITIALIZED", "CONFIGURING", "READY", "RUNNING", "PAUSED", "ERROR", "SHUTDOWN"}
+        """BridgeState has eight members."""
+        expected = {"UNINITIALIZED", "CONFIGURING", "READY", "RUNNING", "PAUSED", "ERROR", "SHUTDOWN", "DISCONNECTED"}
         assert set(mod.BridgeState.__members__.keys()) == expected
 
     def test_lifecycle_order(self):

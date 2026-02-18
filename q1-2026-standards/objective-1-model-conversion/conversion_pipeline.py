@@ -949,7 +949,8 @@ class ConversionPipeline:
         if not model_path.is_file():
             raise ConversionError(f"Cannot find model weights in MONAI bundle: {config.source_path}")
 
-        state_dict = torch.load(str(model_path), map_location=config.device, weights_only=True)
+        model_path_str = str(model_path)
+        state_dict = torch.load(model_path_str, map_location=config.device, weights_only=True)
         torch.save(state_dict, output_path)
 
         logger.info("MONAI -> PyTorch conversion complete: %s", output_path)
@@ -1131,7 +1132,8 @@ class ConversionPipeline:
             weights_path = bundle_path / "model.pt"
 
         if weights_path.is_file():
-            state_dict = torch.load(str(weights_path), map_location=device, weights_only=True)
+            weights_path_str = str(weights_path)
+            state_dict = torch.load(weights_path_str, map_location=device, weights_only=True)
             logger.info("MONAI bundle weights loaded from %s (%d tensors)", weights_path, len(state_dict))
         else:
             logger.warning("MONAI bundle model weights not found at %s; returning input unchanged", model_path)

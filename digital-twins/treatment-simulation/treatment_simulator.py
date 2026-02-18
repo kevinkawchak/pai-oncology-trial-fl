@@ -129,7 +129,7 @@ class ToxicityGrade(Enum):
 class DrugClass(Enum):
     """Chemotherapy drug classification for PK/PD modeling."""
 
-    ALKYLATING = "alkylating_agent"
+    ALKYLATING_AGENT = "alkylating_agent"
     ANTIMETABOLITE = "antimetabolite"
     ANTHRACYCLINE = "anthracycline"
     TAXANE = "taxane"
