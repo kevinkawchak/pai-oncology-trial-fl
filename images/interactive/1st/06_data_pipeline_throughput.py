@@ -176,3 +176,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "06_data_pipeline_throughput.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "06_data_pipeline_throughput.png"), width=1920, height=1080, scale=2)
     print("Saved 06_data_pipeline_throughput.html and .png")
+    fig_dark = create_data_pipeline_throughput(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "06_data_pipeline_throughput_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "06_data_pipeline_throughput_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 06_data_pipeline_throughput_dark.html and _dark.png")

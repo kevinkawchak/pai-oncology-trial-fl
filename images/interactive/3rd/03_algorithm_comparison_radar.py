@@ -64,7 +64,7 @@ def create_algorithm_comparison_radar(dark_mode=False):
                 r=values,
                 theta=categories_closed,
                 fill=fill,
-                fillcolor=color.replace(")", ", 0.1)").replace("#", "rgba(") if "#" in color else color,
+                fillcolor="rgba(0,0,0,0)",
                 name=name,
                 line=dict(color=color, width=2.5),
                 marker=dict(size=6),
@@ -134,3 +134,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "03_algorithm_comparison_radar.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "03_algorithm_comparison_radar.png"), width=1920, height=1080, scale=2)
     print("Saved 03_algorithm_comparison_radar.html and 03_algorithm_comparison_radar.png")
+    fig_dark = create_algorithm_comparison_radar(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "03_algorithm_comparison_radar_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "03_algorithm_comparison_radar_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 03_algorithm_comparison_radar_dark.html and _dark.png")

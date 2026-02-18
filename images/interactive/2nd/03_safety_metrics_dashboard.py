@@ -152,3 +152,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "03_safety_metrics_dashboard.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "03_safety_metrics_dashboard.png"), width=1920, height=1080, scale=2)
     print("Saved 03_safety_metrics_dashboard.html and 03_safety_metrics_dashboard.png")
+    fig_dark = create_safety_metrics_dashboard(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "03_safety_metrics_dashboard_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "03_safety_metrics_dashboard_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 03_safety_metrics_dashboard_dark.html and _dark.png")

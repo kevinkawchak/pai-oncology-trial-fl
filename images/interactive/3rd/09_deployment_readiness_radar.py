@@ -161,3 +161,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "09_deployment_readiness_radar.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "09_deployment_readiness_radar.png"), width=1920, height=1080, scale=2)
     print("Saved 09_deployment_readiness_radar.html and 09_deployment_readiness_radar.png")
+    fig_dark = create_deployment_readiness_radar(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "09_deployment_readiness_radar_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "09_deployment_readiness_radar_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 09_deployment_readiness_radar_dark.html and _dark.png")

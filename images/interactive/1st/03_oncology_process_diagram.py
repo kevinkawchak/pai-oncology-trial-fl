@@ -159,3 +159,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "03_oncology_process_diagram.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "03_oncology_process_diagram.png"), width=1920, height=1080, scale=2)
     print("Saved 03_oncology_process_diagram.html and .png")
+    fig_dark = create_oncology_process_diagram(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "03_oncology_process_diagram_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "03_oncology_process_diagram_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 03_oncology_process_diagram_dark.html and _dark.png")

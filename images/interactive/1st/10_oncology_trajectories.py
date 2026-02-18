@@ -186,8 +186,8 @@ def create_oncology_trajectories(dark_mode=False):
             font=dict(size=12),
         ),
         margin=dict(t=120, l=80, r=40, b=120),
-        annotations=fig.layout.annotations
-        + (
+        annotations=list(fig.layout.annotations)
+        + [
             dict(
                 text=(
                     "Yellow dashed line = treatment initiation (Day 60) | "
@@ -201,7 +201,7 @@ def create_oncology_trajectories(dark_mode=False):
                 showarrow=False,
                 font=dict(size=11),
             ),
-        ),
+        ],
     )
 
     return fig
@@ -213,3 +213,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "10_oncology_trajectories.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "10_oncology_trajectories.png"), width=1920, height=1080, scale=2)
     print("Saved 10_oncology_trajectories.html and .png")
+    fig_dark = create_oncology_trajectories(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "10_oncology_trajectories_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "10_oncology_trajectories_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 10_oncology_trajectories_dark.html and _dark.png")

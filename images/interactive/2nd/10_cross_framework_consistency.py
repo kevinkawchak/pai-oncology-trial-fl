@@ -198,3 +198,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "10_cross_framework_consistency.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "10_cross_framework_consistency.png"), width=1920, height=1080, scale=2)
     print("Saved 10_cross_framework_consistency.html and 10_cross_framework_consistency.png")
+    fig_dark = create_cross_framework_consistency(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "10_cross_framework_consistency_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "10_cross_framework_consistency_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 10_cross_framework_consistency_dark.html and _dark.png")

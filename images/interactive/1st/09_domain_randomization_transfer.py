@@ -217,3 +217,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "09_domain_randomization_transfer.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "09_domain_randomization_transfer.png"), width=1920, height=1080, scale=2)
     print("Saved 09_domain_randomization_transfer.html and .png")
+    fig_dark = create_domain_randomization_transfer(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "09_domain_randomization_transfer_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "09_domain_randomization_transfer_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 09_domain_randomization_transfer_dark.html and _dark.png")

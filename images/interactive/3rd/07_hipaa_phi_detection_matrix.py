@@ -161,7 +161,7 @@ def create_hipaa_phi_detection_matrix(dark_mode=False):
                 font=dict(size=10, color="gray"),
             ),
         ]
-        + fig.layout.annotations,
+        + list(fig.layout.annotations),
     )
 
     return fig
@@ -173,3 +173,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "07_hipaa_phi_detection_matrix.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "07_hipaa_phi_detection_matrix.png"), width=1920, height=1080, scale=2)
     print("Saved 07_hipaa_phi_detection_matrix.html and 07_hipaa_phi_detection_matrix.png")
+    fig_dark = create_hipaa_phi_detection_matrix(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "07_hipaa_phi_detection_matrix_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "07_hipaa_phi_detection_matrix_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 07_hipaa_phi_detection_matrix_dark.html and _dark.png")

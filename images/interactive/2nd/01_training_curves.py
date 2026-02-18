@@ -176,3 +176,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "01_training_curves.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "01_training_curves.png"), width=1920, height=1080, scale=2)
     print("Saved 01_training_curves.html and 01_training_curves.png")
+    fig_dark = create_training_curves(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "01_training_curves_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "01_training_curves_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 01_training_curves_dark.html and _dark.png")

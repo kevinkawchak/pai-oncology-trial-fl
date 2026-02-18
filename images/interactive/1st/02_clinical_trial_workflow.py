@@ -111,7 +111,11 @@ def create_clinical_trial_workflow(dark_mode=False):
     link_colors = []
     for src in sources:
         base = node_colors[src]
-        link_colors.append(base.replace(")", ", 0.4)").replace("rgb", "rgba") if "rgb" in base else base + "66")
+        if "rgb" in base:
+            link_colors.append(base.replace(")", ", 0.4)").replace("rgb", "rgba"))
+        else:
+            r, g, b = int(base[1:3], 16), int(base[3:5], 16), int(base[5:7], 16)
+            link_colors.append(f"rgba({r}, {g}, {b}, 0.4)")
 
     fig = go.Figure(
         go.Sankey(
@@ -168,3 +172,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "02_clinical_trial_workflow.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "02_clinical_trial_workflow.png"), width=1920, height=1080, scale=2)
     print("Saved 02_clinical_trial_workflow.html and .png")
+    fig_dark = create_clinical_trial_workflow(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "02_clinical_trial_workflow_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "02_clinical_trial_workflow_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 02_clinical_trial_workflow_dark.html and _dark.png")

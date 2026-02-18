@@ -140,3 +140,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "01_oncology_convergence.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "01_oncology_convergence.png"), width=1920, height=1080, scale=2)
     print("Saved 01_oncology_convergence.html and 01_oncology_convergence.png")
+    fig_dark = create_oncology_convergence(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "01_oncology_convergence_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "01_oncology_convergence_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 01_oncology_convergence_dark.html and _dark.png")

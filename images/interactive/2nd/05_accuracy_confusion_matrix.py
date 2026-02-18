@@ -102,7 +102,7 @@ def create_accuracy_confusion_matrix(dark_mode=False):
             x=list(range(n_classes)),
             y=list(range(n_classes)),
             colorscale="Blues",
-            colorbar=dict(title="Prediction Rate (%)", titleside="right"),
+            colorbar=dict(title=dict(text="Prediction Rate (%)", side="right")),
             hovertemplate=("True: %{y}<br>Predicted: %{x}<br>Rate: %{z:.1f}%<extra></extra>"),
         )
     )
@@ -155,3 +155,7 @@ if __name__ == "__main__":
     fig.write_html(str(output_dir / "05_accuracy_confusion_matrix.html"), include_plotlyjs="cdn")
     fig.write_image(str(output_dir / "05_accuracy_confusion_matrix.png"), width=1920, height=1080, scale=2)
     print("Saved 05_accuracy_confusion_matrix.html and 05_accuracy_confusion_matrix.png")
+    fig_dark = create_accuracy_confusion_matrix(dark_mode=True)
+    fig_dark.write_html(str(output_dir / "05_accuracy_confusion_matrix_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_image(str(output_dir / "05_accuracy_confusion_matrix_dark.png"), width=1920, height=1080, scale=2)
+    print("Saved 05_accuracy_confusion_matrix_dark.html and _dark.png")
