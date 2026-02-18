@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 2026-02-18
+
+### Added
+
+- **Release Documentation** (`V1_RELEASE.md`)
+  - Section 1 — Needs Met: Platform gap analysis, development metrics table (194 Python files, ~80,600 LOC, 288 total files, 87 directories), AI model contributions (Claude Code Opus 4.6), 14 numbered deliverable summaries across all releases (v0.1.0 through v0.9.2).
+  - Section 2 — Technical Achievements: Subsections for unification framework, simulation integration, domain examples, digital twin pipelines, agentic AI, CLI tools, regulatory/privacy infrastructure, and standards compliance.
+  - Section 3 — Version History: Detailed timeline of all releases with security audit findings summary (61 findings: 12 security, 14 logic, 35 compliance).
+  - Section 4 — v0.9.2 Standards Compliance: Semantic versioning, CI validation, changelog discipline, security posture, documentation completeness, licensing (MIT), dependency management, reproducibility, compliance/safety.
+
+- **Development Proposals** (`DEVELOPMENT_PROPOSALS.md`)
+  - Proposal 1: Real-Time Federated Safety Signal Detection — streaming AE surveillance with ICH E2B(R3) / MedDRA / FDA FAERS alignment.
+  - Proposal 2: Genomic Biomarker Integration Pipeline — federated GWAS, VCF/MAF processing, precision oncology workflows.
+  - Proposal 3: Adaptive Trial Design Engine — Bayesian adaptive designs, response-adaptive randomization, interim analysis automation.
+  - Comparative feature table and strategic impact matrix across all proposals.
+
+- **Release Notes** (`releases.md/v0.9.2.md`) — Consolidated release documentation.
+
+### Changed
+
+- `README.md` — Updated to v0.9.2 badge, added release summary callout with metrics, expanded repository structure tree with `clinical-analytics/` and `regulatory-submissions/` entries, added `V1_RELEASE.md` and `DEVELOPMENT_PROPOSALS.md` to tree, updated citation version.
+- `pyproject.toml` — Version bumped to 0.9.2.
+- `CITATION.cff` — Updated to v0.9.2 with `clinical-analytics`, `regulatory-submissions`, `survival-analysis`, `pkpd-modeling` keywords and expanded abstract.
+- `prompts.md` — Added Prompt 11 (v0.9.2) for release documentation consolidation.
+
 ## [0.9.1] - 2026-02-18
 
 ### Added

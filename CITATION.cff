@@ -8,7 +8,7 @@ authors:
 repository-code: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 url: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 license: MIT
-version: "0.8.0"
+version: "0.9.2"
 date-released: "2026-02-18"
 keywords:
   - federated-learning
@@ -25,6 +25,10 @@ keywords:
   - agentic-ai
   - simulation-physics
   - cross-platform
+  - clinical-analytics
+  - regulatory-submissions
+  - survival-analysis
+  - pkpd-modeling
 abstract: >-
   A federated machine learning framework for physical AI oncology
   clinical trials. Enables multiple hospitals to collaboratively train
@@ -35,5 +39,7 @@ abstract: >-
   evaluation, and multi-modal sensor fusion. Supports FedAvg, FedProx,
   and SCAFFOLD aggregation strategies with differential privacy, secure
   aggregation, role-based access control, breach response protocols, and
-  multi-site enrollment management. Includes FDA submission tracking
-  and HIPAA/GDPR/FDA 21 CFR Part 11 compliance validation.
+  multi-site enrollment management. Includes clinical analytics (PK/PD
+  modeling, survival analysis, risk stratification, CDISC interoperability),
+  regulatory submissions (eCTD compilation, compliance validation),
+  FDA submission tracking, and HIPAA/GDPR/FDA 21 CFR Part 11 compliance.

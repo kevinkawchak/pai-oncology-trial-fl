@@ -1,7 +1,7 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.8.0-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v0.9.2-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
@@ -10,6 +10,9 @@ Practical tools for Physical AI Federated Learning in oncology clinical trials, 
 > federated learning systems for oncology clinical trials. All modules are intended for research and
 > development use only. Independent clinical validation, IRB approval, and regulatory clearance are
 > required before any component is used in a clinical setting. Patient safety is the highest priority.
+
+> **v0.9.2 Release:** 194 Python modules, ~80,600 LOC, 31 example scripts, 97 test files,
+> 5 CLI tools, 80 Markdown docs. Full release details in [V1_RELEASE.md](V1_RELEASE.md).
 
 ## Quick Start
 
@@ -108,6 +111,23 @@ pai-oncology-trial-fl/
 │   ├── trial-site-monitor/           #   Multi-site trial monitoring (GREEN/YELLOW/RED)
 │   ├── sim-job-runner/               #   Cross-framework simulation job launcher
 │   └── deployment-readiness/         #   Deployment readiness checklist validation
+├── clinical-analytics/               # Federated clinical trial analytics (v0.9.0)
+│   ├── analytics_orchestrator.py     #   Pipeline orchestration & workflow management
+│   ├── pkpd_engine.py                #   Population PK/PD compartmental modeling
+│   ├── risk_stratification.py        #   Clinical risk scoring & adaptive enrichment
+│   ├── trial_data_manager.py         #   Data lifecycle, quality checks, versioning
+│   ├── clinical_interoperability.py  #   ICD-10/SNOMED/LOINC/CDISC mapping
+│   ├── survival_analysis.py          #   Kaplan-Meier, Cox PH, C-index, RMST
+│   ├── consortium_reporting.py       #   DSMB reports, SHA-256 integrity hashing
+│   └── examples-clinical-analytics/  #   6 progressive examples
+├── regulatory-submissions/           # Regulatory submission platform (v0.9.1)
+│   ├── submission_orchestrator.py    #   Submission lifecycle & workflow management
+│   ├── ectd_compiler.py              #   eCTD module compilation (FDA TCG)
+│   ├── compliance_validator.py       #   Multi-regulation validation (9 frameworks)
+│   ├── document_generator.py         #   CSR, SAP, PCCP, ISO 14971, IEC 62304
+│   ├── regulatory_intelligence.py    #   7-jurisdiction guidance tracking
+│   ├── submission_analytics.py       #   KPIs, trends, FDA MDUFA benchmarking
+│   └── examples-regulatory-submissions/  # 6 progressive examples
 ├── configs/                          # Training & deployment configuration
 │   └── training_config.yaml          #   PPO/SAC + federated + safety constraints
 ├── scripts/                          # Utility scripts
@@ -145,6 +165,8 @@ pai-oncology-trial-fl/
 ├── SUPPORT.md
 ├── CHANGELOG.md
 ├── CITATION.cff
+├── V1_RELEASE.md                     # v0.9.2 release documentation
+├── DEVELOPMENT_PROPOSALS.md          # 3 future extension proposals
 ├── LICENSE
 ├── requirements.txt
 ├── pyproject.toml
@@ -334,7 +356,7 @@ python scripts/verify_installation.py
   author = {Kawchak, Kevin},
   year = {2026},
   url = {https://github.com/kevinkawchak/pai-oncology-trial-fl},
-  version = {0.8.0}
+  version = {0.9.2}
 }
 ```
 
