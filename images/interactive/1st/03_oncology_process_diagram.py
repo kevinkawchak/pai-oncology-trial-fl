@@ -113,6 +113,22 @@ def create_oncology_process_diagram(dark_mode=False):
                 values.append(resp_val)
                 colors.append(response_colors[resp_code])
 
+    # Compute branch totals bottom-up so kaleido renders the sunburst
+    _children = {}
+    for _i, (_id, _par) in enumerate(zip(ids, parents)):
+        if _par:
+            _children.setdefault(_par, []).append(_i)
+
+    def _total(idx):
+        id_val = ids[idx]
+        if id_val not in _children:
+            return values[idx]
+        s = sum(_total(c) for c in _children[id_val])
+        values[idx] = s
+        return s
+
+    _total(0)
+
     fig = go.Figure(
         go.Sunburst(
             ids=ids,
@@ -156,10 +172,10 @@ def create_oncology_process_diagram(dark_mode=False):
 if __name__ == "__main__":
     output_dir = Path(__file__).parent
     fig = create_oncology_process_diagram(dark_mode=False)
-    fig.write_html(str(output_dir / "03_oncology_process_diagram.html"), include_plotlyjs="cdn")
+    fig.write_html(str(output_dir / "03_oncology_process_diagram.html"), include_plotlyjs=True)
     fig.write_image(str(output_dir / "03_oncology_process_diagram.png"), width=1920, height=1080, scale=2)
     print("Saved 03_oncology_process_diagram.html and .png")
     fig_dark = create_oncology_process_diagram(dark_mode=True)
-    fig_dark.write_html(str(output_dir / "03_oncology_process_diagram_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_html(str(output_dir / "03_oncology_process_diagram_dark.html"), include_plotlyjs=True)
     fig_dark.write_image(str(output_dir / "03_oncology_process_diagram_dark.png"), width=1920, height=1080, scale=2)
     print("Saved 03_oncology_process_diagram_dark.html and _dark.png")

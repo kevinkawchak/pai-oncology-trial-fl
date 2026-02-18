@@ -74,7 +74,7 @@ def generate(output_type="all"):
                     if output_type in ("html", "all"):
                         fig.write_html(
                             str(output_dir / f"{fname}.html"),
-                            include_plotlyjs="cdn",
+                            include_plotlyjs=True,
                         )
                         total += 1
                         print(f"  HTML: {set_name}/{fname}.html")
