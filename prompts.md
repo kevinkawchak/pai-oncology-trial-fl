@@ -4,6 +4,35 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 9: v0.9.0 — Extended Platform Module A (Clinical Analytics)
+
+Consolidates: v1.1.1 (federation: 7 modules + 6 examples + 125 tests) — templated for clinical analytics domain extension
+
+Dependencies: Prompt 8
+
+```
+Build clinical-analytics/ for pai-oncology-trial-fl — a federated clinical trial analytics platform providing privacy-preserving analytics for multi-site oncology trials.
+1. clinical-analytics/ with README.md (architecture diagram in text, directory tree, per-component descriptions with class names and algorithms, quick start code examples, compliance alignment table covering ICH E6(R3) / 21 CFR Part 11 / HIPAA / FDA AI/ML / CDISC / IEC 62304, roadmap alignment notes):
+* analytics_orchestrator.py (600-1000 LOC): Core orchestrator. 3+ Enums for strategies/statuses/states (AnalyticsPhase, TaskStatus, AggregationMode), 5+ @dataclasses (AnalyticsConfig, AnalyticsTask, PipelineManifest), main ClinicalAnalyticsOrchestrator class, 21 CFR Part 11 audit logging, convergence/completion tracking.
+* pkpd_engine.py (500-800 LOC): Population PK/PD modeling. CompartmentModel/EstimationMethod/AbsorptionRoute Enums, one- and two-compartment models with analytical and ODE solutions (scipy.integrate.solve_ivp), NCA (AUC, Cmax, Tmax, t½), EmaxModel dose-response, allometric clearance.
+* risk_stratification.py (500-800 LOC): Clinical risk scoring and adaptive enrichment. RiskCategory/EnrichmentAction Enums, ClinicalRiskStratifier with composite weighted scores, AdaptiveEnrichmentAdvisor with per-stratum decision support, Hosmer-Lemeshow calibration.
+* trial_data_manager.py (500-800 LOC): Data lifecycle management. DatasetStatus/QualityLevel/QueryStatus Enums, TrialDataManager for multi-site dataset registration, schema validation, quality checks, immutable audit trails.
+* clinical_interoperability.py (500-800 LOC): Vocabulary mapping and standards conversion. ICD-10/SNOMED CT crosswalk, LOINC/RxNorm/MedDRA mappings, unit conversion (lb→kg, in→cm, F→C, mg/dL→mmol/L), schema reconciliation, CDISC SDTM DM/LB/AE export.
+* survival_analysis.py (500-800 LOC): Privacy-preserving survival analysis. Kaplan-Meier with Greenwood SE, log-rank test, Cox PH via BFGS with Breslow ties, Harrell's C-index, RMST.
+* consortium_reporting.py (500-800 LOC): DSMB reporting. ReportType/ReportStatus Enums, ConsortiumReportingEngine for enrollment dashboards, safety summaries, efficacy snapshots, SHA-256 integrity hashing.
+2. clinical-analytics/examples-clinical-analytics/: README.md + 6 progressive examples (200-400 LOC):
+* 01_basic_analytics_pipeline.py: Minimal working example with synthetic cohort and descriptive stats.
+* 02_pkpd_modeling.py: One-compartment and two-compartment PK, NCA, Emax.
+* 03_risk_stratification.py: Composite risk scoring, calibration assessment.
+* 04_data_harmonization.py: ICD-10→SNOMED mapping, schema alignment, SDTM export.
+* 05_survival_analysis.py: KM estimation, log-rank, Cox PH, C-index, RMST.
+* 06_full_clinical_analytics_workflow.py: End-to-end combining all components.
+3. tests/test_clinical_analytics/: __init__.py + one test file per component (7 files, 150-300 LOC each, 12-22 tests per file, 100+ total). Use sys.path.insert or load_module() as appropriate.
+4. Updates: ruff.toml per-file-ignores, README.md structure tree. Quality gates: All code passes ruff check + ruff format --check. RESEARCH USE ONLY in all modules. Structured logging, dataclass configs, Enum states. Tests pass with numpy/scipy/pytest/pyyaml only. No external services — all communication simulated in-process. Only Python 3.10+ stdlib + numpy/scipy. Identical directory/example structure as existing platform modules.
+```
+
+---
+
 ## Prompt 8: v0.8.0 — Comprehensive Test Suite
 
 Consolidates: v1.0.1 (1,289 tests, 54 modules) + v1.1.1 test additions (125 tests)

@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-02-18
+
+### Added
+
+- **Clinical Analytics Platform Module** (`clinical-analytics/`)
+  - `analytics_orchestrator.py` (700+ LOC) — Core pipeline orchestrator with `AnalyticsPhase`/`TaskStatus`/`AggregationMode` Enums, `AnalyticsConfig`/`AnalyticsTask`/`PipelineManifest` dataclasses, `ClinicalAnalyticsOrchestrator` class managing DAG-based task scheduling, federated dispatch, convergence tracking, and 21 CFR Part 11 audit logging.
+  - `pkpd_engine.py` (700+ LOC) — Population PK/PD compartmental modeling with `CompartmentModel`/`EstimationMethod`/`AbsorptionRoute` Enums, `OneCompartmentModel`/`TwoCompartmentModel` classes with analytical and ODE-based solutions via `scipy.integrate.solve_ivp`, `EmaxModel` sigmoidal dose-response with Hill coefficient, NCA computation (trapezoidal AUC, Cmax, Tmax, terminal half-life), allometric clearance adjustment.
+  - `risk_stratification.py` (700+ LOC) — Multi-factor clinical risk scoring with `RiskCategory`/`EnrichmentAction` Enums, `PatientRiskProfile`/`StratificationResult` dataclasses, `ClinicalRiskStratifier` computing composite weighted risk scores across tumor burden, biomarkers, ECOG PS, comorbidity indices, `AdaptiveEnrichmentAdvisor` with decision-support recommendations per stratum, Hosmer-Lemeshow calibration assessment.
+  - `trial_data_manager.py` (600+ LOC) — Data lifecycle management with `DatasetStatus`/`QualityLevel`/`QueryStatus` Enums, `DatasetRegistration`/`QualityCheckResult`/`DataQuery` dataclasses, `TrialDataManager` for multi-site dataset registration, schema validation, completeness/range/consistency checks, immutable audit trails.
+  - `clinical_interoperability.py` (800+ LOC) — Cross-system vocabulary mapping with ICD-10/SNOMED CT crosswalk (12 oncology codes), LOINC/RxNorm/MedDRA mappings, unit conversion (lb→kg, in→cm, F→C, mg/dL→mmol/L), `align_schemas()` for cross-site schema reconciliation detecting type mismatches and unit conflicts, `export_to_sdtm()` generating CDISC SDTM DM/LB/AE domain records.
+  - `survival_analysis.py` (800+ LOC) — Privacy-preserving survival analysis with `kaplan_meier()` product-limit estimator using Greenwood standard errors and log-log confidence intervals, `log_rank_test()` Mantel-Haenszel test, `fit_cox_ph()` via BFGS partial likelihood maximization with Breslow ties, `concordance_index()` Harrell's C-index, `compute_rmst()` restricted mean survival time.
+  - `consortium_reporting.py` (600+ LOC) — DSMB report generation with `ReportType`/`ReportStatus` Enums, `ReportSection`/`DSMBPackage` dataclasses, `ConsortiumReportingEngine` producing enrollment dashboards, safety summaries, efficacy snapshots, and regulatory submission appendices with SHA-256 integrity hashing and provenance metadata.
+  - `README.md` — Architecture diagram, directory tree, per-component descriptions with class names and algorithms, quick start code examples, compliance alignment table (ICH E6(R3) / 21 CFR Part 11 / HIPAA / FDA AI/ML / CDISC / IEC 62304), roadmap alignment notes.
+
+- **Clinical Analytics Examples** (`clinical-analytics/examples-clinical-analytics/`, 6 scripts)
+  - `01_basic_analytics_pipeline.py` — Minimal working example: synthetic cohort generation, descriptive statistics, structured report.
+  - `02_pkpd_modeling.py` — One-compartment and two-compartment PK models, NCA, Emax dose-response.
+  - `03_risk_stratification.py` — Composite risk scoring, category assignment, calibration assessment.
+  - `04_data_harmonization.py` — ICD-10→SNOMED mapping, schema alignment, unit conversion, SDTM export.
+  - `05_survival_analysis.py` — Kaplan-Meier estimation, log-rank test, Cox PH fitting, C-index, RMST.
+  - `06_full_clinical_analytics_workflow.py` — End-to-end pipeline combining all components with timing and DSMB report.
+  - `README.md` — Example overview table, prerequisites, run commands, conventions.
+
+- **Clinical Analytics Tests** (`tests/test_clinical_analytics/`, 7 files)
+  - `test_analytics_orchestrator.py` — Orchestrator pipeline, task scheduling, convergence tracking.
+  - `test_pkpd_engine.py` — Compartment models, NCA, Emax, clearance adjustment.
+  - `test_risk_stratification.py` — Risk scoring, category assignment, enrichment advisory.
+  - `test_trial_data_manager.py` — Dataset registration, quality checks, audit trails.
+  - `test_clinical_interoperability.py` — Vocabulary mapping, schema alignment, SDTM export.
+  - `test_survival_analysis.py` — KM estimator, log-rank, Cox PH, C-index, RMST.
+  - `test_consortium_reporting.py` — Report generation, integrity hashing, provenance metadata.
+
+### Changed
+
+- `ruff.toml` — Added per-file-ignores for `clinical-analytics/*.py` and `clinical-analytics/**/*.py`.
+
 ## [0.8.0] - 2026-02-18
 
 ### Added
