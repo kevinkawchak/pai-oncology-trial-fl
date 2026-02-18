@@ -4,6 +4,34 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 6: v0.6.0 — Privacy Framework and Regulatory Compliance Infrastructure
+
+Consolidates: v0.5.0 (privacy: PHI/PII, de-identification, access control, breach response, DUA + regulatory: FDA, IRB, ICH-GCP, regulatory intelligence)
+
+Dependencies: Prompt 1
+
+```
+Build the complete privacy and regulatory compliance infrastructure for pai-oncology-trial-fl.
+1. Privacy Framework (privacy/)
+README.md: Version, overview, directory tree, HIPAA alignment, regulatory cross-references (HIPAA, 21 CFR Part 11, GDPR, EU AI Act, NIST Privacy Framework, ICH E6(R3)), all 18 HIPAA identifiers listed.
+* phi-pii-management/: README.md + phi_detector.py (500-700 LOC). PHICategory Enum mapping all 18 Safe Harbor identifiers per 45 CFR 164.514(b)(2). @dataclass PHIFinding (phi_type, location, value_preview redacted, confidence, risk_level). PHIDetector class: regex patterns for SSN, MRN, phone, email, dates, geographic, IP, ZIP; DICOM tag scanning (conditional pydicom import); optional Presidio integration; batch scanning with ScanResult @dataclass. Non-destructive logging (never log full PHI values).
+* de-identification/: README.md + deidentification_pipeline.py (500-700 LOC). DeidentificationMethod Enum (REDACT, HASH, GENERALIZE, SUPPRESS, PSEUDONYMIZE, DATE_SHIFT). HMAC-SHA256 pseudonymization with cryptographically random salt via os.urandom (NOT weak default). Date shifting with consistent patient-level offsets. Geographic generalization (ZIP to 3-digit). Transformation audit trail.
+* access-control/: README.md + access_control_manager.py (400-600 LOC). Role-Based Access Control with AccessRole, Permission, AuditAction Enums. 21 CFR Part 11 audit trail. get_audit_log() must return a copy (not mutable reference). Invalid date formats must deny access by default.
+* breach-response/: README.md + breach_response_protocol.py (400-600 LOC). BreachSeverity Enum. RiskAssessment with calculate_risk() that clamps out-of-range scores. 60-day notification timeline. Remediation tracking.
+* dua-templates/: README.md + dua_generator.py (300-500 LOC). DUAType Enum. Templates for intra-institutional, multi-site, commercial. Data retention periods. Security requirements (encryption, MFA).
+2. Regulatory Framework (regulatory/)
+README.md: Version, regulatory landscape overview, directory tree, standards cross-reference, FDA device statistics.
+* fda-compliance/: README.md + fda_submission_tracker.py (500-700 LOC). SubmissionType Enum (510k, De_Novo, PMA, Breakthrough). SubmissionStatus Enum. DeviceClass Enum. AI/ML components default to model_type="unspecified" (not "classification"). Reference FDA draft guidance for AI devices (Jan 2025), PCCP guidance (Aug 2025), QMSR (Feb 2026).
+* irb-management/: README.md + irb_protocol_manager.py (400-600 LOC). Use from __future__ import annotations for forward references. Protocol lifecycle, amendment management, consent versioning.
+* ich-gcp/: README.md + gcp_compliance_checker.py (400-600 LOC). Compliance score must exclude NOT_ASSESSED findings from denominator. Reference ICH E6(R3) published Sep 2025.
+* regulatory-intelligence/: README.md + regulatory_tracker.py (400-600 LOC). Multi-jurisdiction monitoring (FDA, EMA, PMDA, TGA, Health Canada). get_recent_updates() must actually use computed cutoff date. Overdue status must be reachable (correct if/elif ordering: check past-due BEFORE imminent).
+* human-oversight/: HUMAN_OVERSIGHT_QMS.md: CRF auto-fill risk tiers (low/medium/high with different automation levels), AE automation boundaries (detection: auto; grading: draft; causality: advisory; submission: prohibited without e-signature), safety gates (SAE immediate escalation, no autonomous regulatory submission, >95% sensitivity for AE detection).
+3. Updates: Add per-file-ignores (regulatory/**/*.py = ["F401", "F821"], privacy/**/*.py = ["F401"]). Update README.md.
+Quality gates: All files pass ruff check + ruff format --check. HIPAA cites specific 45 CFR sections. FDA cites guidance documents with dates. ICH cites E6(R3). IEC cites 62304/80601-2-77. ISO cites 14971. 21 CFR Part 11 in all audit trails. No actual PHI in any file. Pseudonymization uses HMAC-SHA256 with os.urandom.
+```
+
+---
+
 ## Prompt 5: v0.5.0 — Domain Examples and Engineering Demonstrations
 
 Consolidates: v0.6.0 (5 core examples) + v0.7.0 (6 physical AI examples) + v0.9.0 (6 agentic AI examples)
