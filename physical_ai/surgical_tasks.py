@@ -1,5 +1,7 @@
 """Surgical task definitions for oncology robotic procedures.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Defines standardised task specifications for common oncology surgical
 procedures including biopsy needle insertion, tissue resection, specimen
 handling, and shunt placement.  Each task includes clinical accuracy

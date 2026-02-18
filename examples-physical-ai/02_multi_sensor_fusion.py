@@ -648,7 +648,7 @@ class AnomalyDetector:
                     anomaly_type=AnomalyType.VITAL_SIGN_ALERT,
                     severity=0.8,
                     description=f"Vital sign out of range: {vital_name}={value:.1f} (range: {low}-{high})",
-                    values={"vital_name": 0.0, "value": value, "low": low, "high": high},
+                    values={"vital_name": vital_name, "value": value, "low": low, "high": high},
                 )
                 anomalies.append(record)
 

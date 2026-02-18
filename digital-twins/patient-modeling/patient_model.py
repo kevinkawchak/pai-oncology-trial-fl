@@ -506,8 +506,8 @@ class PatientPhysiologyEngine:
             time_step_days=time_step_days,
         )
         baseline_value = self.config.biomarkers.get_value(biomarker_name)
-        if baseline_value <= 0.0:
-            baseline_value = 10.0
+        if baseline_value < 0.0:
+            baseline_value = 0.01
 
         # Scale biomarker relative to tumor volume change
         volume_ratio = tumor_trajectory / max(self.config.tumor_profile.volume_cm3, MIN_TUMOR_VOLUME_CM3)

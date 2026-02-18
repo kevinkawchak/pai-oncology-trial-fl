@@ -930,7 +930,7 @@ class BenchmarkRunner:
         if not HAS_TORCH:
             raise BenchmarkError("PyTorch is required but not installed")
 
-        model = torch.load(config.model_path, map_location=config.device, weights_only=False)
+        model = torch.load(config.model_path, map_location=config.device, weights_only=True)
         if hasattr(model, "eval"):
             model.eval()
 

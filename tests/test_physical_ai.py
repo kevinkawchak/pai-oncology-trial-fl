@@ -1,4 +1,7 @@
-"""Tests for physical AI modules."""
+"""Tests for physical AI modules.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 import pytest

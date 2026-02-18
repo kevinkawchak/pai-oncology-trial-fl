@@ -1,5 +1,7 @@
 """Differential privacy for federated learning.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Implements the Gaussian mechanism: model updates are clipped to a
 maximum L2 norm and calibrated Gaussian noise is added, providing
 (epsilon, delta)-differential privacy guarantees per round.
@@ -56,7 +58,9 @@ class DifferentialPrivacy:
     def clip_parameters(self, params: list[np.ndarray]) -> list[np.ndarray]:
         """Clip parameter tensors so their total L2 norm <= max_grad_norm."""
         total_norm = math.sqrt(sum(float(np.sum(p**2)) for p in params))
-        scale = min(1.0, self.max_grad_norm / max(total_norm, 1e-12))
+        if total_norm == 0.0:
+            return [p.copy() for p in params]
+        scale = min(1.0, self.max_grad_norm / total_norm)
         return [p * scale for p in params]
 
     def add_noise_to_parameters(

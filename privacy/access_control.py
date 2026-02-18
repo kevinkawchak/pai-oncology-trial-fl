@@ -250,7 +250,7 @@ class AccessControlManager:
 
     def get_access_log(self, user_id: str | None = None, granted: bool | None = None) -> list[dict]:
         """Query access log with optional filters."""
-        results = self._access_log
+        results = list(self._access_log)
         if user_id is not None:
             results = [r for r in results if r["user_id"] == user_id]
         if granted is not None:

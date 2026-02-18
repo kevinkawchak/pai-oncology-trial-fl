@@ -1,5 +1,7 @@
 """Patient digital twin for oncology treatment simulation.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 A digital twin is a patient-specific computational model that mirrors
 a real patient's tumor characteristics and can simulate treatment
 responses — enabling safer planning and federated model validation

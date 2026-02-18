@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Generate synthetic oncology datasets for federated learning.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Produces CSV files with de-identified clinical features, suitable for
 testing the federated training pipeline.
 

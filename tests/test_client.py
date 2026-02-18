@@ -1,4 +1,7 @@
-"""Tests for the federated client."""
+"""Tests for the federated client.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 import pytest

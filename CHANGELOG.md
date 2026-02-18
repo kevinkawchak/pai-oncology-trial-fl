@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-02-18
+
+### Security
+
+- **torch.load Arbitrary Code Execution (5 instances):**
+  - `conversion_pipeline.py` — Four `torch.load()` calls changed from `weights_only=False` to `weights_only=True` (lines 575, 619, 1020, 1085)
+  - `benchmark_runner.py` — One `torch.load()` call changed from `weights_only=False` to `weights_only=True` (line 933)
+
+- **np.load Pickle Deserialization (1 instance):**
+  - `model_validator.py` — Added `allow_pickle=False` to prevent arbitrary code execution (line 1096)
+
+- **Weak Hashing Without HMAC (3 instances):**
+  - `federated/secure_aggregation.py` — Replaced plain `hashlib.sha256` with `hmac.new()` HMAC-SHA256 (line 107)
+  - `privacy/audit_logger.py` — `_compute_hash()` now uses HMAC-SHA256 with module-level key (line 80)
+  - `digital-twins/clinical-integration/clinical_integrator.py` — Patient ID hashing migrated from SHA-256 to HMAC-SHA256 (line 298)
+
+- **Mutable Audit Log References (3 instances):**
+  - `privacy/access_control.py` — `get_access_log()` now returns `list()` copy (line 253)
+  - `privacy/consent_manager.py` — `get_audit_trail()` now returns `list()` copy (line 191)
+  - `federated/coordinator.py` — `get_server_control()` and `get_client_control()` return `[p.copy()]` (lines 158, 174)
+
+- **Weak Pseudonymization Salt (1 instance):**
+  - `privacy/deidentification.py` — Replaced hardcoded `"pai-oncology-salt"` with `os.urandom(32)` default (line 64)
+
+### Fixed
+
+- **Division by Zero — Federation Coordinator (CRITICAL):**
+  - `federated/coordinator.py` line 217 — Weight computation when `client_sample_counts` sums to zero now falls back to uniform weights
+  - `federated/coordinator.py` line 293 — SCAFFOLD control update with zero clients now early-returns
+
+- **Division by Zero — Gradient Clipping:**
+  - `federated/differential_privacy.py` line 59 — Explicit zero-norm check returns copies instead of dividing
+
+- **Truthiness Bug — Dose Calculator:**
+  - `tools/dose-calculator/dose_calculator.py` line 386 — `max_dose=0` no longer treated as falsy; changed `or` chain to explicit `is None` check
+
+- **Truthiness Bug — Patient Model:**
+  - `digital-twins/patient-modeling/patient_model.py` line 509 — Zero biomarker values no longer rejected; changed `<= 0.0` to `< 0.0`
+
+- **Dead Data — Multi-Sensor Fusion:**
+  - `examples-physical-ai/02_multi_sensor_fusion.py` line 651 — Anomaly record `"vital_name"` key was hardcoded to `0.0`; replaced with actual `vital_name` variable
+
+- **Division by Zero — Outcome Prediction:**
+  - `examples/05_outcome_prediction_pipeline.py` lines 721-722 — Explicit zero-patient check with `0.0` default percentages
+
+- **Missing Null Check — Treatment Simulator:**
+  - `digital-twins/treatment-simulation/treatment_simulator.py` line 301 — Added RuntimeError when NumPy trapezoid/trapz is unavailable
+
+### Changed
+
+- **RESEARCH USE ONLY Compliance:** Added disclaimer to 35 Python module docstrings that were missing it (all 82 modules now compliant)
+
+### Added
+
+- `SECURITY_AUDIT.md` — Comprehensive audit report documenting 61 findings (12 security, 14 logic, 35 compliance) with full remediation details, severity ratings, and ongoing security recommendations
+
 ## [0.6.0] - 2026-02-18
 
 ### Added

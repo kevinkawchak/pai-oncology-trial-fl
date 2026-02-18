@@ -1,4 +1,7 @@
-"""Tests for the federation coordinator."""
+"""Tests for the federation coordinator.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 import pytest

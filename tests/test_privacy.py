@@ -1,4 +1,7 @@
-"""Tests for privacy modules."""
+"""Tests for privacy modules.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 from privacy.access_control import AccessControlManager, Permission, Role
 from privacy.audit_logger import AuditLogger, EventType, Severity

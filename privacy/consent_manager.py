@@ -1,5 +1,7 @@
 """Consent and Data Use Agreement (DUA) management.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Tracks patient consent status and DUA compliance for multi-site
 federated learning studies, ensuring that data is only used in
 accordance with approved protocols.

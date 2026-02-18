@@ -1,4 +1,7 @@
-"""Tests for data ingestion and partitioning."""
+"""Tests for data ingestion and partitioning.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 import pytest

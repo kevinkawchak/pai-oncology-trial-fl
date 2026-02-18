@@ -572,7 +572,7 @@ class ConversionPipeline:
             raise ConversionError("ONNX is required for ONNX target format but is not installed")
 
         output_path = os.path.join(config.output_dir, f"{config.model_name}.onnx")
-        model = torch.load(config.source_path, map_location=config.device, weights_only=False)
+        model = torch.load(config.source_path, map_location=config.device, weights_only=True)
         model.eval()
 
         dummy_input_np = _generate_dummy_input(config.input_shape)
@@ -616,7 +616,7 @@ class ConversionPipeline:
             raise ConversionError("SafeTensors library is required but is not installed")
 
         output_path = os.path.join(config.output_dir, f"{config.model_name}.safetensors")
-        model = torch.load(config.source_path, map_location=config.device, weights_only=False)
+        model = torch.load(config.source_path, map_location=config.device, weights_only=True)
 
         if hasattr(model, "state_dict"):
             state_dict = model.state_dict()
@@ -1017,7 +1017,7 @@ class ConversionPipeline:
         _ensure_directory(models_dir)
         _ensure_directory(configs_dir)
 
-        state_dict = torch.load(config.source_path, map_location=config.device, weights_only=False)
+        state_dict = torch.load(config.source_path, map_location=config.device, weights_only=True)
         if hasattr(state_dict, "state_dict"):
             state_dict = state_dict.state_dict()
 
@@ -1082,7 +1082,7 @@ class ConversionPipeline:
         if not HAS_TORCH:
             raise ConversionError("PyTorch is required for inference but is not installed")
 
-        model = torch.load(model_path, map_location=device, weights_only=False)
+        model = torch.load(model_path, map_location=device, weights_only=True)
         if hasattr(model, "eval"):
             model.eval()
             with torch.no_grad():

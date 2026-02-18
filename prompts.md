@@ -4,6 +4,48 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 7: v0.7.0 — Security, Logic, and Compliance Audit
+
+Consolidates: v0.9.1 (15 files) + v0.9.2 (21 files, 13 critical bugs, 2 security vulns)
+
+Dependencies: Prompts 1-6
+
+```
+Perform a comprehensive security, logic, and compliance audit of ALL Python files in pai-oncology-trial-fl. Identify and fix real bugs. This is not a cosmetic pass.
+Category 1 — Security Vulnerabilities:
+* Replace every torch.load(path) with torch.load(path, weights_only=True).
+* Replace every np.load(path, allow_pickle=True) with allow_pickle=False.
+* Verify all hashing uses HMAC-SHA256 with os.urandom salt, not simple hashlib or weak static salts like "default_salt".
+* Verify get_audit_log() returns a copy, not a mutable reference.
+* Verify invalid access expiration dates deny access (not silently grant).
+Category 2 — Logic Bugs:
+* Division by zero: guard all division ops, especially means/ratios/rates. Return sensible defaults.
+* Infinite loops: bound all while loops with MAX_ITERATIONS constant.
+* Sign errors: verify Jacobian signs, gradient signs, rate decay signs.
+* Inverted ratios: hazard ratio = experimental/control (HR<1 favors experimental).
+* Dead code: remove multiplication by 0.0, unreachable branches.
+* Floating-point equality: replace == with np.isclose() or tolerance-based comparisons.
+* Truthiness bugs: use is not None instead of if value: when zero is a valid value.
+* CLI falsy-value bugs: --arg 0 must not be replaced by defaults.
+* State machine completeness: if/elif chains must handle all states.
+* Loop variable scope: for x in collection must iterate correct filtered collection.
+* Format strings: verify %.1f%% not %.1%%.
+* Bidirectional completeness: if a bridge handles A→B, verify it also handles B→A.
+* Parser fallbacks: wrong format detection must raise NotImplementedError.
+* Validation thresholds: success rate must use fixed task-appropriate thresholds.
+Category 3 — Compliance:
+* Add RESEARCH USE ONLY to every Python module docstring missing it.
+* Verify audit trail logging in all privacy/regulatory modules.
+* Verify DATE_SHIFT is explicitly handled.
+* Change model_type="classification" defaults to "unspecified".
+* Safety constraints must report requires_runtime_verification, not auto-pass.
+* Add missing imports, remove unused imports.
+Deliverable: Fix all findings in-place. Create SECURITY_AUDIT.md.
+Quality gates: All fixes maintain ruff check + ruff format --check. No API changes. Division guards return defaults. Loop bounds use named constants. Every module has RESEARCH USE ONLY.
+```
+
+---
+
 ## Prompt 6: v0.6.0 — Privacy Framework and Regulatory Compliance Infrastructure
 
 Consolidates: v0.5.0 (privacy: PHI/PII, de-identification, access control, breach response, DUA + regulatory: FDA, IRB, ICH-GCP, regulatory intelligence)

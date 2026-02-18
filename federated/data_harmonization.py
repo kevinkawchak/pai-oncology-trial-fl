@@ -1,5 +1,7 @@
 """Data harmonization for multi-site federated oncology trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Different hospitals encode clinical data using varying vocabularies,
 units, and formats.  This module provides automated mapping and
 normalisation routines so that data arriving from heterogeneous sources

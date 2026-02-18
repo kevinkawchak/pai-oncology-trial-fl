@@ -1,5 +1,7 @@
 """Surgical robotics integration for oncology trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Provides abstractions for surgical robot systems (e.g. da Vinci)
 used in oncology procedures, enabling federated-learning-informed
 surgical planning and telemetry collection across trial sites.

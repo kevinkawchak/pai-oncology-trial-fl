@@ -1,4 +1,7 @@
-"""Privacy infrastructure for HIPAA/GDPR-compliant federated learning."""
+"""Privacy infrastructure for HIPAA/GDPR-compliant federated learning.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 from privacy.access_control import AccessControlManager
 from privacy.audit_logger import AuditLogger

@@ -1093,7 +1093,7 @@ class ModelValidator:
             return tensors
 
         elif fmt in ("numpy_npz", "npz"):
-            data = np.load(metadata.artifact_path)
+            data = np.load(metadata.artifact_path, allow_pickle=False)
             return dict(data)
 
         else:

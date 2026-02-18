@@ -36,6 +36,7 @@ Copyright (c) 2026 PAI Oncology Trial FL Contributors
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import logging
 import time
@@ -295,7 +296,9 @@ def _deidentify_record(record: dict[str, Any]) -> dict[str, Any]:
 
     if "patient_id" in cleaned:
         raw_id = str(cleaned["patient_id"])
-        cleaned["patient_id"] = f"DI-{hashlib.sha256(raw_id.encode()).hexdigest()[:12].upper()}"
+        cleaned["patient_id"] = (
+            f"DI-{hmac.new(b'pai-oncology-patient-id-key', raw_id.encode(), hashlib.sha256).hexdigest()[:12].upper()}"
+        )
 
     return cleaned
 

@@ -383,7 +383,9 @@ def validate_oar_dose(organ: str, dose_gy: float) -> DoseCalculation:
         calc.warnings.append(f"No OAR constraints found for '{organ}'. Available: {list(OAR_CONSTRAINTS_GY.keys())}.")
         return calc
 
-    max_allowed = constraints.get("max_dose") or constraints.get("mean_dose", math.inf)
+    max_allowed = constraints.get("max_dose")
+    if max_allowed is None:
+        max_allowed = constraints.get("mean_dose", math.inf)
     calc.is_within_bounds = dose_gy <= max_allowed
     if not calc.is_within_bounds:
         calc.warnings.append(

@@ -1,5 +1,7 @@
 """Data ingestion utilities for federated oncology trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Provides functions to generate synthetic oncology datasets and
 partition them across multiple simulated hospital sites using
 IID or non-IID strategies.

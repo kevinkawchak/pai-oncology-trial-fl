@@ -1,4 +1,7 @@
-"""Tests for site enrollment management."""
+"""Tests for site enrollment management.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 from federated.site_enrollment import SiteEnrollmentManager, SiteStatus
 

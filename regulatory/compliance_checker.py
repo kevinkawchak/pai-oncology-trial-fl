@@ -1,5 +1,7 @@
 """Compliance validation for federated oncology trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Checks that the federated learning configuration and data handling
 practices meet HIPAA, GDPR, and FDA regulatory requirements before
 training begins.

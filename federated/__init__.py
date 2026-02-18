@@ -1,4 +1,7 @@
-"""Federated learning framework for physical AI oncology trials."""
+"""Federated learning framework for physical AI oncology trials.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 __version__ = "0.2.0"
 

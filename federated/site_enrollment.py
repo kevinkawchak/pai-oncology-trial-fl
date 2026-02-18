@@ -1,5 +1,7 @@
 """Site enrollment management for federated oncology trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Tracks which hospital sites have enrolled in a federated study,
 validates their readiness (data availability, consent, compliance),
 and manages the lifecycle of site participation including enrollment,
