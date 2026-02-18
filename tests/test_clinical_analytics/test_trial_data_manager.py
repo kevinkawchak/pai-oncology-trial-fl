@@ -104,8 +104,11 @@ class TestDataQualityReport:
     def test_scores_clamped_to_01(self):
         """Quality scores are clamped to [0, 1]."""
         report = mod.DataQualityReport(
-            completeness=1.5, accuracy=-0.3, consistency=0.5,
-            timeliness=2.0, composite_score=3.0,
+            completeness=1.5,
+            accuracy=-0.3,
+            consistency=0.5,
+            timeliness=2.0,
+            composite_score=3.0,
         )
         assert 0.0 <= report.completeness <= 1.0
         assert 0.0 <= report.accuracy <= 1.0

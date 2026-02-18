@@ -112,9 +112,7 @@ class TrialConfig:
     therapeutic_area: str = "Oncology -- Non-Small Cell Lung Cancer"
     n_sites: int = 4
     patients_per_site: int = 50
-    treatment_arms: list[str] = field(
-        default_factory=lambda: ["Placebo", "Experimental"]
-    )
+    treatment_arms: list[str] = field(default_factory=lambda: ["Placebo", "Experimental"])
     primary_endpoint: str = "Progression-Free Survival (PFS)"
     alpha: float = 0.05
     seed: int = 42
@@ -140,9 +138,7 @@ class TrialDataManager:
         self._validation_log: list[dict[str, Any]] = []
         logger.info("TrialDataManager initialized | study=%s", config.study_id)
 
-    def register_site_data(
-        self, site_id: str, records: list[dict[str, Any]]
-    ) -> dict[str, Any]:
+    def register_site_data(self, site_id: str, records: list[dict[str, Any]]) -> dict[str, Any]:
         """Register and validate a site dataset.
 
         Args:
@@ -177,7 +173,9 @@ class TrialDataManager:
         self._validation_log.append(summary)
         logger.info(
             "Registered site %s | n=%d | issues=%d",
-            site_id, n_total, len(issues),
+            site_id,
+            n_total,
+            len(issues),
         )
         return summary
 
@@ -195,9 +193,14 @@ class TrialDataManager:
 
 
 ICD10_TO_SNOMED: dict[str, str] = {
-    "C34.1": "254637007", "C34.9": "93880001", "C50.9": "254838004",
-    "C18.9": "363406005", "C61": "399068003", "C43.9": "372244006",
-    "C64.9": "93849006", "C25.9": "363418001",
+    "C34.1": "254637007",
+    "C34.9": "93880001",
+    "C50.9": "254838004",
+    "C18.9": "363406005",
+    "C61": "399068003",
+    "C43.9": "372244006",
+    "C64.9": "93849006",
+    "C25.9": "363418001",
 }
 
 
@@ -244,14 +247,18 @@ class ClinicalInteroperability:
 
             harmonized.append(h)
 
-        self._harmonization_log.append({
-            "n_records": len(records),
-            "n_terminology_mapped": n_mapped,
-            "n_units_converted": n_converted,
-        })
+        self._harmonization_log.append(
+            {
+                "n_records": len(records),
+                "n_terminology_mapped": n_mapped,
+                "n_units_converted": n_converted,
+            }
+        )
         logger.info(
             "Harmonized %d records | mapped=%d | converted=%d",
-            len(records), n_mapped, n_converted,
+            len(records),
+            n_mapped,
+            n_converted,
         )
         return harmonized
 
@@ -264,9 +271,7 @@ class ClinicalInteroperability:
             "total_records": latest["n_records"],
             "terminology_mapped": latest["n_terminology_mapped"],
             "units_converted": latest["n_units_converted"],
-            "mapping_rate": round(
-                latest["n_terminology_mapped"] / max(latest["n_records"], 1), 4
-            ),
+            "mapping_rate": round(latest["n_terminology_mapped"] / max(latest["n_records"], 1), 4),
         }
 
 
@@ -289,10 +294,10 @@ def run_pkpd_analysis(
         PK/PD analysis results.
     """
     # One-compartment parameters
-    ka = 1.2   # absorption rate (1/h)
+    ka = 1.2  # absorption rate (1/h)
     ke = 0.15  # elimination rate (1/h)
     vd = 50.0  # volume of distribution (L)
-    f = 0.85   # bioavailability
+    f = 0.85  # bioavailability
 
     t = np.linspace(0.01, 48.0, 500)
     coeff = (f * dose_mg * ka) / (vd * (ka - ke))
@@ -464,7 +469,7 @@ def compute_survival_endpoints(
             di = int(np.sum((t_s == ti) & (e_s == 1)))
             ni = int(np.sum(t_s >= ti))
             if ni > 0:
-                s *= (1 - di / ni)
+                s *= 1 - di / ni
             if s <= 0.5:
                 med = float(ti)
                 break
@@ -506,6 +511,7 @@ def compute_survival_endpoints(
         return -ll
 
     from scipy.optimize import minimize as sp_min
+
     res = sp_min(neg_pll, np.array([0.0]), method="BFGS")
     beta_hat = float(res.x[0])
     hr_est = float(np.exp(beta_hat))
@@ -532,7 +538,7 @@ def compute_survival_endpoints(
             di = int(np.sum((t_sa == ti) & (e_sa == 1)))
             ni = int(np.sum(t_sa >= ti))
             if ni > 0:
-                s *= (1 - di / ni)
+                s *= 1 - di / ni
             t_curve.append(float(ti))
             s_curve.append(s)
         t_curve.append(tau)
@@ -552,7 +558,10 @@ def compute_survival_endpoints(
     }
     logger.info(
         "Survival endpoints | HR=%.4f [%.4f, %.4f] | p=%.6f",
-        hr_est, hr_lower, hr_upper, lr_pval,
+        hr_est,
+        hr_lower,
+        hr_upper,
+        lr_pval,
     )
     return result
 
@@ -643,9 +652,7 @@ def generate_dsmb_report(
     safety = {
         "ae_grade_distribution": ae_grades,
         "n_serious_ae": n_sae,
-        "grade_3_4_rate": round(
-            (ae_grades.get(3, 0) + ae_grades.get(4, 0)) / max(len(records), 1), 4
-        ),
+        "grade_3_4_rate": round((ae_grades.get(3, 0) + ae_grades.get(4, 0)) / max(len(records), 1), 4),
     }
 
     # Efficacy
@@ -661,14 +668,17 @@ def generate_dsmb_report(
     p_val = survival.get("log_rank_pvalue", 1.0)
     grade_34_rate = safety["grade_3_4_rate"]
     if grade_34_rate > 0.30:
-        recommendation = ("RECOMMEND SAFETY REVIEW: Grade 3/4 AE rate exceeds 30%. "
-                          "Consider protocol amendment for dose modification.")
+        recommendation = (
+            "RECOMMEND SAFETY REVIEW: Grade 3/4 AE rate exceeds 30%. Consider protocol amendment for dose modification."
+        )
     elif p_val is not None and p_val < 0.001:
-        recommendation = ("RECOMMEND EARLY REPORTING: Strong efficacy signal detected. "
-                          "Consider interim analysis for early stopping.")
+        recommendation = (
+            "RECOMMEND EARLY REPORTING: Strong efficacy signal detected. Consider interim analysis for early stopping."
+        )
     else:
-        recommendation = ("RECOMMEND CONTINUATION: Safety profile acceptable and "
-                          "efficacy data maturing. Continue per protocol.")
+        recommendation = (
+            "RECOMMEND CONTINUATION: Safety profile acceptable and efficacy data maturing. Continue per protocol."
+        )
 
     # Integrity hash
     hash_payload = f"{report_id}:{config.study_id}:{len(records)}:{survival.get('cox_hr')}"
@@ -738,7 +748,8 @@ def generate_multi_site_data(config: TrialConfig) -> dict[str, list[dict[str, An
 
     logger.info(
         "Generated multi-site data | sites=%d | total=%d",
-        config.n_sites, config.n_sites * config.patients_per_site,
+        config.n_sites,
+        config.n_sites * config.patients_per_site,
     )
     return site_data
 
@@ -807,12 +818,12 @@ def main() -> None:
     site_data = generate_multi_site_data(config)
     for site_id, records in site_data.items():
         summary = data_manager.register_site_data(site_id, records)
-        print(f"  {site_id}: {summary['n_records']} records | "
-              f"status={summary['status']} | issues={summary['n_issues']}")
+        print(
+            f"  {site_id}: {summary['n_records']} records | status={summary['status']} | issues={summary['n_issues']}"
+        )
 
     all_records = data_manager.get_all_records()
-    print(f"\n  Total registered: {len(all_records)} records across "
-          f"{config.n_sites} sites")
+    print(f"\n  Total registered: {len(all_records)} records across {config.n_sites} sites")
 
     # ── Step 3: Harmonize data ──
     _print_section("STEP 3: HARMONIZE DATA (CLINICAL INTEROPERABILITY)")
@@ -851,10 +862,8 @@ def main() -> None:
     print("  Median survival:")
     for arm, med in survival["median_survival"].items():
         print(f"    {arm:>15s}: {med:.2f} months")
-    print(f"  Log-rank:     chi2={survival['log_rank_chi2']:.4f}, "
-          f"p={survival['log_rank_pvalue']:.6f}")
-    print(f"  Cox HR:       {survival['cox_hr']:.4f} "
-          f"({survival['cox_hr_ci'][0]:.4f}, {survival['cox_hr_ci'][1]:.4f})")
+    print(f"  Log-rank:     chi2={survival['log_rank_chi2']:.4f}, p={survival['log_rank_pvalue']:.6f}")
+    print(f"  Cox HR:       {survival['cox_hr']:.4f} ({survival['cox_hr_ci'][0]:.4f}, {survival['cox_hr_ci'][1]:.4f})")
     print("  RMST (24 mo):")
     for arm, rmst in survival["rmst_24mo"].items():
         print(f"    {arm:>15s}: {rmst:.2f} months")

@@ -49,8 +49,10 @@ _HMAC_KEY = b"pai-consortium-audit-integrity-key"  # 21 CFR Part 11
 # Enums
 # ---------------------------------------------------------------------------
 
+
 class ReportType(str, Enum):
     """Type of consortium report to generate."""
+
     DSMB_INTERIM = "dsmb_interim"
     DSMB_FINAL = "dsmb_final"
     REGULATORY_ANNUAL = "regulatory_annual"
@@ -62,6 +64,7 @@ class ReportType(str, Enum):
 
 class DSMBRecommendation(str, Enum):
     """Possible DSMB recommendations following an interim analysis."""
+
     CONTINUE_UNCHANGED = "continue_unchanged"
     MODIFY_PROTOCOL = "modify_protocol"
     SUSPEND_ENROLLMENT = "suspend_enrollment"
@@ -71,6 +74,7 @@ class DSMBRecommendation(str, Enum):
 
 class AuditSeverity(str, Enum):
     """Severity classification for audit-trail entries."""
+
     INFORMATIONAL = "informational"
     MINOR = "minor"
     MAJOR = "major"
@@ -79,6 +83,7 @@ class AuditSeverity(str, Enum):
 
 class BlindingStatus(str, Enum):
     """Blinding context in which a report is generated."""
+
     BLINDED = "blinded"
     UNBLINDED_DSMB = "unblinded_dsmb"
     UNBLINDED_FULL = "unblinded_full"
@@ -88,9 +93,11 @@ class BlindingStatus(str, Enum):
 # Dataclasses
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class SafetySummary:
     """Aggregated safety data for adverse-event reporting."""
+
     total_aes: int = 0
     serious_aes: int = 0
     deaths: int = 0
@@ -101,6 +108,7 @@ class SafetySummary:
 @dataclass
 class EnrollmentSummary:
     """Cross-site enrollment snapshot."""
+
     target: int = 0
     enrolled: int = 0
     active: int = 0
@@ -112,6 +120,7 @@ class EnrollmentSummary:
 @dataclass
 class AuditTrailEntry:
     """Single entry in the tamper-evident SHA-256 audit trail."""
+
     timestamp: str = ""
     action: str = ""
     user_id: str = ""
@@ -125,8 +134,10 @@ class AuditTrailEntry:
     def to_dict(self) -> dict[str, str]:
         """Serialise to a plain dictionary."""
         return {
-            "timestamp": self.timestamp, "action": self.action,
-            "user_id": self.user_id, "details": self.details,
+            "timestamp": self.timestamp,
+            "action": self.action,
+            "user_id": self.user_id,
+            "details": self.details,
             "hash": self.hash,
         }
 
@@ -147,6 +158,7 @@ class DSMBPackage:
         hash_chain: Final hash of the audit chain at generation time.
         generated_at: ISO-8601 UTC timestamp.
     """
+
     report_id: str = ""
     trial_id: str = ""
     interim_number: int = 0
@@ -168,6 +180,7 @@ class DSMBPackage:
 @dataclass
 class ConsortiumReport:
     """Generic consortium report with signature hash for integrity."""
+
     report_type: ReportType = ReportType.ENROLLMENT_STATUS
     sections: dict[str, Any] = field(default_factory=dict)
     generated_at: str = ""
@@ -181,6 +194,7 @@ class ConsortiumReport:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _safe_div(numerator: float, denominator: float, default: float = 0.0) -> float:
     """Division guarded against zero-denominator."""
@@ -206,6 +220,7 @@ def _chain_payload(prev_hash: str, entry: AuditTrailEntry) -> str:
 # Main engine
 # ---------------------------------------------------------------------------
 
+
 class ConsortiumReportingEngine:
     """Generate consortium reports, DSMB packages, and audit artefacts.
 
@@ -224,12 +239,12 @@ class ConsortiumReportingEngine:
         self._audit_trail: list[AuditTrailEntry] = []
 
         genesis = AuditTrailEntry(
-            action="genesis", user_id=user_id,
+            action="genesis",
+            user_id=user_id,
             details=f"Audit chain initialised for trial {trial_id}",
         )
         genesis.hash = _compute_hmac(
-            f"genesis:{genesis.timestamp}:{genesis.action}:"
-            f"{genesis.user_id}:{genesis.details}"
+            f"genesis:{genesis.timestamp}:{genesis.action}:{genesis.user_id}:{genesis.details}"
         )
         self._audit_trail.append(genesis)
         logger.info("ConsortiumReportingEngine initialised for trial %s", trial_id)
@@ -239,14 +254,18 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def _append_audit(
-        self, action: str, details: str = "",
+        self,
+        action: str,
+        details: str = "",
         user_id: str | None = None,
         severity: AuditSeverity = AuditSeverity.INFORMATIONAL,
     ) -> AuditTrailEntry:
         """Append an entry whose hash incorporates the previous entry's hash."""
         prev_hash = self._audit_trail[-1].hash if self._audit_trail else ""
         entry = AuditTrailEntry(
-            action=action, user_id=user_id or self._user_id, details=details,
+            action=action,
+            user_id=user_id or self._user_id,
+            details=details,
         )
         entry.hash = _compute_hmac(_chain_payload(prev_hash, entry))
         self._audit_trail.append(entry)
@@ -254,7 +273,10 @@ class ConsortiumReportingEngine:
         if severity in (AuditSeverity.MAJOR, AuditSeverity.CRITICAL):
             logger.warning(
                 "AUDIT [%s] %s — %s (user=%s)",
-                severity.value.upper(), action, details, entry.user_id,
+                severity.value.upper(),
+                action,
+                details,
+                entry.user_id,
             )
         else:
             logger.debug("AUDIT [%s] %s — %s", severity.value, action, details)
@@ -269,16 +291,14 @@ class ConsortiumReportingEngine:
         if not entries:
             return []
         first = entries[0]
-        hashes: list[str] = [_compute_hmac(
-            f"genesis:{first.timestamp}:{first.action}:"
-            f"{first.user_id}:{first.details}"
-        )]
+        hashes: list[str] = [_compute_hmac(f"genesis:{first.timestamp}:{first.action}:{first.user_id}:{first.details}")]
         for i in range(1, len(entries)):
             hashes.append(_compute_hmac(_chain_payload(hashes[i - 1], entries[i])))
         return hashes
 
     def verify_hash_chain(
-        self, entries: Sequence[AuditTrailEntry] | None = None,
+        self,
+        entries: Sequence[AuditTrailEntry] | None = None,
     ) -> tuple[bool, list[int]]:
         """Validate hash-chain integrity.
 
@@ -312,7 +332,8 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def build_safety_summary(
-        self, adverse_events: Sequence[dict[str, Any]],
+        self,
+        adverse_events: Sequence[dict[str, Any]],
     ) -> SafetySummary:
         """Aggregate adverse-event records into a :class:`SafetySummary`.
 
@@ -340,8 +361,11 @@ class ConsortiumReportingEngine:
             by_soc[soc] = by_soc.get(soc, 0) + 1
 
         summary = SafetySummary(
-            total_aes=total, serious_aes=serious, deaths=deaths,
-            ae_by_grade=by_grade, ae_by_system_organ_class=by_soc,
+            total_aes=total,
+            serious_aes=serious,
+            deaths=deaths,
+            ae_by_grade=by_grade,
+            ae_by_system_organ_class=by_soc,
         )
         self._append_audit(
             action="build_safety_summary",
@@ -355,7 +379,8 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def build_enrollment_summary(
-        self, site_data: Sequence[dict[str, Any]],
+        self,
+        site_data: Sequence[dict[str, Any]],
     ) -> EnrollmentSummary:
         """Aggregate per-site enrollment into an :class:`EnrollmentSummary`.
 
@@ -377,8 +402,12 @@ class ConsortiumReportingEngine:
                 target += st
 
         summary = EnrollmentSummary(
-            target=target, enrolled=enrolled, active=active,
-            completed=completed, withdrawn=withdrawn, by_site=by_site,
+            target=target,
+            enrolled=enrolled,
+            active=active,
+            completed=completed,
+            withdrawn=withdrawn,
+            by_site=by_site,
         )
         self._append_audit(
             action="build_enrollment_summary",
@@ -392,7 +421,9 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def generate_dsmb_package(
-        self, trial_data: dict[str, Any], interim_number: int,
+        self,
+        trial_data: dict[str, Any],
+        interim_number: int,
         blinding: BlindingStatus = BlindingStatus.UNBLINDED_DSMB,
     ) -> DSMBPackage:
         """Generate a full DSMB interim-analysis package.
@@ -422,9 +453,12 @@ class ConsortiumReportingEngine:
 
         chain_hash = self._audit_trail[-1].hash if self._audit_trail else ""
         package = DSMBPackage(
-            trial_id=self.trial_id, interim_number=interim_number,
-            blinding_status=blinding, enrollment_summary=enrollment,
-            safety_summary=safety, efficacy_summary=efficacy_out,
+            trial_id=self.trial_id,
+            interim_number=interim_number,
+            blinding_status=blinding,
+            enrollment_summary=enrollment,
+            safety_summary=safety,
+            efficacy_summary=efficacy_out,
             hash_chain=chain_hash,
         )
 
@@ -435,7 +469,9 @@ class ConsortiumReportingEngine:
         )
         logger.info(
             "DSMB package %s generated (trial %s, interim %d)",
-            package.report_id, self.trial_id, interim_number,
+            package.report_id,
+            self.trial_id,
+            interim_number,
         )
         return package
 
@@ -459,7 +495,8 @@ class ConsortiumReportingEngine:
                 else:
                     resp = int(np.sum(arr > 0))
                     arm_stats[ep] = {
-                        "n": n, "mean": float(np.mean(arr)),
+                        "n": n,
+                        "mean": float(np.mean(arr)),
                         "median": float(np.median(arr)),
                         "response_rate": _bound_pct(_safe_div(resp, n) * 100),
                     }
@@ -471,7 +508,8 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def generate_regulatory_annual_report(
-        self, trial_data: dict[str, Any],
+        self,
+        trial_data: dict[str, Any],
     ) -> ConsortiumReport:
         """Generate an IND annual report structure (21 CFR 312.33).
 
@@ -479,7 +517,8 @@ class ConsortiumReportingEngine:
         protocol amendments, and audit-trail integrity.
         """
         self._append_audit(
-            action="regulatory_annual_start", details=f"trial={self.trial_id}",
+            action="regulatory_annual_start",
+            details=f"trial={self.trial_id}",
             severity=AuditSeverity.MAJOR,
         )
 
@@ -487,8 +526,11 @@ class ConsortiumReportingEngine:
         enrollment = self.build_enrollment_summary(trial_data.get("site_data", []))
 
         amendment_section = [
-            {"amendment_number": am.get("number", "N/A"),
-             "date": am.get("date", "N/A"), "summary": am.get("summary", "")}
+            {
+                "amendment_number": am.get("number", "N/A"),
+                "date": am.get("date", "N/A"),
+                "summary": am.get("summary", ""),
+            }
             for am in trial_data.get("protocol_amendments", [])
         ]
 
@@ -502,13 +544,18 @@ class ConsortiumReportingEngine:
                 "enrollment_pct": round(pct_enrolled, 1),
             },
             "enrollment": {
-                "target": enrollment.target, "enrolled": enrollment.enrolled,
-                "active": enrollment.active, "completed": enrollment.completed,
-                "withdrawn": enrollment.withdrawn, "by_site": enrollment.by_site,
+                "target": enrollment.target,
+                "enrolled": enrollment.enrolled,
+                "active": enrollment.active,
+                "completed": enrollment.completed,
+                "withdrawn": enrollment.withdrawn,
+                "by_site": enrollment.by_site,
             },
             "safety": {
-                "total_aes": safety.total_aes, "serious_aes": safety.serious_aes,
-                "deaths": safety.deaths, "ae_by_grade": safety.ae_by_grade,
+                "total_aes": safety.total_aes,
+                "serious_aes": safety.serious_aes,
+                "deaths": safety.deaths,
+                "ae_by_grade": safety.ae_by_grade,
                 "ae_by_system_organ_class": safety.ae_by_system_organ_class,
             },
             "protocol_amendments": amendment_section,
@@ -529,7 +576,8 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def generate_data_quality_report(
-        self, site_metrics: Sequence[dict[str, Any]],
+        self,
+        site_metrics: Sequence[dict[str, Any]],
     ) -> ConsortiumReport:
         """Cross-site data-quality comparison report.
 
@@ -541,7 +589,8 @@ class ConsortiumReportingEngine:
 
         if not site_metrics:
             return self._build_consortium_report(
-                ReportType.DATA_QUALITY, {"sites": [], "overall": {}, "outliers": []},
+                ReportType.DATA_QUALITY,
+                {"sites": [], "overall": {}, "outliers": []},
             )
 
         site_ids: list[str] = []
@@ -571,15 +620,17 @@ class ConsortiumReportingEngine:
             avg_abs_z = (abs(qr_z) + abs(mp_z) + abs(dv_z)) / 3.0
             quality_score = _bound_pct(100.0 - avg_abs_z * 20.0)
 
-            site_details.append({
-                "site_id": sid,
-                "query_rate": round(query_rates[i], 2),
-                "missing_data_pct": round(missing_pcts[i], 2),
-                "protocol_deviations": deviations[i],
-                "monitoring_visits": int(site_metrics[i].get("monitoring_visits", 0)),
-                "overdue_queries": int(site_metrics[i].get("overdue_queries", 0)),
-                "quality_score": round(quality_score, 1),
-            })
+            site_details.append(
+                {
+                    "site_id": sid,
+                    "query_rate": round(query_rates[i], 2),
+                    "missing_data_pct": round(missing_pcts[i], 2),
+                    "protocol_deviations": deviations[i],
+                    "monitoring_visits": int(site_metrics[i].get("monitoring_visits", 0)),
+                    "overdue_queries": int(site_metrics[i].get("overdue_queries", 0)),
+                    "quality_score": round(quality_score, 1),
+                }
+            )
 
             flagged: list[str] = []
             if abs(qr_z) > 2.0:
@@ -589,10 +640,13 @@ class ConsortiumReportingEngine:
             if abs(dv_z) > 2.0:
                 flagged.append("protocol_deviations")
             if flagged:
-                outliers.append({
-                    "site_id": sid, "flagged_metrics": flagged,
-                    "quality_score": round(quality_score, 1),
-                })
+                outliers.append(
+                    {
+                        "site_id": sid,
+                        "flagged_metrics": flagged,
+                        "quality_score": round(quality_score, 1),
+                    }
+                )
 
         site_details.sort(key=lambda d: d["quality_score"], reverse=True)
 
@@ -668,7 +722,9 @@ class ConsortiumReportingEngine:
     # ------------------------------------------------------------------
 
     def _build_consortium_report(
-        self, report_type: ReportType, sections: dict[str, Any],
+        self,
+        report_type: ReportType,
+        sections: dict[str, Any],
     ) -> ConsortiumReport:
         """Create a :class:`ConsortiumReport` with integrity signature."""
         report = ConsortiumReport(report_type=report_type, sections=sections)

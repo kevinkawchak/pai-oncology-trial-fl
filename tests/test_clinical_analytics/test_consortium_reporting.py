@@ -197,7 +197,9 @@ class TestConsortiumReportingEngine:
         engine = mod.ConsortiumReportingEngine(trial_id="NCT-001")
         # Perform operations to build audit trail
         engine.build_safety_summary([{"grade": 1, "serious": False}])
-        engine.build_enrollment_summary([{"site_id": "S1", "enrolled": 10, "active": 8, "completed": 1, "withdrawn": 0, "target": 50}])
+        engine.build_enrollment_summary(
+            [{"site_id": "S1", "enrolled": 10, "active": 8, "completed": 1, "withdrawn": 0, "target": 50}]
+        )
         valid, failed = engine.verify_hash_chain()
         assert valid is True
         assert failed == []

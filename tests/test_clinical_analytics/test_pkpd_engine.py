@@ -174,7 +174,9 @@ class TestPopulationPKPDEngine:
         engine = mod.PopulationPKPDEngine()
         profile = engine.compute_one_compartment_profile(100.0, time_end_h=48.0)
         result = engine.check_therapeutic_window(
-            profile, target_trough_mg_l=0.1, target_peak_mg_l=50.0,
+            profile,
+            target_trough_mg_l=0.1,
+            target_peak_mg_l=50.0,
         )
         assert "within_window" in result
         assert "fraction_time_in_window" in result
@@ -212,14 +214,26 @@ class TestPopulationPKPDEngine:
         """Federated aggregation of two sites produces pooled statistics."""
         engine = mod.PopulationPKPDEngine()
         sites = [
-            {"site_id": "S1", "n_subjects": 50,
-             "mean_clearance": 10.0, "var_clearance": 1.0,
-             "mean_volume": 50.0, "var_volume": 4.0,
-             "mean_auc": 100.0, "var_auc": 25.0},
-            {"site_id": "S2", "n_subjects": 50,
-             "mean_clearance": 12.0, "var_clearance": 2.0,
-             "mean_volume": 55.0, "var_volume": 5.0,
-             "mean_auc": 90.0, "var_auc": 20.0},
+            {
+                "site_id": "S1",
+                "n_subjects": 50,
+                "mean_clearance": 10.0,
+                "var_clearance": 1.0,
+                "mean_volume": 50.0,
+                "var_volume": 4.0,
+                "mean_auc": 100.0,
+                "var_auc": 25.0,
+            },
+            {
+                "site_id": "S2",
+                "n_subjects": 50,
+                "mean_clearance": 12.0,
+                "var_clearance": 2.0,
+                "mean_volume": 55.0,
+                "var_volume": 5.0,
+                "mean_auc": 90.0,
+                "var_auc": 20.0,
+            },
         ]
         result = engine.federated_aggregate_site_statistics(sites)
         assert result["pooled_n"] == 100

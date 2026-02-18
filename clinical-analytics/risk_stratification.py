@@ -45,16 +45,20 @@ _MIN_COHORT_SIZE = 5
 #  Enums                                                                  #
 # ===================================================================== #
 
+
 class RiskCategory(str, Enum):
     """Discrete risk strata for oncology trial participants."""
+
     VERY_LOW = "very_low"
     LOW = "low"
     MODERATE = "moderate"
     HIGH = "high"
     VERY_HIGH = "very_high"
 
+
 class PrognosticFactor(str, Enum):
     """Clinically recognised prognostic factors in oncology."""
+
     TUMOR_STAGE = "tumor_stage"
     HISTOLOGY = "histology"
     BIOMARKER_STATUS = "biomarker_status"
@@ -63,27 +67,34 @@ class PrognosticFactor(str, Enum):
     COMORBIDITY = "comorbidity"
     GENOMIC_SIGNATURE = "genomic_signature"
 
+
 class DecisionConfidence(str, Enum):
     """Confidence level attached to a decision-support recommendation."""
+
     STRONG = "strong"
     MODERATE = "moderate"
     WEAK = "weak"
     INSUFFICIENT_DATA = "insufficient_data"
 
+
 class TreatmentArm(str, Enum):
     """Treatment arms available in the trial."""
+
     STANDARD = "standard"
     EXPERIMENTAL = "experimental"
     COMBINATION = "combination"
     BEST_SUPPORTIVE_CARE = "best_supportive_care"
 
+
 # ===================================================================== #
 #  Dataclasses                                                            #
 # ===================================================================== #
 
+
 @dataclass
 class PatientRiskProfile:
     """Risk assessment for a single patient (hashed ID, score in [0,1])."""
+
     patient_id: str
     risk_category: RiskCategory
     risk_score: float
@@ -92,9 +103,11 @@ class PatientRiskProfile:
     assessment_id: str = field(default_factory=lambda: uuid.uuid4().hex[:16])
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
+
 @dataclass
 class CohortRiskSummary:
     """Aggregate risk summary for a patient cohort."""
+
     cohort_size: int = 0
     distribution: Dict[str, int] = field(default_factory=dict)
     median_risk: float = 0.0
@@ -103,25 +116,31 @@ class CohortRiskSummary:
     std_risk: float = 0.0
     category_proportions: Dict[str, float] = field(default_factory=dict)
 
+
 @dataclass
 class StratificationCriteria:
     """Factors, weights, and thresholds for patient stratification."""
+
     factors: List[PrognosticFactor] = field(default_factory=list)
     weights: Dict[str, float] = field(default_factory=dict)
     thresholds: List[float] = field(default_factory=lambda: [0.15, 0.35, 0.55, 0.75])
 
+
 @dataclass
 class RiskModelConfig:
     """Configuration for the underlying risk model."""
+
     model_type: str = "weighted_linear"
     features: List[str] = field(default_factory=list)
     calibration_bins: int = _CALIBRATION_BINS
     regularisation_lambda: float = 0.01
     seed: int = _DEFAULT_SEED
 
+
 @dataclass
 class DecisionSupportOutput:
     """Output of the decision-support engine."""
+
     recommended_arm: TreatmentArm
     confidence: DecisionConfidence
     supporting_evidence: List[str] = field(default_factory=list)
@@ -130,9 +149,11 @@ class DecisionSupportOutput:
     decision_id: str = field(default_factory=lambda: uuid.uuid4().hex[:16])
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
+
 # ===================================================================== #
 #  Helpers                                                                #
 # ===================================================================== #
+
 
 def _audit_log(action: str, details: Dict[str, Any]) -> None:
     """Emit a structured audit-trail entry."""
@@ -143,15 +164,16 @@ def _audit_log(action: str, details: Dict[str, Any]) -> None:
     }
     logger.info("AUDIT | %s | %s", action, entry)
 
+
 def _hash_patient_id(raw_id: str) -> str:
     """Return an HMAC-SHA256 hex digest of *raw_id*."""
-    return hmac.new(
-        _HMAC_KEY, raw_id.encode("utf-8"), hashlib.sha256
-    ).hexdigest()
+    return hmac.new(_HMAC_KEY, raw_id.encode("utf-8"), hashlib.sha256).hexdigest()
+
 
 # ===================================================================== #
 #  ClinicalRiskStratifier                                                 #
 # ===================================================================== #
+
 
 class ClinicalRiskStratifier:
     """Federated clinical risk stratification engine.
@@ -173,7 +195,8 @@ class ClinicalRiskStratifier:
         self._rng = np.random.default_rng(self.config.seed)
         logger.info(
             "ClinicalRiskStratifier initialised — model_type=%s, %d factors",
-            self.config.model_type, len(self.criteria.factors),
+            self.config.model_type,
+            len(self.criteria.factors),
         )
 
     @staticmethod
@@ -270,11 +293,14 @@ class ClinicalRiskStratifier:
             contributing_factors=self._compute_contributions(features),
             confidence=self._assess_confidence(features),
         )
-        _audit_log("stratify_patient", {
-            "patient_id": hashed_id,
-            "risk_category": profile.risk_category.value,
-            "risk_score": round(score, 4),
-        })
+        _audit_log(
+            "stratify_patient",
+            {
+                "patient_id": hashed_id,
+                "risk_category": profile.risk_category.value,
+                "risk_score": round(score, 4),
+            },
+        )
         return profile
 
     # -- Cohort stratification ----------------------------------------- #
@@ -311,9 +337,13 @@ class ClinicalRiskStratifier:
             std_risk=float(np.std(scores, ddof=1)) if n > 1 else 0.0,
             category_proportions=proportions,
         )
-        _audit_log("stratify_cohort", {
-            "cohort_size": n, "median_risk": round(summary.median_risk, 4),
-        })
+        _audit_log(
+            "stratify_cohort",
+            {
+                "cohort_size": n,
+                "median_risk": round(summary.median_risk, 4),
+            },
+        )
         return summary
 
     # -- Calibration (Hosmer-Lemeshow) --------------------------------- #
@@ -327,10 +357,7 @@ class ClinicalRiskStratifier:
         observed = np.asarray(observed, dtype=np.float64).ravel()
         predicted = np.asarray(predicted, dtype=np.float64).ravel()
         if observed.shape[0] != predicted.shape[0]:
-            raise ValueError(
-                f"Length mismatch: observed={observed.shape[0]}, "
-                f"predicted={predicted.shape[0]}"
-            )
+            raise ValueError(f"Length mismatch: observed={observed.shape[0]}, predicted={predicted.shape[0]}")
         n = observed.shape[0]
         n_bins = min(self.config.calibration_bins, n)
         order = np.argsort(predicted)
@@ -353,11 +380,13 @@ class ClinicalRiskStratifier:
                 hl_stat += (obs_ev - exp_ev) ** 2 / exp_ev
             if exp_non > 0:
                 hl_stat += (obs_non - exp_non) ** 2 / exp_non
-            bins_detail.append({
-                "n": n_g,
-                "observed_rate": round(obs_rate, 4),
-                "predicted_rate": round(pred_rate, 4),
-            })
+            bins_detail.append(
+                {
+                    "n": n_g,
+                    "observed_rate": round(obs_rate, 4),
+                    "predicted_rate": round(pred_rate, 4),
+                }
+            )
 
         dof = max(n_bins - 2, 1)
         p_value = float(1.0 - sp_stats.chi2.cdf(hl_stat, dof))
@@ -376,21 +405,25 @@ class ClinicalRiskStratifier:
             "n_bins": n_bins,
             "dof": dof,
         }
-        _audit_log("calibrate_model", {
-            "hl_statistic": result["hl_statistic"],
-            "p_value": result["p_value"],
-            "n_samples": n,
-        })
+        _audit_log(
+            "calibrate_model",
+            {
+                "hl_statistic": result["hl_statistic"],
+                "p_value": result["p_value"],
+                "n_samples": n,
+            },
+        )
         logger.info(
             "Calibration — HL=%.4f, p=%.4f, slope=%.4f, intercept=%.4f",
-            hl_stat, p_value, slope, intercept,
+            hl_stat,
+            p_value,
+            slope,
+            intercept,
         )
         return result
 
     @staticmethod
-    def _fit_platt_scaling(
-        observed: np.ndarray, predicted: np.ndarray
-    ) -> Tuple[float, float]:
+    def _fit_platt_scaling(observed: np.ndarray, predicted: np.ndarray) -> Tuple[float, float]:
         """Fit linear recalibration via least-squares normal equations."""
         if len(predicted) < 2:
             return 1.0, 0.0
@@ -406,9 +439,7 @@ class ClinicalRiskStratifier:
 
     # -- Decision support ---------------------------------------------- #
 
-    def generate_decision_support(
-        self, profile: PatientRiskProfile
-    ) -> DecisionSupportOutput:
+    def generate_decision_support(self, profile: PatientRiskProfile) -> DecisionSupportOutput:
         """Generate a treatment-arm recommendation based on risk profile."""
         evidence: List[str] = []
         contraindications: List[str] = []
@@ -420,38 +451,38 @@ class ClinicalRiskStratifier:
         if cat in (RiskCategory.VERY_LOW, RiskCategory.LOW):
             arm = TreatmentArm.STANDARD
             evidence.append(f"Low risk score ({score:.2f}) supports standard therapy.")
-            alternatives.append({"arm": TreatmentArm.EXPERIMENTAL.value,
-                                 "rationale": "Consider if biomarker-positive."})
+            alternatives.append(
+                {"arm": TreatmentArm.EXPERIMENTAL.value, "rationale": "Consider if biomarker-positive."}
+            )
         elif cat == RiskCategory.MODERATE:
             arm = TreatmentArm.EXPERIMENTAL
             evidence.append(f"Moderate risk ({score:.2f}) suggests experimental benefit.")
-            alternatives.append({"arm": TreatmentArm.COMBINATION.value,
-                                 "rationale": "Combination may add efficacy."})
-            alternatives.append({"arm": TreatmentArm.STANDARD.value,
-                                 "rationale": "Standard remains a safe alternative."})
+            alternatives.append({"arm": TreatmentArm.COMBINATION.value, "rationale": "Combination may add efficacy."})
+            alternatives.append(
+                {"arm": TreatmentArm.STANDARD.value, "rationale": "Standard remains a safe alternative."}
+            )
         elif cat == RiskCategory.HIGH:
             arm = TreatmentArm.COMBINATION
             evidence.append(f"High risk ({score:.2f}) warrants combination approach.")
-            alternatives.append({"arm": TreatmentArm.EXPERIMENTAL.value,
-                                 "rationale": "Single agent if comorbidities limit combo."})
+            alternatives.append(
+                {"arm": TreatmentArm.EXPERIMENTAL.value, "rationale": "Single agent if comorbidities limit combo."}
+            )
         else:
             arm = TreatmentArm.BEST_SUPPORTIVE_CARE
             evidence.append(f"Very high risk ({score:.2f}) — best supportive care.")
-            alternatives.append({"arm": TreatmentArm.COMBINATION.value,
-                                 "rationale": "Combination if performance status adequate."})
+            alternatives.append(
+                {"arm": TreatmentArm.COMBINATION.value, "rationale": "Combination if performance status adequate."}
+            )
 
         # Contraindication checks
         comorbidity_c = factors.get(PrognosticFactor.COMORBIDITY.value, 0.0)
         perf_c = factors.get(PrognosticFactor.PERFORMANCE_STATUS.value, 0.0)
         if comorbidity_c > 0.08 and arm in (TreatmentArm.COMBINATION, TreatmentArm.EXPERIMENTAL):
             contraindications.append(
-                f"Elevated comorbidity may limit {arm.value} tolerability "
-                f"(contribution={comorbidity_c:.3f})."
+                f"Elevated comorbidity may limit {arm.value} tolerability (contribution={comorbidity_c:.3f})."
             )
         if perf_c > 0.10:
-            contraindications.append(
-                f"Poor performance status may reduce benefit (contribution={perf_c:.3f})."
-            )
+            contraindications.append(f"Poor performance status may reduce benefit (contribution={perf_c:.3f}).")
 
         # Confidence
         if profile.confidence == DecisionConfidence.INSUFFICIENT_DATA:
@@ -464,14 +495,20 @@ class ClinicalRiskStratifier:
             dec_conf = DecisionConfidence.MODERATE
 
         output = DecisionSupportOutput(
-            recommended_arm=arm, confidence=dec_conf,
-            supporting_evidence=evidence, contraindications=contraindications,
+            recommended_arm=arm,
+            confidence=dec_conf,
+            supporting_evidence=evidence,
+            contraindications=contraindications,
             alternative_arms=alternatives,
         )
-        _audit_log("generate_decision_support", {
-            "patient_id": profile.patient_id, "arm": arm.value,
-            "confidence": dec_conf.value,
-        })
+        _audit_log(
+            "generate_decision_support",
+            {
+                "patient_id": profile.patient_id,
+                "arm": arm.value,
+                "confidence": dec_conf.value,
+            },
+        )
         return output
 
     # -- Validation (C-statistic / AUC) -------------------------------- #
@@ -485,9 +522,7 @@ class ClinicalRiskStratifier:
         outcomes = np.asarray(outcomes, dtype=np.float64).ravel()
         scores = np.array([p.risk_score for p in profiles])
         if len(scores) != len(outcomes):
-            raise ValueError(
-                f"Profile/outcome length mismatch: {len(scores)} vs {len(outcomes)}"
-            )
+            raise ValueError(f"Profile/outcome length mismatch: {len(scores)} vs {len(outcomes)}")
         event_idx = np.where(outcomes == 1)[0]
         nonevent_idx = np.where(outcomes == 0)[0]
         n_conc = n_disc = n_tied = 0
@@ -500,34 +535,46 @@ class ClinicalRiskStratifier:
         if n_pairs == 0:
             logger.warning("No valid pairs for C-statistic")
             nan = float("nan")
-            return {"c_statistic": nan, "n_concordant": 0, "n_discordant": 0,
-                    "n_tied": 0, "n_pairs": 0, "se": nan, "ci_95": (nan, nan)}
+            return {
+                "c_statistic": nan,
+                "n_concordant": 0,
+                "n_discordant": 0,
+                "n_tied": 0,
+                "n_pairs": 0,
+                "se": nan,
+                "ci_95": (nan, nan),
+            }
 
         c_stat = (n_conc + 0.5 * n_tied) / n_pairs
         n_ev, n_ne = len(event_idx), len(nonevent_idx)
         q1 = c_stat / (2.0 - c_stat)
-        q2 = 2.0 * c_stat ** 2 / (1.0 + c_stat)
-        numerator = (c_stat * (1 - c_stat) + (n_ev - 1) * (q1 - c_stat ** 2)
-                     + (n_ne - 1) * (q2 - c_stat ** 2))
+        q2 = 2.0 * c_stat**2 / (1.0 + c_stat)
+        numerator = c_stat * (1 - c_stat) + (n_ev - 1) * (q1 - c_stat**2) + (n_ne - 1) * (q2 - c_stat**2)
         se = float(np.sqrt(max(numerator / (n_ev * n_ne), 0.0)))
         ci_lo = float(np.clip(c_stat - 1.96 * se, 0, 1))
         ci_hi = float(np.clip(c_stat + 1.96 * se, 0, 1))
         result = {
-            "c_statistic": round(c_stat, 4), "n_concordant": n_conc,
-            "n_discordant": n_disc, "n_tied": n_tied, "n_pairs": n_pairs,
-            "se": round(se, 4), "ci_95": (round(ci_lo, 4), round(ci_hi, 4)),
+            "c_statistic": round(c_stat, 4),
+            "n_concordant": n_conc,
+            "n_discordant": n_disc,
+            "n_tied": n_tied,
+            "n_pairs": n_pairs,
+            "se": round(se, 4),
+            "ci_95": (round(ci_lo, 4), round(ci_hi, 4)),
         }
-        _audit_log("validate_stratification", {
-            "c_statistic": result["c_statistic"], "n": len(profiles),
-        })
+        _audit_log(
+            "validate_stratification",
+            {
+                "c_statistic": result["c_statistic"],
+                "n": len(profiles),
+            },
+        )
         logger.info("Validation — C=%.4f (95%% CI %.4f–%.4f)", c_stat, ci_lo, ci_hi)
         return result
 
     # -- Federated model aggregation ----------------------------------- #
 
-    def aggregate_site_risk_models(
-        self, site_models: List[Dict[str, Any]]
-    ) -> Dict[str, float]:
+    def aggregate_site_risk_models(self, site_models: List[Dict[str, Any]]) -> Dict[str, float]:
         """Aggregate site risk-model weights via sample-size-weighted averaging."""
         if not site_models:
             raise ValueError("Cannot aggregate: no site models provided")
@@ -541,15 +588,21 @@ class ClinicalRiskStratifier:
         if w_sum > 0:
             aggregated = {k: v / w_sum for k, v in aggregated.items()}
         self.criteria.weights = aggregated
-        _audit_log("aggregate_site_risk_models", {
-            "n_sites": len(site_models), "total_patients": total_n,
-        })
+        _audit_log(
+            "aggregate_site_risk_models",
+            {
+                "n_sites": len(site_models),
+                "total_patients": total_n,
+            },
+        )
         logger.info("Aggregated %d sites, %d patients", len(site_models), total_n)
         return aggregated
+
 
 # ===================================================================== #
 #  AdaptiveEnrichmentAdvisor                                              #
 # ===================================================================== #
+
 
 class AdaptiveEnrichmentAdvisor:
     """Recommends enrichment strategies and performs futility analysis.
@@ -568,9 +621,7 @@ class AdaptiveEnrichmentAdvisor:
         self.stratifier = stratifier
         self.futility_threshold = futility_threshold
         self.enrichment_benefit_threshold = enrichment_benefit_threshold
-        logger.info(
-            "AdaptiveEnrichmentAdvisor — futility_threshold=%.2f", futility_threshold
-        )
+        logger.info("AdaptiveEnrichmentAdvisor — futility_threshold=%.2f", futility_threshold)
 
     def recommend_enrichment(
         self,
@@ -597,18 +648,17 @@ class AdaptiveEnrichmentAdvisor:
                 )
             elif effect <= -self.enrichment_benefit_threshold:
                 exclude.append(cat.value)
-                rationale.append(
-                    f"{cat.value}: negative effect={effect:.3f} — EXCLUDE."
-                )
+                rationale.append(f"{cat.value}: negative effect={effect:.3f} — EXCLUDE.")
             else:
-                rationale.append(
-                    f"{cat.value}: effect={effect:.3f} below threshold — maintain."
-                )
-        result = {"enrich": enrich, "exclude": exclude,
-                  "effects": effects, "rationale": rationale}
-        _audit_log("recommend_enrichment", {
-            "n_enrich": len(enrich), "n_exclude": len(exclude),
-        })
+                rationale.append(f"{cat.value}: effect={effect:.3f} below threshold — maintain.")
+        result = {"enrich": enrich, "exclude": exclude, "effects": effects, "rationale": rationale}
+        _audit_log(
+            "recommend_enrichment",
+            {
+                "n_enrich": len(enrich),
+                "n_exclude": len(exclude),
+            },
+        )
         return result
 
     def futility_analysis(
@@ -635,9 +685,7 @@ class AdaptiveEnrichmentAdvisor:
         p_ctrl = float(np.mean(ctrl))
         delta = p_exp - p_ctrl
         p_pool = (np.sum(exp) + np.sum(ctrl)) / (n_exp + n_ctrl)
-        se_pool = np.sqrt(
-            max(p_pool * (1.0 - p_pool) * (1.0 / n_exp + 1.0 / n_ctrl), 1e-12)
-        )
+        se_pool = np.sqrt(max(p_pool * (1.0 - p_pool) * (1.0 / n_exp + 1.0 / n_ctrl), 1e-12))
         z_interim = delta / se_pool
         info_frac = float(np.clip(n_interim / max(planned_total_n, 1), 0.01, 0.99))
         z_alpha = float(sp_stats.norm.ppf(1.0 - alpha))
@@ -648,9 +696,7 @@ class AdaptiveEnrichmentAdvisor:
         if sqrt_rem < 1e-12:
             cp = 0.0
         else:
-            cp = float(sp_stats.norm.cdf(
-                (z_interim * sqrt_info - z_alpha * sqrt_rem) / sqrt_rem
-            ))
+            cp = float(sp_stats.norm.cdf((z_interim * sqrt_info - z_alpha * sqrt_rem) / sqrt_rem))
         cp = float(np.clip(cp, 0.0, 1.0))
         recommend_stop = cp < self.futility_threshold
         if recommend_stop:
@@ -671,14 +717,20 @@ class AdaptiveEnrichmentAdvisor:
             "recommend_stop": recommend_stop,
             "rationale": rationale_text,
         }
-        _audit_log("futility_analysis", {
-            "conditional_power": result["conditional_power"],
-            "z_interim": result["z_interim"],
-            "recommend_stop": recommend_stop,
-        })
+        _audit_log(
+            "futility_analysis",
+            {
+                "conditional_power": result["conditional_power"],
+                "z_interim": result["z_interim"],
+                "recommend_stop": recommend_stop,
+            },
+        )
         logger.info(
             "Futility — CP=%.4f, z=%.4f, info=%.2f, stop=%s",
-            cp, z_interim, info_frac, recommend_stop,
+            cp,
+            z_interim,
+            info_frac,
+            recommend_stop,
         )
         return result
 
@@ -694,14 +746,19 @@ class AdaptiveEnrichmentAdvisor:
             results[cat_key] = self.futility_analysis(
                 arms.get("experimental", np.array([])),
                 arms.get("control", np.array([])),
-                planned_total_n, alpha=alpha,
+                planned_total_n,
+                alpha=alpha,
             )
         stop_groups = [k for k, v in results.items() if v.get("recommend_stop")]
         if stop_groups:
             logger.warning("Futility in subgroups: %s", ", ".join(stop_groups))
-        _audit_log("subgroup_futility_sweep", {
-            "n_subgroups": len(results), "stop_recommended": stop_groups,
-        })
+        _audit_log(
+            "subgroup_futility_sweep",
+            {
+                "n_subgroups": len(results),
+                "stop_recommended": stop_groups,
+            },
+        )
         return results
 
     def generate_advisory(
@@ -715,7 +772,9 @@ class AdaptiveEnrichmentAdvisor:
         """Produce a combined enrichment and futility advisory report."""
         enrichment = self.recommend_enrichment(cohort_summary, subgroup_outcomes)
         futility = self.subgroup_futility_sweep(
-            subgroup_data, planned_total_n, alpha=alpha,
+            subgroup_data,
+            planned_total_n,
+            alpha=alpha,
         )
         return {
             "enrichment": enrichment,
@@ -739,9 +798,7 @@ class AdaptiveEnrichmentAdvisor:
         if exclude:
             stmts.append(f"Consider excluding: {', '.join(exclude)}.")
         if futile:
-            stmts.append(
-                f"Futility crossed in: {', '.join(futile)}. Consider stopping."
-            )
+            stmts.append(f"Futility crossed in: {', '.join(futile)}. Consider stopping.")
         if not stmts:
             stmts.append("No enrichment or futility actions recommended at this interim.")
         return stmts

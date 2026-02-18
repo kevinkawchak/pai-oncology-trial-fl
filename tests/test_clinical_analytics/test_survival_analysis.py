@@ -39,12 +39,14 @@ def _make_records(times, events, group="control"):
     """Create a list of SurvivalData records for testing."""
     records = []
     for i, (t, e) in enumerate(zip(times, events)):
-        records.append(mod.SurvivalData(
-            patient_id_hash=f"hash_{i:04d}",
-            time=float(t),
-            event=int(e),
-            group=group,
-        ))
+        records.append(
+            mod.SurvivalData(
+                patient_id_hash=f"hash_{i:04d}",
+                time=float(t),
+                event=int(e),
+                group=group,
+            )
+        )
     return records
 
 
@@ -239,12 +241,14 @@ class TestPrivacyPreservingSurvivalAnalyzer:
             cov_val = rng.uniform(0, 1)
             t = rng.exponential(10.0 / (1.0 + cov_val))
             e = int(rng.uniform() < 0.7)
-            records.append(mod.SurvivalData(
-                patient_id_hash=f"p{i}",
-                time=max(t, 0.1),
-                event=e,
-                covariates={"treatment": cov_val},
-            ))
+            records.append(
+                mod.SurvivalData(
+                    patient_id_hash=f"p{i}",
+                    time=max(t, 0.1),
+                    event=e,
+                    covariates={"treatment": cov_val},
+                )
+            )
         result = analyzer.fit_cox_ph(records, covariate_names=["treatment"])
         assert isinstance(result, mod.CoxPHResult)
         assert np.all(result.hazard_ratios > 0)
@@ -329,7 +333,9 @@ class TestPrivacyPreservingSurvivalAnalyzer:
         """Concordance index with < 2 subjects returns 0.5."""
         analyzer = mod.PrivacyPreservingSurvivalAnalyzer()
         c = analyzer.compute_concordance_index(
-            np.array([0.5]), np.array([3.0]), np.array([1]),
+            np.array([0.5]),
+            np.array([3.0]),
+            np.array([1]),
         )
         assert c == 0.5
 

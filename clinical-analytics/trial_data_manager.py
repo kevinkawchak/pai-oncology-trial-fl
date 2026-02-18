@@ -239,9 +239,7 @@ def _safe_divide(numerator: float, denominator: float) -> float:
 
 def _hmac_identifier(raw_id: str) -> str:
     """Produce an HMAC-SHA256 pseudonym for a raw identifier."""
-    return hmac.new(
-        _HMAC_KEY, raw_id.encode("utf-8"), hashlib.sha256
-    ).hexdigest()[:_HASH_TRUNCATION]
+    return hmac.new(_HMAC_KEY, raw_id.encode("utf-8"), hashlib.sha256).hexdigest()[:_HASH_TRUNCATION]
 
 
 def _quality_level_from_score(score: float) -> DataQualityLevel:
@@ -353,9 +351,7 @@ class TrialDataManager:
         if dataset.record_count < 0:
             raise ValueError("record_count must be non-negative")
         if dataset.dataset_id in self._datasets:
-            raise ValueError(
-                f"Dataset {dataset.dataset_id} is already registered"
-            )
+            raise ValueError(f"Dataset {dataset.dataset_id} is already registered")
 
         # Populate timestamps
         now = datetime.now(timezone.utc).isoformat()
@@ -743,13 +739,9 @@ class TrialDataManager:
             # Check required fields
             for req_field in schema.required:
                 if req_field not in record:
-                    violations.append(
-                        f"{row_label}: missing required field '{req_field}'"
-                    )
+                    violations.append(f"{row_label}: missing required field '{req_field}'")
                 elif record[req_field] is None:
-                    violations.append(
-                        f"{row_label}: required field '{req_field}' is null"
-                    )
+                    violations.append(f"{row_label}: required field '{req_field}' is null")
 
             # Check declared field types
             for fld, expected_type in schema.types.items():
@@ -762,8 +754,7 @@ class TrialDataManager:
                 type_ok = self._validate_type(value, expected_type)
                 if not type_ok:
                     violations.append(
-                        f"{row_label}: field '{fld}' expected type "
-                        f"'{expected_type}', got {type(value).__name__}"
+                        f"{row_label}: field '{fld}' expected type '{expected_type}', got {type(value).__name__}"
                     )
 
             # Check constraints
@@ -772,9 +763,7 @@ class TrialDataManager:
                     continue
 
                 value = record[fld]
-                constraint_violations = self._validate_constraint(
-                    value, fld, constraint, row_label
-                )
+                constraint_violations = self._validate_constraint(value, fld, constraint, row_label)
                 violations.extend(constraint_violations)
 
             # Check for unexpected fields
@@ -782,10 +771,7 @@ class TrialDataManager:
                 known = set(schema.fields)
                 for fld in record:
                     if fld not in known:
-                        violations.append(
-                            f"{row_label}: unexpected field '{fld}' "
-                            f"not in schema v{schema.version}"
-                        )
+                        violations.append(f"{row_label}: unexpected field '{fld}' not in schema v{schema.version}")
 
         # Audit
         self._record_audit(
@@ -835,33 +821,20 @@ class TrialDataManager:
         try:
             if "min" in constraint:
                 if float(value) < constraint["min"]:
-                    issues.append(
-                        f"{row_label}: field '{field_name}' value "
-                        f"{value} < min {constraint['min']}"
-                    )
+                    issues.append(f"{row_label}: field '{field_name}' value {value} < min {constraint['min']}")
             if "max" in constraint:
                 if float(value) > constraint["max"]:
-                    issues.append(
-                        f"{row_label}: field '{field_name}' value "
-                        f"{value} > max {constraint['max']}"
-                    )
+                    issues.append(f"{row_label}: field '{field_name}' value {value} > max {constraint['max']}")
             if "allowed_values" in constraint:
                 if value not in constraint["allowed_values"]:
-                    issues.append(
-                        f"{row_label}: field '{field_name}' value "
-                        f"'{value}' not in allowed values"
-                    )
+                    issues.append(f"{row_label}: field '{field_name}' value '{value}' not in allowed values")
             if "min_length" in constraint:
                 if hasattr(value, "__len__") and len(value) < constraint["min_length"]:
                     issues.append(
-                        f"{row_label}: field '{field_name}' length "
-                        f"{len(value)} < min_length {constraint['min_length']}"
+                        f"{row_label}: field '{field_name}' length {len(value)} < min_length {constraint['min_length']}"
                     )
         except (TypeError, ValueError) as exc:
-            issues.append(
-                f"{row_label}: field '{field_name}' constraint check "
-                f"failed: {exc}"
-            )
+            issues.append(f"{row_label}: field '{field_name}' constraint check failed: {exc}")
         return issues
 
     # ------------------------------------------------------------------
@@ -938,22 +911,19 @@ class TrialDataManager:
                 all_domains_present.setdefault(domain, set()).add(inv.site_id)
 
         for domain, sites_with in all_domains_present.items():
-            missing_sites = [
-                inv.site_id for inv in site_inventories
-                if inv.site_id not in sites_with
-            ]
+            missing_sites = [inv.site_id for inv in site_inventories if inv.site_id not in sites_with]
             if missing_sites:
-                discrepancies.append({
-                    "type": "missing_domain",
-                    "domain": domain,
-                    "missing_sites": missing_sites,
-                    "severity": "warning",
-                })
+                discrepancies.append(
+                    {
+                        "type": "missing_domain",
+                        "domain": domain,
+                        "missing_sites": missing_sites,
+                        "severity": "warning",
+                    }
+                )
 
         # --- Record count outlier detection ---
-        record_counts = np.array(
-            [inv.total_records for inv in site_inventories], dtype=np.float64
-        )
+        record_counts = np.array([inv.total_records for inv in site_inventories], dtype=np.float64)
         if len(record_counts) > 1:
             mean_count = float(np.mean(record_counts))
             std_count = float(np.std(record_counts))
@@ -961,14 +931,16 @@ class TrialDataManager:
                 if std_count > 1e-12:
                     z = abs(inv.total_records - mean_count) / std_count
                     if z > 2.0:
-                        discrepancies.append({
-                            "type": "record_count_outlier",
-                            "site_id": inv.site_id,
-                            "record_count": inv.total_records,
-                            "mean": round(mean_count, 1),
-                            "z_score": round(z, 2),
-                            "severity": "warning" if z <= 3.0 else "error",
-                        })
+                        discrepancies.append(
+                            {
+                                "type": "record_count_outlier",
+                                "site_id": inv.site_id,
+                                "record_count": inv.total_records,
+                                "mean": round(mean_count, 1),
+                                "z_score": round(z, 2),
+                                "severity": "warning" if z <= 3.0 else "error",
+                            }
+                        )
 
         # --- Quality distribution comparison ---
         quality_distributions: dict[str, dict[str, int]] = {}
@@ -976,16 +948,19 @@ class TrialDataManager:
             quality_distributions[inv.site_id] = dict(inv.quality_summary)
 
         sites_with_poor = [
-            sid for sid, qdist in quality_distributions.items()
+            sid
+            for sid, qdist in quality_distributions.items()
             if qdist.get("poor", 0) + qdist.get("unacceptable", 0) > 0
         ]
         if sites_with_poor:
-            discrepancies.append({
-                "type": "quality_concern",
-                "sites": sites_with_poor,
-                "severity": "warning",
-                "message": "Sites have datasets rated POOR or UNACCEPTABLE",
-            })
+            discrepancies.append(
+                {
+                    "type": "quality_concern",
+                    "sites": sites_with_poor,
+                    "severity": "warning",
+                    "message": "Sites have datasets rated POOR or UNACCEPTABLE",
+                }
+            )
 
         # Audit
         self._record_audit(
@@ -1130,9 +1105,7 @@ class TrialDataManager:
             if retention:
                 entry["retention_policy"] = retention.retention_policy.value
                 entry["retention_expiry"] = retention.expiry_date
-                entry["destruction_certificate"] = (
-                    retention.destruction_certificate_hash or None
-                )
+                entry["destruction_certificate"] = retention.destruction_certificate_hash or None
 
             if quality:
                 entry["quality_scores"] = {
@@ -1167,9 +1140,7 @@ class TrialDataManager:
                 "total_records": total_records,
                 "quality_distribution": quality_distribution,
                 "domain_distribution": domain_distribution,
-                "unique_sites": len(
-                    {ds.site_id for ds in self._datasets.values()}
-                ),
+                "unique_sites": len({ds.site_id for ds in self._datasets.values()}),
             },
             "datasets": datasets_manifest,
             "audit_trail_size": len(self._audit_trail),
@@ -1272,13 +1243,10 @@ class TrialDataManager:
         }
 
         # Compute integrity hash over key fields
-        hash_payload = (
-            f"{action}:{resource}:{self._operator_id}:"
-            f"{self.trial_id}:{now}:{requirement}"
-        )
-        entry["integrity_hash"] = hmac.new(
-            _HMAC_KEY, hash_payload.encode("utf-8"), hashlib.sha256
-        ).hexdigest()[:_HASH_TRUNCATION]
+        hash_payload = f"{action}:{resource}:{self._operator_id}:{self.trial_id}:{now}:{requirement}"
+        entry["integrity_hash"] = hmac.new(_HMAC_KEY, hash_payload.encode("utf-8"), hashlib.sha256).hexdigest()[
+            :_HASH_TRUNCATION
+        ]
 
         self._audit_trail.append(entry)
 

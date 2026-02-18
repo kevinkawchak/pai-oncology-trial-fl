@@ -186,7 +186,10 @@ class OneCompartmentModel:
         self._p = params
         logger.info(
             "OneCompartmentModel | dose=%.1f mg, ka=%.3f/h, ke=%.3f/h, Vd=%.1f L",
-            params.dose_mg, params.ka_hr, params.ke_hr, params.vd_l,
+            params.dose_mg,
+            params.ka_hr,
+            params.ke_hr,
+            params.vd_l,
         )
 
     def concentration(self, t: np.ndarray) -> np.ndarray:
@@ -225,10 +228,13 @@ class TwoCompartmentModel:
     def __init__(self, params: TwoCompartmentParams) -> None:
         self._p = params
         logger.info(
-            "TwoCompartmentModel | dose=%.1f mg, ka=%.3f/h, k10=%.3f/h, "
-            "k12=%.3f/h, k21=%.3f/h, Vc=%.1f L",
-            params.dose_mg, params.ka_hr, params.k10_hr,
-            params.k12_hr, params.k21_hr, params.vc_l,
+            "TwoCompartmentModel | dose=%.1f mg, ka=%.3f/h, k10=%.3f/h, k12=%.3f/h, k21=%.3f/h, Vc=%.1f L",
+            params.dose_mg,
+            params.ka_hr,
+            params.k10_hr,
+            params.k12_hr,
+            params.k21_hr,
+            params.vc_l,
         )
 
     def _ode_system(self, t: float, y: list[float]) -> list[float]:
@@ -313,7 +319,10 @@ def compute_nca(t: np.ndarray, conc: np.ndarray) -> dict[str, float]:
     }
     logger.info(
         "NCA results | AUC=%.2f mg*h/L, Cmax=%.3f mg/L, Tmax=%.2f h, t1/2=%.2f h",
-        auc, cmax, tmax, t_half,
+        auc,
+        cmax,
+        tmax,
+        t_half,
     )
     return results
 
@@ -336,7 +345,10 @@ class EmaxModel:
         self._p = params
         logger.info(
             "EmaxModel | Emax=%.1f, EC50=%.1f, Hill=%.2f, E0=%.1f",
-            params.emax, params.ec50, params.hill, params.e0,
+            params.emax,
+            params.ec50,
+            params.hill,
+            params.e0,
         )
 
     def effect(self, concentrations: np.ndarray) -> np.ndarray:
@@ -350,7 +362,7 @@ class EmaxModel:
         """
         p = self._p
         c_pow = np.power(np.clip(concentrations, 0, None), p.hill)
-        ec50_pow = p.ec50 ** p.hill
+        ec50_pow = p.ec50**p.hill
         effect = p.e0 + p.emax * c_pow / (ec50_pow + c_pow)
         return effect
 
@@ -426,7 +438,10 @@ def compute_adjusted_clearance(
     }
     logger.info(
         "Covariate-adjusted CL | patient=%s | base=%.3f -> adj=%.3f L/h (%.1f%%)",
-        profile.patient_id, base_cl_l_h, cl_adjusted, result["percent_change"],
+        profile.patient_id,
+        base_cl_l_h,
+        cl_adjusted,
+        result["percent_change"],
     )
     return result
 
@@ -479,7 +494,12 @@ def main() -> None:
     # --- Two-compartment model ---
     _print_section("2. TWO-COMPARTMENT PK MODEL")
     pk2_params = TwoCompartmentParams(
-        dose_mg=500.0, ka_hr=1.2, k10_hr=0.10, k12_hr=0.20, k21_hr=0.08, vc_l=30.0,
+        dose_mg=500.0,
+        ka_hr=1.2,
+        k10_hr=0.10,
+        k12_hr=0.20,
+        k21_hr=0.08,
+        vc_l=30.0,
     )
     pk2 = TwoCompartmentModel(pk2_params)
     conc_2c = pk2.concentration(t)
@@ -524,18 +544,19 @@ def main() -> None:
         sex = str(rng.choice(["M", "F"]))
         crcl = float(np.clip(rng.normal(85, 25), 20.0, 160.0))
         alb = float(np.clip(rng.normal(3.8, 0.6), 1.5, 5.5))
-        profiles.append(CovariateProfile(
-            patient_id=f"PAT-{i + 1:04d}",
-            weight_kg=round(wt, 1),
-            age_years=age,
-            sex=sex,
-            creatinine_clearance_ml_min=round(crcl, 1),
-            albumin_g_dl=round(alb, 1),
-        ))
+        profiles.append(
+            CovariateProfile(
+                patient_id=f"PAT-{i + 1:04d}",
+                weight_kg=round(wt, 1),
+                age_years=age,
+                sex=sex,
+                creatinine_clearance_ml_min=round(crcl, 1),
+                albumin_g_dl=round(alb, 1),
+            )
+        )
 
     print(f"  Base population CL: {base_clearance:.1f} L/h")
-    print(f"  {'Patient':>10s}  {'Wt(kg)':>8s}  {'Age':>5s}  {'CrCl':>8s}  "
-          f"{'CL_adj':>8s}  {'%Change':>8s}")
+    print(f"  {'Patient':>10s}  {'Wt(kg)':>8s}  {'Age':>5s}  {'CrCl':>8s}  {'CL_adj':>8s}  {'%Change':>8s}")
     print(f"  {'-' * 58}")
 
     for profile in profiles:

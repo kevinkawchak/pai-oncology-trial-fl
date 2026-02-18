@@ -188,7 +188,10 @@ def generate_survival_data(config: SurvivalConfig) -> dict[str, np.ndarray]:
     n_events = int(np.sum(data["event"]))
     logger.info(
         "Survival data generated | N=%d | events=%d (%.1f%%) | arms=%s",
-        len(all_times), n_events, 100 * n_events / len(all_times), config.arms,
+        len(all_times),
+        n_events,
+        100 * n_events / len(all_times),
+        config.arms,
     )
     return data
 
@@ -276,7 +279,7 @@ def kaplan_meier(
         n_at_risk = int(np.sum(t_sorted >= t_i))
 
         if n_at_risk > 0 and n_at_risk > d_i:
-            s *= (1.0 - d_i / n_at_risk)
+            s *= 1.0 - d_i / n_at_risk
             greenwood_sum += d_i / (n_at_risk * (n_at_risk - d_i))
         elif n_at_risk > 0:
             s = 0.0
@@ -319,7 +322,9 @@ def kaplan_meier(
 
     logger.info(
         "KM estimate | arm=%s | median=%.2f months | events=%d",
-        arm_label, median, int(np.sum(km_events_at)),
+        arm_label,
+        median,
+        int(np.sum(km_events_at)),
     )
     return result
 
@@ -373,9 +378,7 @@ def log_rank_test(
 
         # Hypergeometric variance
         if n_total_risk > 1:
-            v_i = (d_i * at_risk_0 * at_risk_1 * (n_total_risk - d_i)) / (
-                n_total_risk ** 2 * (n_total_risk - 1)
-            )
+            v_i = (d_i * at_risk_0 * at_risk_1 * (n_total_risk - d_i)) / (n_total_risk**2 * (n_total_risk - 1))
             variance += v_i
 
     # Chi-squared statistic
@@ -396,7 +399,10 @@ def log_rank_test(
 
     logger.info(
         "Log-rank test | chi2=%.4f, p=%.6f | O1=%.0f, E1=%.1f",
-        chi2_stat, p_value, observed_1, expected_1,
+        chi2_stat,
+        p_value,
+        observed_1,
+        expected_1,
     )
     return result
 
@@ -496,7 +502,9 @@ def fit_cox_ph(
 
     logger.info(
         "Cox PH fitted | covariates=%d | C-index=%.4f | converged=%s",
-        p, c_index, result.success,
+        p,
+        c_index,
+        result.success,
     )
     return fit_result
 
@@ -615,7 +623,7 @@ def compute_rmst(
             area_i = float(np.trapezoid(s_trunc[future_mask], t_trunc[future_mask]))
         else:
             area_i = 0.0
-        se_sq += area_i ** 2 * d_i / (n_i * (n_i - d_i))
+        se_sq += area_i**2 * d_i / (n_i * (n_i - d_i))
 
     se = np.sqrt(se_sq)
 
@@ -629,7 +637,10 @@ def compute_rmst(
 
     logger.info(
         "RMST | arm=%s | RMST(tau=%.0f)=%.3f months (SE=%.3f)",
-        km_result.arm_label, tau, rmst, se,
+        km_result.arm_label,
+        tau,
+        rmst,
+        se,
     )
     return result
 
@@ -680,8 +691,10 @@ def main() -> None:
         n_arm = int(np.sum(mask))
         n_events = int(np.sum(data["event"][mask]))
         med_time = float(np.median(data["time"][mask]))
-        print(f"  {arm_label:>15s}:  N={n_arm}  events={n_events} "
-              f"({100*n_events/n_arm:.1f}%)  median_obs_time={med_time:.1f} mo")
+        print(
+            f"  {arm_label:>15s}:  N={n_arm}  events={n_events} "
+            f"({100 * n_events / n_arm:.1f}%)  median_obs_time={med_time:.1f} mo"
+        )
 
     # --- 2. Kaplan-Meier curves ---
     _print_section("2. KAPLAN-MEIER SURVIVAL ESTIMATES")
@@ -702,14 +715,15 @@ def main() -> None:
 
         # Show survival at landmark times
         landmarks = [6, 12, 18, 24]
-        print(f"    {'Time (mo)':>12s}  {'S(t)':>8s}  {'SE':>8s}  "
-              f"{'95% CI':>18s}  {'At Risk':>8s}")
+        print(f"    {'Time (mo)':>12s}  {'S(t)':>8s}  {'SE':>8s}  {'95% CI':>18s}  {'At Risk':>8s}")
         for lm in landmarks:
             idx = np.searchsorted(km.times, lm, side="right") - 1
             if idx >= 0 and idx < len(km.times):
-                print(f"    {lm:12d}  {km.survival[idx]:8.4f}  {km.se[idx]:8.4f}  "
-                      f"[{km.ci_lower[idx]:.4f}, {km.ci_upper[idx]:.4f}]  "
-                      f"{km.n_at_risk[idx]:8d}")
+                print(
+                    f"    {lm:12d}  {km.survival[idx]:8.4f}  {km.se[idx]:8.4f}  "
+                    f"[{km.ci_lower[idx]:.4f}, {km.ci_upper[idx]:.4f}]  "
+                    f"{km.n_at_risk[idx]:8d}"
+                )
 
     # --- 3. Log-rank test ---
     _print_section("3. LOG-RANK TEST (MANTEL-HAENSZEL)")
@@ -734,24 +748,25 @@ def main() -> None:
     print(f"    Log-likelihood:    {cox['log_likelihood']:.4f}")
     print(f"    Converged:         {cox['converged']}")
     print("\n  Coefficient estimates:")
-    print(f"    {'Covariate':>15s}  {'Coef':>8s}  {'HR':>8s}  {'SE':>8s}  "
-          f"{'z':>8s}  {'p':>10s}  {'95% CI for HR':>20s}")
+    print(
+        f"    {'Covariate':>15s}  {'Coef':>8s}  {'HR':>8s}  {'SE':>8s}  {'z':>8s}  {'p':>10s}  {'95% CI for HR':>20s}"
+    )
     print(f"    {'-' * 78}")
 
     covar_names = ["Treatment (Exp vs Ctrl)"]
     for i, name in enumerate(covar_names):
-        print(f"    {name:>15s}  {cox['coefficients'][i]:8.4f}  "
-              f"{cox['hazard_ratios'][i]:8.4f}  {cox['standard_errors'][i]:8.4f}  "
-              f"{cox['z_scores'][i]:8.4f}  {cox['p_values'][i]:10.6f}  "
-              f"[{cox['hr_ci_lower'][i]:.4f}, {cox['hr_ci_upper'][i]:.4f}]")
+        print(
+            f"    {name:>15s}  {cox['coefficients'][i]:8.4f}  "
+            f"{cox['hazard_ratios'][i]:8.4f}  {cox['standard_errors'][i]:8.4f}  "
+            f"{cox['z_scores'][i]:8.4f}  {cox['p_values'][i]:10.6f}  "
+            f"[{cox['hr_ci_lower'][i]:.4f}, {cox['hr_ci_upper'][i]:.4f}]"
+        )
 
     # --- 5. Concordance index and RMST ---
     _print_section("5. CONCORDANCE INDEX AND RMST")
     print(f"  Concordance index (C-statistic): {cox['concordance_index']:.4f}")
     interpretation = (
-        "good" if cox["concordance_index"] > 0.7
-        else "moderate" if cox["concordance_index"] > 0.6
-        else "poor"
+        "good" if cox["concordance_index"] > 0.7 else "moderate" if cox["concordance_index"] > 0.6 else "poor"
     )
     print(f"  Interpretation: {interpretation} discrimination")
 
@@ -764,22 +779,20 @@ def main() -> None:
     for arm_label, km in km_results.items():
         rmst = compute_rmst(km, tau=tau)
         rmst_results[arm_label] = rmst
-        print(f"    {arm_label:>15s}  {rmst['rmst_months']:12.3f}  "
-              f"{rmst['rmst_se']:8.3f}  "
-              f"[{rmst['rmst_ci_lower']:.3f}, {rmst['rmst_ci_upper']:.3f}]")
+        print(
+            f"    {arm_label:>15s}  {rmst['rmst_months']:12.3f}  "
+            f"{rmst['rmst_se']:8.3f}  "
+            f"[{rmst['rmst_ci_lower']:.3f}, {rmst['rmst_ci_upper']:.3f}]"
+        )
 
     # RMST difference
     if len(rmst_results) == 2:
         arms = list(rmst_results.keys())
         diff = rmst_results[arms[1]]["rmst_months"] - rmst_results[arms[0]]["rmst_months"]
-        se_diff = np.sqrt(
-            rmst_results[arms[0]]["rmst_se"] ** 2 +
-            rmst_results[arms[1]]["rmst_se"] ** 2
-        )
+        se_diff = np.sqrt(rmst_results[arms[0]]["rmst_se"] ** 2 + rmst_results[arms[1]]["rmst_se"] ** 2)
         z_diff = diff / max(se_diff, 1e-15)
         p_diff = 2 * (1 - sp_stats.norm.cdf(abs(z_diff)))
-        print(f"\n    RMST difference ({arms[1]} - {arms[0]}): "
-              f"{diff:+.3f} months (SE={se_diff:.3f}, p={p_diff:.6f})")
+        print(f"\n    RMST difference ({arms[1]} - {arms[0]}): {diff:+.3f} months (SE={se_diff:.3f}, p={p_diff:.6f})")
 
     print("\n" + "=" * 72)
     print("  SURVIVAL ANALYSIS COMPLETE")

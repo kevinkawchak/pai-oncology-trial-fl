@@ -37,8 +37,12 @@ class TestAnalyticsPhase:
     def test_all_phases_exist(self):
         """All six pipeline phases are defined."""
         expected = {
-            "DATA_COLLECTION", "PREPROCESSING", "LOCAL_COMPUTATION",
-            "SECURE_AGGREGATION", "GLOBAL_INFERENCE", "REPORTING",
+            "DATA_COLLECTION",
+            "PREPROCESSING",
+            "LOCAL_COMPUTATION",
+            "SECURE_AGGREGATION",
+            "GLOBAL_INFERENCE",
+            "REPORTING",
         }
         assert set(mod.AnalyticsPhase.__members__.keys()) == expected
 
@@ -58,8 +62,14 @@ class TestPipelineStatus:
     def test_all_statuses_exist(self):
         """All eight statuses are defined."""
         expected = {
-            "PENDING", "CONFIGURING", "VALIDATING", "RUNNING",
-            "AGGREGATING", "COMPLETED", "FAILED", "CANCELLED",
+            "PENDING",
+            "CONFIGURING",
+            "VALIDATING",
+            "RUNNING",
+            "AGGREGATING",
+            "COMPLETED",
+            "FAILED",
+            "CANCELLED",
         }
         assert set(mod.PipelineStatus.__members__.keys()) == expected
 
@@ -269,16 +279,20 @@ class TestAggregation:
         orch = mod.ClinicalAnalyticsOrchestrator(config=cfg)
 
         c1 = mod.SiteContribution(
-            site_id="S1", n_subjects=50,
-            local_mean={"os": 12.0}, local_variance={"os": 4.0},
+            site_id="S1",
+            n_subjects=50,
+            local_mean={"os": 12.0},
+            local_variance={"os": 4.0},
             local_sum={"os": 600.0},
             arm_counts={"control": 25, "treatment": 25},
             arm_means={"control": 10.0, "treatment": 14.0},
             arm_variances={"control": 3.0, "treatment": 5.0},
         )
         c2 = mod.SiteContribution(
-            site_id="S2", n_subjects=50,
-            local_mean={"os": 14.0}, local_variance={"os": 5.0},
+            site_id="S2",
+            n_subjects=50,
+            local_mean={"os": 14.0},
+            local_variance={"os": 5.0},
             local_sum={"os": 700.0},
             arm_counts={"control": 25, "treatment": 25},
             arm_means={"control": 12.0, "treatment": 16.0},
@@ -295,12 +309,16 @@ class TestAggregation:
         orch = mod.ClinicalAnalyticsOrchestrator(config=cfg)
 
         c1 = mod.SiteContribution(
-            site_id="A", n_subjects=100,
-            local_mean={"ep": 10.0}, local_sum={"ep": 1000.0},
+            site_id="A",
+            n_subjects=100,
+            local_mean={"ep": 10.0},
+            local_sum={"ep": 1000.0},
         )
         c2 = mod.SiteContribution(
-            site_id="B", n_subjects=100,
-            local_mean={"ep": 20.0}, local_sum={"ep": 2000.0},
+            site_id="B",
+            n_subjects=100,
+            local_mean={"ep": 20.0},
+            local_sum={"ep": 2000.0},
         )
         result = orch.aggregate_contributions([c1, c2])
         np.testing.assert_allclose(result.global_mean["ep"], 15.0, atol=1e-6)
@@ -311,12 +329,16 @@ class TestAggregation:
         orch = mod.ClinicalAnalyticsOrchestrator(config=cfg)
 
         c1 = mod.SiteContribution(
-            site_id="A", n_subjects=0,
-            local_mean={"ep": 5.0}, local_sum={"ep": 0.0},
+            site_id="A",
+            n_subjects=0,
+            local_mean={"ep": 5.0},
+            local_sum={"ep": 0.0},
         )
         c2 = mod.SiteContribution(
-            site_id="B", n_subjects=0,
-            local_mean={"ep": 10.0}, local_sum={"ep": 0.0},
+            site_id="B",
+            n_subjects=0,
+            local_mean={"ep": 10.0},
+            local_sum={"ep": 0.0},
         )
         result = orch.aggregate_contributions([c1, c2])
         # Should not crash; global_mean should be empty or 0
@@ -328,8 +350,10 @@ class TestAggregation:
         orch = mod.ClinicalAnalyticsOrchestrator(config=cfg)
 
         c = mod.SiteContribution(
-            site_id="X", n_subjects=10,
-            local_mean={"os": 5.0}, local_sum={"os": 50.0},
+            site_id="X",
+            n_subjects=10,
+            local_mean={"os": 5.0},
+            local_sum={"os": 50.0},
         )
         orch.aggregate_contributions([c])
         trail = orch.get_audit_trail()
@@ -346,13 +370,17 @@ class TestAggregation:
         orch = mod.ClinicalAnalyticsOrchestrator(config=cfg)
 
         c1 = mod.SiteContribution(
-            site_id="A", n_subjects=50,
-            local_mean={"ep": 10.0}, local_variance={"ep": 4.0},
+            site_id="A",
+            n_subjects=50,
+            local_mean={"ep": 10.0},
+            local_variance={"ep": 4.0},
             local_sum={"ep": 500.0},
         )
         c2 = mod.SiteContribution(
-            site_id="B", n_subjects=50,
-            local_mean={"ep": 12.0}, local_variance={"ep": 5.0},
+            site_id="B",
+            n_subjects=50,
+            local_mean={"ep": 12.0},
+            local_variance={"ep": 5.0},
             local_sum={"ep": 600.0},
         )
         result = orch.aggregate_contributions([c1, c2])
@@ -378,8 +406,10 @@ class TestConvergence:
         cfg = mod.AnalyticsConfig(trial_id="NCT-001", site_ids=["A"])
         orch = mod.ClinicalAnalyticsOrchestrator(config=cfg)
         c = mod.SiteContribution(
-            site_id="A", n_subjects=10,
-            local_mean={"ep": 5.0}, local_sum={"ep": 50.0},
+            site_id="A",
+            n_subjects=10,
+            local_mean={"ep": 5.0},
+            local_sum={"ep": 50.0},
         )
         orch.aggregate_contributions([c])
         assert orch.check_convergence() is False

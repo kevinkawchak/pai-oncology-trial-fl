@@ -263,7 +263,9 @@ def _audit_log(
     timestamp = datetime.now(timezone.utc).isoformat()
     payload = f"{action}:{actor}:{resource}:{timestamp}"
     integrity_hash = hmac.new(
-        _HMAC_KEY, payload.encode(), hashlib.sha256,
+        _HMAC_KEY,
+        payload.encode(),
+        hashlib.sha256,
     ).hexdigest()
     record: Dict[str, Any] = {
         "event_id": f"PKPD-{uuid.uuid4().hex[:12].upper()}",
@@ -284,7 +286,9 @@ def _hash_patient_id(patient_id: str) -> str:
     Returns a hex-encoded pseudonym that cannot be reversed without the key.
     """
     return hmac.new(
-        _HMAC_KEY, patient_id.encode("utf-8"), hashlib.sha256,
+        _HMAC_KEY,
+        patient_id.encode("utf-8"),
+        hashlib.sha256,
     ).hexdigest()
 
 
@@ -380,7 +384,8 @@ class PopulationPKPDEngine:
         vc = pk.volume_central_l
         f = pk.bioavailability
         is_oral = self.config.dosing_regimen in (
-            DosingRegimen.ORAL, DosingRegimen.SUBCUTANEOUS,
+            DosingRegimen.ORAL,
+            DosingRegimen.SUBCUTANEOUS,
         )
 
         if is_oral and ka > _EPS:
@@ -390,9 +395,7 @@ class PopulationPKPDEngine:
                 # L'Hopital limit when ka approaches ke
                 c = (dose_mg * f * ka / max(vc, _EPS)) * t * np.exp(-ke * t)
             else:
-                c = ((dose_mg * f * ka) / (max(vc, _EPS) * denom)) * (
-                    np.exp(-ke * t) - np.exp(-ka * t)
-                )
+                c = ((dose_mg * f * ka) / (max(vc, _EPS) * denom)) * (np.exp(-ke * t) - np.exp(-ka * t))
         elif pk.infusion_duration_h > _EPS:
             # Zero-order IV infusion
             t_inf = pk.infusion_duration_h
@@ -401,9 +404,7 @@ class PopulationPKPDEngine:
             c = np.where(
                 t <= t_inf,
                 (r0 / vc_ke) * (1.0 - np.exp(-ke * t)),
-                (r0 / vc_ke)
-                * (1.0 - np.exp(-ke * t_inf))
-                * np.exp(-ke * (t - t_inf)),
+                (r0 / vc_ke) * (1.0 - np.exp(-ke * t_inf)) * np.exp(-ke * (t - t_inf)),
             )
         else:
             # IV bolus
@@ -418,8 +419,10 @@ class PopulationPKPDEngine:
         self._run_count += 1
         self._audit_trail.append(
             _audit_log(
-                "one_compartment_pk", "engine",
-                f"run_{self._run_count}", {"dose_mg": dose_mg},
+                "one_compartment_pk",
+                "engine",
+                f"run_{self._run_count}",
+                {"dose_mg": dose_mg},
             )
         )
         return ConcentrationProfile(
@@ -478,7 +481,8 @@ class PopulationPKPDEngine:
         f = pk.bioavailability
         ka = pk.ka_h
         is_oral = self.config.dosing_regimen in (
-            DosingRegimen.ORAL, DosingRegimen.SUBCUTANEOUS,
+            DosingRegimen.ORAL,
+            DosingRegimen.SUBCUTANEOUS,
         )
 
         def _ode_iv(_t: float, y: np.ndarray) -> List[float]:
@@ -500,15 +504,25 @@ class PopulationPKPDEngine:
         if is_oral and ka > _EPS:
             y0 = [dose_mg * f, 0.0, 0.0]
             sol = integrate.solve_ivp(
-                _ode_oral, t_span, y0, t_eval=t_eval,
-                method="RK45", rtol=1e-8, atol=1e-10,
+                _ode_oral,
+                t_span,
+                y0,
+                t_eval=t_eval,
+                method="RK45",
+                rtol=1e-8,
+                atol=1e-10,
             )
             amounts_central = sol.y[1]
         else:
             y0 = [dose_mg * f, 0.0]
             sol = integrate.solve_ivp(
-                _ode_iv, t_span, y0, t_eval=t_eval,
-                method="RK45", rtol=1e-8, atol=1e-10,
+                _ode_iv,
+                t_span,
+                y0,
+                t_eval=t_eval,
+                method="RK45",
+                rtol=1e-8,
+                atol=1e-10,
             )
             amounts_central = sol.y[0]
 
@@ -523,8 +537,10 @@ class PopulationPKPDEngine:
         self._run_count += 1
         self._audit_trail.append(
             _audit_log(
-                "two_compartment_pk", "engine",
-                f"run_{self._run_count}", {"dose_mg": dose_mg},
+                "two_compartment_pk",
+                "engine",
+                f"run_{self._run_count}",
+                {"dose_mg": dose_mg},
             )
         )
         return ConcentrationProfile(
@@ -638,25 +654,35 @@ class PopulationPKPDEngine:
 
         for i, dose in enumerate(dose_range):
             profile = self.compute_one_compartment_profile(
-                dose, pk=pk, time_end_h=48.0, n_points=200,
+                dose,
+                pk=pk,
+                time_end_h=48.0,
+                n_points=200,
             )
             cmax_vals[i] = profile.cmax_mg_l
             pd_out = self.compute_pd_response(
-                np.array([profile.cmax_mg_l]), pd=pd,
+                np.array([profile.cmax_mg_l]),
+                pd=pd,
             )
             effects[i] = pd_out[0]
 
         tw_low, tw_high = self._find_therapeutic_window(
-            dose_range, effects, pd.emax, pd.baseline_effect,
+            dose_range,
+            effects,
+            pd.emax,
+            pd.baseline_effect,
         )
         ec50_est = self._estimate_ec50_from_curve(
-            cmax_vals, effects, pd.baseline_effect,
+            cmax_vals,
+            effects,
+            pd.baseline_effect,
         )
 
         self._run_count += 1
         self._audit_trail.append(
             _audit_log(
-                "dose_response_curve", "engine",
+                "dose_response_curve",
+                "engine",
                 f"run_{self._run_count}",
                 {"n_doses": len(dose_range)},
             )
@@ -706,7 +732,8 @@ class PopulationPKPDEngine:
         # Renal function effect on clearance
         renal_effect = 1.0
         if self.config.elimination_route in (
-            EliminationRoute.RENAL, EliminationRoute.MIXED,
+            EliminationRoute.RENAL,
+            EliminationRoute.MIXED,
         ):
             frac = 0.7 if self.config.elimination_route == EliminationRoute.RENAL else 0.35
             renal_effect = 1.0 - frac + frac * (crcl / 100.0)
@@ -725,9 +752,13 @@ class PopulationPKPDEngine:
         hl_adj = math.log(2.0) / max(ke_adj, _EPS)
 
         logger.debug(
-            "Covariate adjustment: WT=%.1fkg AGE=%.0fy CrCL=%.0f "
-            "-> CL=%.2f Vc=%.2f ke=%.4f",
-            wt, age, crcl, cl_adj, vc_adj, ke_adj,
+            "Covariate adjustment: WT=%.1fkg AGE=%.0fy CrCL=%.0f -> CL=%.2f Vc=%.2f ke=%.4f",
+            wt,
+            age,
+            crcl,
+            cl_adj,
+            vc_adj,
+            ke_adj,
         )
         return PKParameters(
             clearance_l_h=cl_adj,
@@ -788,7 +819,8 @@ class PopulationPKPDEngine:
             ke_e = cl_e / vc_e
             f_val = initial_pk.bioavailability
             is_oral = self.config.dosing_regimen in (
-                DosingRegimen.ORAL, DosingRegimen.SUBCUTANEOUS,
+                DosingRegimen.ORAL,
+                DosingRegimen.SUBCUTANEOUS,
             )
             if is_oral and initial_pk.ka_h > _EPS:
                 ka_val = initial_pk.ka_h
@@ -805,11 +837,13 @@ class PopulationPKPDEngine:
 
             pred = np.clip(pred, _EPS, _MAX_CONCENTRATION_MG_L)
             residuals = log_obs - np.log(pred)
-            return float(np.sum(residuals ** 2))
+            return float(np.sum(residuals**2))
 
         x0 = np.array([initial_pk.clearance_l_h, initial_pk.volume_central_l])
         result = optimize.minimize(
-            _objective, x0, method="Nelder-Mead",
+            _objective,
+            x0,
+            method="Nelder-Mead",
             options={"maxiter": 2000, "xatol": 1e-6, "fatol": 1e-8},
         )
 
@@ -842,14 +876,17 @@ class PopulationPKPDEngine:
         self._run_count += 1
         self._audit_trail.append(
             _audit_log(
-                "population_estimation", "engine",
+                "population_estimation",
+                "engine",
                 f"run_{self._run_count}",
                 {"converged": result.success, "obj": float(result.fun)},
             )
         )
         logger.info(
             "Population estimation: CL=%.3f L/h, Vc=%.3f L, converged=%s",
-            cl_opt, vc_opt, result.success,
+            cl_opt,
+            vc_opt,
+            result.success,
         )
         return optimised, diagnostics
 
@@ -991,12 +1028,14 @@ class PopulationPKPDEngine:
             "mean_clearance_l_h": round(g_cl, 4),
             "var_clearance": round(pv_cl, 6),
             "cv_clearance_pct": round(
-                100.0 * math.sqrt(max(pv_cl, 0.0)) / max(g_cl, _EPS), 2,
+                100.0 * math.sqrt(max(pv_cl, 0.0)) / max(g_cl, _EPS),
+                2,
             ),
             "mean_volume_l": round(g_vc, 4),
             "var_volume": round(pv_vc, 6),
             "cv_volume_pct": round(
-                100.0 * math.sqrt(max(pv_vc, 0.0)) / max(g_vc, _EPS), 2,
+                100.0 * math.sqrt(max(pv_vc, 0.0)) / max(g_vc, _EPS),
+                2,
             ),
             "mean_auc_mg_h_l": round(g_auc, 4),
             "var_auc": round(pv_auc, 6),
@@ -1005,13 +1044,18 @@ class PopulationPKPDEngine:
 
         self._audit_trail.append(
             _audit_log(
-                "federated_aggregation", "engine", "population_stats",
+                "federated_aggregation",
+                "engine",
+                "population_stats",
                 {"n_sites": len(site_summaries), "pooled_n": total_n},
             )
         )
         logger.info(
             "Federated aggregation: %d sites, N=%d, mean_CL=%.3f, mean_Vc=%.3f",
-            len(site_summaries), total_n, g_cl, g_vc,
+            len(site_summaries),
+            total_n,
+            g_cl,
+            g_vc,
         )
         return pooled
 
@@ -1075,11 +1119,17 @@ class PopulationPKPDEngine:
 
             if self.config.pk_model == PKModel.TWO_COMPARTMENT:
                 prof = self.compute_two_compartment_profile(
-                    dose_mg, pk=ind_pk, time_end_h=time_end_h, n_points=200,
+                    dose_mg,
+                    pk=ind_pk,
+                    time_end_h=time_end_h,
+                    n_points=200,
                 )
             else:
                 prof = self.compute_one_compartment_profile(
-                    dose_mg, pk=ind_pk, time_end_h=time_end_h, n_points=200,
+                    dose_mg,
+                    pk=ind_pk,
+                    time_end_h=time_end_h,
+                    n_points=200,
                 )
 
             aucs.append(prof.auc_mg_h_l)
@@ -1098,8 +1148,11 @@ class PopulationPKPDEngine:
             "auc_mean": round(float(np.mean(arr_auc)), 4),
             "auc_sd": round(float(np.std(arr_auc, ddof=1)), 4) if n_subjects > 1 else 0.0,
             "auc_cv_pct": round(
-                100.0 * float(np.std(arr_auc, ddof=1)) / max(float(np.mean(arr_auc)), _EPS), 2,
-            ) if n_subjects > 1 else 0.0,
+                100.0 * float(np.std(arr_auc, ddof=1)) / max(float(np.mean(arr_auc)), _EPS),
+                2,
+            )
+            if n_subjects > 1
+            else 0.0,
             "cmax_mean": round(float(np.mean(arr_cmax)), 4),
             "cmax_sd": round(float(np.std(arr_cmax, ddof=1)), 4) if n_subjects > 1 else 0.0,
             "tmax_median": round(float(np.median(tmaxs)), 4),
@@ -1117,8 +1170,10 @@ class PopulationPKPDEngine:
         self._run_count += 1
         self._audit_trail.append(
             _audit_log(
-                "population_simulation", "engine",
-                f"run_{self._run_count}", {"n": n_subjects},
+                "population_simulation",
+                "engine",
+                f"run_{self._run_count}",
+                {"n": n_subjects},
             )
         )
         return summary
@@ -1128,7 +1183,8 @@ class PopulationPKPDEngine:
     # ------------------------------------------------------------------
     @staticmethod
     def _extract_cmax_tmax(
-        c: np.ndarray, t: np.ndarray,
+        c: np.ndarray,
+        t: np.ndarray,
     ) -> Tuple[float, float]:
         """Extract Cmax and Tmax from concentration-time arrays."""
         if len(c) == 0:
@@ -1138,7 +1194,8 @@ class PopulationPKPDEngine:
 
     @staticmethod
     def _estimate_terminal_half_life(
-        c: np.ndarray, t: np.ndarray,
+        c: np.ndarray,
+        t: np.ndarray,
     ) -> float:
         """Estimate terminal half-life via log-linear regression on the tail.
 
@@ -1163,10 +1220,10 @@ class PopulationPKPDEngine:
         n_pts = len(t_pos)
         s_t = np.sum(t_pos)
         s_lc = np.sum(log_c)
-        s_t2 = np.sum(t_pos ** 2)
+        s_t2 = np.sum(t_pos**2)
         s_tlc = np.sum(t_pos * log_c)
 
-        denom = n_pts * s_t2 - s_t ** 2
+        denom = n_pts * s_t2 - s_t**2
         if abs(denom) < _EPS:
             return 0.0
 
@@ -1239,10 +1296,7 @@ class PopulationPKPDEngine:
                 if abs(denom) < _EPS:
                     return float(concentrations[i])
                 frac = (target - e1) / denom
-                return float(
-                    concentrations[i]
-                    + frac * (concentrations[i + 1] - concentrations[i])
-                )
+                return float(concentrations[i] + frac * (concentrations[i + 1] - concentrations[i]))
         return float(concentrations[len(concentrations) // 2])
 
     # ------------------------------------------------------------------

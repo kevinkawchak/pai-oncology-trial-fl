@@ -62,6 +62,7 @@ DEFAULT_HMAC_KEY: bytes = b"pai-oncology-trial-fl-default-key"
 # ===================================================================
 class SurvivalEndpoint(str, Enum):
     """Clinical survival endpoint definitions."""
+
     OVERALL_SURVIVAL = "overall_survival"
     PROGRESSION_FREE_SURVIVAL = "progression_free_survival"
     DISEASE_FREE_SURVIVAL = "disease_free_survival"
@@ -71,6 +72,7 @@ class SurvivalEndpoint(str, Enum):
 
 class CensoringType(str, Enum):
     """Censoring mechanism."""
+
     RIGHT = "right"
     LEFT = "left"
     INTERVAL = "interval"
@@ -78,6 +80,7 @@ class CensoringType(str, Enum):
 
 class TestType(str, Enum):
     """Two-sample survival test variants."""
+
     LOG_RANK = "log_rank"
     WILCOXON = "wilcoxon"
     TARONE_WARE = "tarone_ware"
@@ -86,6 +89,7 @@ class TestType(str, Enum):
 
 class HazardModel(str, Enum):
     """Parametric and semi-parametric hazard model families."""
+
     COX_PH = "cox_ph"
     WEIBULL = "weibull"
     EXPONENTIAL = "exponential"
@@ -96,6 +100,7 @@ class HazardModel(str, Enum):
 @dataclass
 class SurvivalData:
     """One patient's survival record (time, event, covariates)."""
+
     patient_id_hash: str
     time: float
     event: int  # 1 = event observed, 0 = censored
@@ -114,6 +119,7 @@ class SurvivalData:
 @dataclass
 class KaplanMeierEstimate:
     """Kaplan-Meier product-limit survival estimate with Greenwood CIs."""
+
     time_points: np.ndarray
     survival_probabilities: np.ndarray
     ci_lower: np.ndarray
@@ -126,6 +132,7 @@ class KaplanMeierEstimate:
 @dataclass
 class CoxPHResult:
     """Cox proportional-hazards model fit result."""
+
     coefficients: np.ndarray
     hazard_ratios: np.ndarray
     confidence_intervals: np.ndarray  # shape (p, 2)
@@ -140,6 +147,7 @@ class CoxPHResult:
 @dataclass
 class LogRankResult:
     """Two-sample weighted log-rank test result."""
+
     chi_squared: float
     p_value: float
     degrees_of_freedom: int = 1
@@ -153,6 +161,7 @@ class LogRankResult:
 @dataclass
 class SiteContribution:
     """Aggregate at-risk / event table from one federated site."""
+
     site_id: str
     time_points: np.ndarray
     at_risk: np.ndarray
@@ -163,6 +172,7 @@ class SiteContribution:
 @dataclass
 class FederatedSurvivalSummary:
     """Aggregated survival analysis across federated sites."""
+
     site_contributions: List[SiteContribution]
     aggregated_km: KaplanMeierEstimate
     aggregated_cox: Optional[CoxPHResult] = None
@@ -179,7 +189,8 @@ def _audit_log(action: str, details: Dict[str, Any]) -> str:
     entry_id = uuid.uuid4().hex[:12]
     logger.info(
         "AUDIT [%s] action=%s | %s",
-        entry_id, action,
+        entry_id,
+        action,
         " | ".join(f"{k}={v}" for k, v in details.items()),
     )
     return entry_id
@@ -250,23 +261,29 @@ class PrivacyPreservingSurvivalAnalyzer:
         self.convergence_tol = convergence_tol
         alpha = 1.0 - self.confidence_level
         self._z_alpha = float(sp_stats.norm.ppf(1.0 - alpha / 2.0))
-        _audit_log("analyser_init", {
-            "confidence_level": self.confidence_level,
-            "max_iterations": self.max_iterations,
-        })
+        _audit_log(
+            "analyser_init",
+            {
+                "confidence_level": self.confidence_level,
+                "max_iterations": self.max_iterations,
+            },
+        )
 
     # ----- Patient-ID hashing -----
 
     def hash_patient_id(self, raw_id: str) -> str:
         """Return the HMAC-SHA256 hex digest of *raw_id*."""
         return hmac.new(
-            self._hmac_key, raw_id.encode("utf-8"), hashlib.sha256,
+            self._hmac_key,
+            raw_id.encode("utf-8"),
+            hashlib.sha256,
         ).hexdigest()
 
     # ----- Kaplan-Meier estimator -----
 
     def compute_kaplan_meier(
-        self, data: Sequence[SurvivalData],
+        self,
+        data: Sequence[SurvivalData],
     ) -> KaplanMeierEstimate:
         """Kaplan-Meier product-limit estimator with Greenwood CIs.
 
@@ -288,66 +305,79 @@ class PrivacyPreservingSurvivalAnalyzer:
             return KaplanMeierEstimate(
                 time_points=np.array([0.0]),
                 survival_probabilities=np.ones(1),
-                ci_lower=np.ones(1), ci_upper=np.ones(1),
+                ci_lower=np.ones(1),
+                ci_upper=np.ones(1),
                 at_risk=np.array([len(data)]),
                 events=np.zeros(1, dtype=np.int32),
                 confidence_level=self.confidence_level,
             )
 
         n_t = len(unique_times)
-        at_risk_arr = np.array([
-            max(int(np.sum(times >= t_j)), MIN_AT_RISK) for t_j in unique_times
-        ], dtype=np.int64)
-        events_arr = np.array([
-            int(np.sum((times == t_j) & (events == 1))) for t_j in unique_times
-        ], dtype=np.int64)
+        at_risk_arr = np.array([max(int(np.sum(times >= t_j)), MIN_AT_RISK) for t_j in unique_times], dtype=np.int64)
+        events_arr = np.array([int(np.sum((times == t_j) & (events == 1))) for t_j in unique_times], dtype=np.int64)
 
         survival, gw = _product_limit(at_risk_arr, events_arr)
         ci_lo, ci_hi = _greenwood_ci(survival, gw, self._z_alpha)
 
-        _audit_log("km_complete", {
-            "n_time_points": n_t,
-            "n_events": int(np.sum(events_arr)),
-            "final_survival": round(float(survival[-1]), 4),
-        })
+        _audit_log(
+            "km_complete",
+            {
+                "n_time_points": n_t,
+                "n_events": int(np.sum(events_arr)),
+                "final_survival": round(float(survival[-1]), 4),
+            },
+        )
         return KaplanMeierEstimate(
             time_points=unique_times,
             survival_probabilities=survival,
-            ci_lower=ci_lo, ci_upper=ci_hi,
-            at_risk=at_risk_arr, events=events_arr,
+            ci_lower=ci_lo,
+            ci_upper=ci_hi,
+            at_risk=at_risk_arr,
+            events=events_arr,
             confidence_level=self.confidence_level,
         )
 
     # ----- Two-sample survival tests -----
 
     def compute_log_rank_test(
-        self, group_a: Sequence[SurvivalData],
+        self,
+        group_a: Sequence[SurvivalData],
         group_b: Sequence[SurvivalData],
         test_type: TestType = TestType.LOG_RANK,
     ) -> LogRankResult:
         """Weighted two-sample log-rank test (log-rank / Wilcoxon / Tarone-Ware / FH)."""
         if not group_a or not group_b:
             raise ValueError("Both groups must be non-empty")
-        _audit_log("log_rank_start", {
-            "n_a": len(group_a), "n_b": len(group_b),
-            "test_type": test_type.value,
-        })
+        _audit_log(
+            "log_rank_start",
+            {
+                "n_a": len(group_a),
+                "n_b": len(group_b),
+                "test_type": test_type.value,
+            },
+        )
 
         times_a = np.array([d.time for d in group_a], dtype=np.float64)
         ev_a = np.array([d.event for d in group_a], dtype=np.int32)
         times_b = np.array([d.time for d in group_b], dtype=np.float64)
         ev_b = np.array([d.event for d in group_b], dtype=np.int32)
 
-        all_event_times = np.unique(np.concatenate([
-            times_a[ev_a == 1], times_b[ev_b == 1],
-        ]))
+        all_event_times = np.unique(
+            np.concatenate(
+                [
+                    times_a[ev_a == 1],
+                    times_b[ev_b == 1],
+                ]
+            )
+        )
         if len(all_event_times) == 0:
             return LogRankResult(chi_squared=0.0, p_value=1.0, test_type=test_type)
 
         # Preliminary pooled KM for Fleming-Harrington weights
         pooled_km = (
             self.compute_kaplan_meier(list(group_a) + list(group_b))
-            if test_type == TestType.FLEMING_HARRINGTON else None
+            if test_type == TestType.FLEMING_HARRINGTON
+            else None
         )
 
         numerator = denominator = obs_a_total = exp_a_total = 0.0
@@ -379,30 +409,40 @@ class PrivacyPreservingSurvivalAnalyzer:
 
             numerator += w_k * (d_a_k - e_a_k)
             # Hypergeometric variance: d * n_a * n_b * (n - d) / (n^2 * (n-1))
-            var_k = (d_k * n_a_k * n_b_k * (n_k - d_k)) / (n_k ** 2 * (n_k - 1)) if n_k > 1 else 0.0
-            denominator += w_k ** 2 * var_k
+            var_k = (d_k * n_a_k * n_b_k * (n_k - d_k)) / (n_k**2 * (n_k - 1)) if n_k > 1 else 0.0
+            denominator += w_k**2 * var_k
             obs_a_total += d_a_k
             exp_a_total += e_a_k
 
-        chi_sq = (numerator ** 2) / denominator if denominator > 0 else 0.0
+        chi_sq = (numerator**2) / denominator if denominator > 0 else 0.0
         p_value = float(1.0 - sp_stats.chi2.cdf(chi_sq, df=1))
         obs_b_total = float(np.sum(ev_b))
         exp_b_total = obs_b_total + obs_a_total - exp_a_total
 
-        _audit_log("log_rank_complete", {
-            "chi_squared": round(chi_sq, 4), "p_value": round(p_value, 6),
-        })
+        _audit_log(
+            "log_rank_complete",
+            {
+                "chi_squared": round(chi_sq, 4),
+                "p_value": round(p_value, 6),
+            },
+        )
         return LogRankResult(
-            chi_squared=chi_sq, p_value=p_value, degrees_of_freedom=1,
+            chi_squared=chi_sq,
+            p_value=p_value,
+            degrees_of_freedom=1,
             test_type=test_type,
-            observed_a=obs_a_total, expected_a=exp_a_total,
-            observed_b=obs_b_total, expected_b=exp_b_total,
+            observed_a=obs_a_total,
+            expected_a=exp_a_total,
+            observed_b=obs_b_total,
+            expected_b=exp_b_total,
         )
 
     # ----- Cox PH regression -----
 
     def fit_cox_ph(
-        self, data: Sequence[SurvivalData], covariate_names: Sequence[str],
+        self,
+        data: Sequence[SurvivalData],
+        covariate_names: Sequence[str],
     ) -> CoxPHResult:
         """Cox PH via Newton-Raphson (Breslow partial likelihood)."""
         if not data:
@@ -455,31 +495,44 @@ class PrivacyPreservingSurvivalAnalyzer:
         # Standard errors from observed information
         se = self._safe_se_from_hessian(hessian, p)
         hr = np.exp(beta)
-        ci = np.column_stack([
-            np.exp(beta - self._z_alpha * se),
-            np.exp(beta + self._z_alpha * se),
-        ])
-        p_vals = np.array([
-            2.0 * (1.0 - float(sp_stats.norm.cdf(abs(beta[j] / se[j])))) if se[j] > 0 else 1.0
-            for j in range(p)
-        ])
+        ci = np.column_stack(
+            [
+                np.exp(beta - self._z_alpha * se),
+                np.exp(beta + self._z_alpha * se),
+            ]
+        )
+        p_vals = np.array(
+            [2.0 * (1.0 - float(sp_stats.norm.cdf(abs(beta[j] / se[j])))) if se[j] > 0 else 1.0 for j in range(p)]
+        )
         c_idx = self.compute_concordance_index(X @ beta, times, events)
 
-        _audit_log("cox_ph_complete", {
-            "iterations": n_iter, "converged": converged,
-            "log_pl": round(log_pl, 4), "c_index": round(c_idx, 4),
-        })
+        _audit_log(
+            "cox_ph_complete",
+            {
+                "iterations": n_iter,
+                "converged": converged,
+                "log_pl": round(log_pl, 4),
+                "c_index": round(c_idx, 4),
+            },
+        )
         return CoxPHResult(
-            coefficients=beta, hazard_ratios=hr,
-            confidence_intervals=ci, p_values=p_vals,
-            concordance_index=c_idx, standard_errors=se,
+            coefficients=beta,
+            hazard_ratios=hr,
+            confidence_intervals=ci,
+            p_values=p_vals,
+            concordance_index=c_idx,
+            standard_errors=se,
             covariate_names=list(covariate_names),
-            iterations=n_iter, log_partial_likelihood=log_pl,
+            iterations=n_iter,
+            log_partial_likelihood=log_pl,
         )
 
     def _cox_gradient_hessian(
-        self, beta: np.ndarray, X: np.ndarray,
-        times: np.ndarray, events: np.ndarray,
+        self,
+        beta: np.ndarray,
+        X: np.ndarray,
+        times: np.ndarray,
+        events: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, float]:
         """Gradient, Hessian, log-PL (Breslow).  Data sorted *descending* by time."""
         n, p = X.shape
@@ -506,8 +559,8 @@ class PrivacyPreservingSurvivalAnalyzer:
             denom = cum_exp[i]
             if denom <= 0:
                 continue
-            w_x = cum_exp_x[i] / denom          # E[X | risk set]
-            w_xx = cum_exp_xx[i] / denom         # E[XX' | risk set]
+            w_x = cum_exp_x[i] / denom  # E[X | risk set]
+            w_xx = cum_exp_xx[i] / denom  # E[XX' | risk set]
 
             grad += X[i] - w_x
             hessian -= w_xx - np.outer(w_x, w_x)
@@ -559,8 +612,10 @@ class PrivacyPreservingSurvivalAnalyzer:
     # ----- Harrell's concordance index -----
 
     def compute_concordance_index(
-        self, predicted: np.ndarray,
-        observed_times: np.ndarray, observed_events: np.ndarray,
+        self,
+        predicted: np.ndarray,
+        observed_times: np.ndarray,
+        observed_events: np.ndarray,
     ) -> float:
         """Harrell's C-index.  0.5 = random, 1.0 = perfect discrimination."""
         n = len(predicted)
@@ -588,16 +643,15 @@ class PrivacyPreservingSurvivalAnalyzer:
     # ----- Federated Kaplan-Meier -----
 
     def federated_kaplan_meier(
-        self, site_contributions: Sequence[SiteContribution],
+        self,
+        site_contributions: Sequence[SiteContribution],
     ) -> FederatedSurvivalSummary:
         """Aggregate site-level at-risk/event tables into a global KM curve."""
         if not site_contributions:
             raise ValueError("At least one site contribution is required")
         _audit_log("fed_km_start", {"n_sites": len(site_contributions)})
 
-        all_times = np.unique(np.concatenate([
-            sc.time_points for sc in site_contributions
-        ]))
+        all_times = np.unique(np.concatenate([sc.time_points for sc in site_contributions]))
         n_t = len(all_times)
         g_risk = np.zeros(n_t, dtype=np.int64)
         g_events = np.zeros(n_t, dtype=np.int64)
@@ -618,29 +672,38 @@ class PrivacyPreservingSurvivalAnalyzer:
         ci_lo, ci_hi = _greenwood_ci(survival, gw, self._z_alpha)
 
         agg_km = KaplanMeierEstimate(
-            time_points=all_times, survival_probabilities=survival,
-            ci_lower=ci_lo, ci_upper=ci_hi,
-            at_risk=g_risk, events=g_events,
+            time_points=all_times,
+            survival_probabilities=survival,
+            ci_lower=ci_lo,
+            ci_upper=ci_hi,
+            at_risk=g_risk,
+            events=g_events,
             confidence_level=self.confidence_level,
         )
         tot_ev = int(np.sum(g_events))
         tot_pt = sum(sc.total_patients for sc in site_contributions)
 
-        _audit_log("fed_km_complete", {
-            "n_sites": len(site_contributions),
-            "total_events": tot_ev, "total_patients": tot_pt,
-        })
+        _audit_log(
+            "fed_km_complete",
+            {
+                "n_sites": len(site_contributions),
+                "total_events": tot_ev,
+                "total_patients": tot_pt,
+            },
+        )
         return FederatedSurvivalSummary(
             site_contributions=list(site_contributions),
             aggregated_km=agg_km,
-            total_events=tot_ev, total_patients=tot_pt,
+            total_events=tot_ev,
+            total_patients=tot_pt,
             num_sites=len(site_contributions),
         )
 
     # ----- Federated Cox aggregation -----
 
     def federated_cox_aggregation(
-        self, site_gradients: Sequence[np.ndarray],
+        self,
+        site_gradients: Sequence[np.ndarray],
         site_hessians: Sequence[np.ndarray],
         covariate_names: Optional[Sequence[str]] = None,
         current_beta: Optional[np.ndarray] = None,
@@ -656,8 +719,11 @@ class PrivacyPreservingSurvivalAnalyzer:
 
         g_grad = sum(np.asarray(g, dtype=np.float64) for g in site_gradients)
         g_hess = sum(np.asarray(h, dtype=np.float64) for h in site_hessians)
-        beta = (np.asarray(current_beta, dtype=np.float64).copy()
-                if current_beta is not None else np.zeros(p, dtype=np.float64))
+        beta = (
+            np.asarray(current_beta, dtype=np.float64).copy()
+            if current_beta is not None
+            else np.zeros(p, dtype=np.float64)
+        )
 
         try:
             h_inv = np.linalg.inv(g_hess)
@@ -668,46 +734,63 @@ class PrivacyPreservingSurvivalAnalyzer:
         beta_new = beta - h_inv @ g_grad
         se = self._safe_se_from_hessian(g_hess, p)
         hr = np.exp(beta_new)
-        ci = np.column_stack([
-            np.exp(beta_new - self._z_alpha * se),
-            np.exp(beta_new + self._z_alpha * se),
-        ])
-        p_vals = np.array([
-            2.0 * (1.0 - float(sp_stats.norm.cdf(abs(beta_new[j] / se[j])))) if se[j] > 0 else 1.0
-            for j in range(p)
-        ])
+        ci = np.column_stack(
+            [
+                np.exp(beta_new - self._z_alpha * se),
+                np.exp(beta_new + self._z_alpha * se),
+            ]
+        )
+        p_vals = np.array(
+            [2.0 * (1.0 - float(sp_stats.norm.cdf(abs(beta_new[j] / se[j])))) if se[j] > 0 else 1.0 for j in range(p)]
+        )
         names = list(covariate_names) if covariate_names else [f"x{j}" for j in range(p)]
 
-        _audit_log("fed_cox_complete", {
-            "n_sites": len(site_gradients),
-            "max_step": float(np.max(np.abs(beta_new - beta))),
-        })
+        _audit_log(
+            "fed_cox_complete",
+            {
+                "n_sites": len(site_gradients),
+                "max_step": float(np.max(np.abs(beta_new - beta))),
+            },
+        )
         return CoxPHResult(
-            coefficients=beta_new, hazard_ratios=hr,
-            confidence_intervals=ci, p_values=p_vals,
-            concordance_index=0.0, standard_errors=se,
-            covariate_names=names, iterations=1,
+            coefficients=beta_new,
+            hazard_ratios=hr,
+            confidence_intervals=ci,
+            p_values=p_vals,
+            concordance_index=0.0,
+            standard_errors=se,
+            covariate_names=names,
+            iterations=1,
             log_partial_likelihood=0.0,
         )
 
     # ----- Utilities -----
 
     def prepare_patient_data(
-        self, raw_id: str, time: float, event: int, group: str = "control",
+        self,
+        raw_id: str,
+        time: float,
+        event: int,
+        group: str = "control",
         covariates: Optional[Dict[str, float]] = None,
         endpoint: SurvivalEndpoint = SurvivalEndpoint.OVERALL_SURVIVAL,
         censoring_type: CensoringType = CensoringType.RIGHT,
     ) -> SurvivalData:
         """Create a SurvivalData record with HMAC-SHA256 hashed patient ID."""
         return SurvivalData(
-            patient_id_hash=self.hash_patient_id(raw_id), time=time,
-            event=event, group=group,
-            covariates=covariates or {}, endpoint=endpoint,
+            patient_id_hash=self.hash_patient_id(raw_id),
+            time=time,
+            event=event,
+            group=group,
+            covariates=covariates or {},
+            endpoint=endpoint,
             censoring_type=censoring_type,
         )
 
     def extract_site_contribution(
-        self, data: Sequence[SurvivalData], site_id: str,
+        self,
+        data: Sequence[SurvivalData],
+        site_id: str,
     ) -> SiteContribution:
         """Summarise local patient data into aggregate counts for federation."""
         if not data:
@@ -720,12 +803,15 @@ class PrivacyPreservingSurvivalAnalyzer:
         at_risk = np.array([int(np.sum(times >= t)) for t in uniq], dtype=np.int64)
         ev_counts = np.array([int(np.sum((times == t) & (ev == 1))) for t in uniq], dtype=np.int64)
         _audit_log("site_contribution", {"site_id": site_id, "n_patients": len(data), "n_events": int(np.sum(ev))})
-        return SiteContribution(site_id=site_id, time_points=uniq, at_risk=at_risk, events=ev_counts,
-                                total_patients=len(data))
+        return SiteContribution(
+            site_id=site_id, time_points=uniq, at_risk=at_risk, events=ev_counts, total_patients=len(data)
+        )
 
     def compute_site_cox_contributions(
-        self, data: Sequence[SurvivalData],
-        covariate_names: Sequence[str], beta: np.ndarray,
+        self,
+        data: Sequence[SurvivalData],
+        covariate_names: Sequence[str],
+        beta: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Local Cox gradient and Hessian at *beta* for federated aggregation."""
         if not data:
@@ -741,6 +827,8 @@ class PrivacyPreservingSurvivalAnalyzer:
                 X[i, j] = rec.covariates[name]
         order = np.argsort(-times)
         grad, hess, _ = self._cox_gradient_hessian(beta, X[order], times[order], events[order])
-        _audit_log("site_cox_contribution", {"n_subjects": n, "n_covariates": p,
-                                             "grad_norm": round(float(np.linalg.norm(grad)), 6)})
+        _audit_log(
+            "site_cox_contribution",
+            {"n_subjects": n, "n_covariates": p, "grad_norm": round(float(np.linalg.norm(grad)), 6)},
+        )
         return grad, hess

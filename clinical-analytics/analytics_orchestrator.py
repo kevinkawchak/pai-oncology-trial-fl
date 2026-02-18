@@ -428,8 +428,7 @@ class ClinicalAnalyticsOrchestrator:
         self._initialized: bool = False
 
         logger.info(
-            "ClinicalAnalyticsOrchestrator created — pipeline=%s, strategy=%s, "
-            "sites=%d, trial=%s",
+            "ClinicalAnalyticsOrchestrator created — pipeline=%s, strategy=%s, sites=%d, trial=%s",
             config.pipeline_id,
             config.strategy.value,
             len(config.site_ids),
@@ -485,10 +484,7 @@ class ClinicalAnalyticsOrchestrator:
         # --- Validate site count ---
         n_sites = len(self._config.site_ids)
         if n_sites < self._config.min_sites_required:
-            msg = (
-                f"Insufficient sites: {n_sites} provided, "
-                f"{self._config.min_sites_required} required"
-            )
+            msg = f"Insufficient sites: {n_sites} provided, {self._config.min_sites_required} required"
             logger.error(msg)
             self._fail_pipeline(msg)
             return False
@@ -515,10 +511,7 @@ class ClinicalAnalyticsOrchestrator:
 
         # --- Validate confidence level ---
         if not (0.50 <= self._config.confidence_level <= 0.9999):
-            msg = (
-                f"Confidence level {self._config.confidence_level} "
-                f"out of range [0.50, 0.9999]"
-            )
+            msg = f"Confidence level {self._config.confidence_level} out of range [0.50, 0.9999]"
             logger.error(msg)
             self._fail_pipeline(msg)
             return False
@@ -580,9 +573,7 @@ class ClinicalAnalyticsOrchestrator:
             RuntimeError: If the pipeline has not been initialized.
         """
         if not self._initialized:
-            raise RuntimeError(
-                "Pipeline not initialized. Call initialize_pipeline() first."
-            )
+            raise RuntimeError("Pipeline not initialized. Call initialize_pipeline() first.")
 
         target_sites = site_ids or list(self._config.site_ids)
         self._run.status = PipelineStatus.RUNNING
@@ -626,9 +617,7 @@ class ClinicalAnalyticsOrchestrator:
 
             # Verify integrity checksum
             if not contribution.verify_checksum():
-                logger.error(
-                    "Checksum verification failed for site %s — excluded", sid
-                )
+                logger.error("Checksum verification failed for site %s — excluded", sid)
                 self._audit_log(
                     "site_checksum_failed",
                     phase=AnalyticsPhase.LOCAL_COMPUTATION,
@@ -648,10 +637,7 @@ class ClinicalAnalyticsOrchestrator:
 
         # Check that enough sites contributed
         if len(validated) < self._config.min_sites_required:
-            msg = (
-                f"Only {len(validated)} sites contributed "
-                f"(min {self._config.min_sites_required} required)"
-            )
+            msg = f"Only {len(validated)} sites contributed (min {self._config.min_sites_required} required)"
             logger.error(msg)
             self._fail_pipeline(msg)
             return []
@@ -734,12 +720,8 @@ class ClinicalAnalyticsOrchestrator:
 
         # --- Weighted global mean and pooled variance ---
         result.global_mean = self._compute_global_mean(contribs)
-        result.global_variance = self._compute_pooled_variance(
-            contribs, result.global_mean
-        )
-        result.global_std = {
-            k: math.sqrt(max(v, 0.0)) for k, v in result.global_variance.items()
-        }
+        result.global_variance = self._compute_pooled_variance(contribs, result.global_mean)
+        result.global_std = {k: math.sqrt(max(v, 0.0)) for k, v in result.global_variance.items()}
 
         # --- Confidence intervals ---
         result.confidence_intervals = self._compute_confidence_intervals(
@@ -750,23 +732,17 @@ class ClinicalAnalyticsOrchestrator:
 
         # --- Per-arm aggregation ---
         result.arm_global_means = self._compute_arm_means(contribs)
-        result.arm_global_variances = self._compute_arm_variances(
-            contribs, result.arm_global_means
-        )
+        result.arm_global_variances = self._compute_arm_variances(contribs, result.arm_global_means)
 
         # --- Strategy-specific computations ---
         if self._config.strategy == AnalyticsStrategy.INFERENTIAL:
-            result.hypothesis_test_results = self._run_hypothesis_tests(
-                contribs, result
-            )
+            result.hypothesis_test_results = self._run_hypothesis_tests(contribs, result)
         elif self._config.strategy == AnalyticsStrategy.SURVIVAL:
             result.survival_curve = self._compute_federated_survival(contribs)
         elif self._config.strategy == AnalyticsStrategy.BAYESIAN:
             result.bayesian_posteriors = self._compute_bayesian_update(contribs)
         elif self._config.strategy == AnalyticsStrategy.PREDICTIVE:
-            result.hypothesis_test_results = self._compute_predictive_summary(
-                contribs
-            )
+            result.hypothesis_test_results = self._compute_predictive_summary(contribs)
 
         # --- Apply noise for differential privacy ---
         if self._config.noise_scale > 0:
@@ -841,9 +817,7 @@ class ClinicalAnalyticsOrchestrator:
             # Collect
             contributions = self.collect_site_contributions()
             if not contributions:
-                logger.error(
-                    "No contributions in iteration %d — aborting", iteration
-                )
+                logger.error("No contributions in iteration %d — aborting", iteration)
                 return None
 
             # Preprocess contributions
@@ -950,13 +924,10 @@ class ClinicalAnalyticsOrchestrator:
         else:
             self._convergence_stable_count = 0
 
-        converged = (
-            self._convergence_stable_count >= self._config.convergence_rounds
-        )
+        converged = self._convergence_stable_count >= self._config.convergence_rounds
 
         logger.debug(
-            "Convergence check — max_delta=%.8f, tolerance=%.8f, "
-            "stable_count=%d/%d, converged=%s",
+            "Convergence check — max_delta=%.8f, tolerance=%.8f, stable_count=%d/%d, converged=%s",
             max_delta,
             self._config.convergence_tolerance,
             self._convergence_stable_count,
@@ -1220,8 +1191,8 @@ class ClinicalAnalyticsOrchestrator:
             t_stat = (mu1 - mu0) / se_diff
             # Welch-Satterthwaite degrees of freedom
             numerator = (se0 + se1) ** 2
-            d0 = se0 ** 2 / max(n0 - 1, 1) if n0 > 1 else 0.0
-            d1 = se1 ** 2 / max(n1 - 1, 1) if n1 > 1 else 0.0
+            d0 = se0**2 / max(n0 - 1, 1) if n0 > 1 else 0.0
+            d1 = se1**2 / max(n1 - 1, 1) if n1 > 1 else 0.0
             denom = d0 + d1
             # Division-by-zero guard
             if denom < 1e-15:
@@ -1231,10 +1202,7 @@ class ClinicalAnalyticsOrchestrator:
             p_value = float(2.0 * scipy_stats.t.sf(abs(t_stat), dof))
 
         # Cohen's d effect size using pooled SD
-        pooled_var = (
-            (max(n0 - 1, 0) * var0 + max(n1 - 1, 0) * var1)
-            / max(n0 + n1 - 2, 1)
-        )
+        pooled_var = (max(n0 - 1, 0) * var0 + max(n1 - 1, 0) * var1) / max(n0 + n1 - 2, 1)
         pooled_sd = math.sqrt(max(pooled_var, 0.0))
         # Division-by-zero guard
         if pooled_sd < 1e-15:
@@ -1320,7 +1288,7 @@ class ClinicalAnalyticsOrchestrator:
                 hazard = total_events / total_at_risk
                 # Clamp hazard to [0, 1]
                 hazard = max(0.0, min(1.0, hazard))
-                cumulative_survival *= (1.0 - hazard)
+                cumulative_survival *= 1.0 - hazard
 
             # Clamp survival probability to [0, 1]
             cumulative_survival = max(0.0, min(1.0, cumulative_survival))
@@ -1370,9 +1338,9 @@ class ClinicalAnalyticsOrchestrator:
                     var_i = c.local_variance.get(key, 1.0)
                     total_sum += mu_i * n_i
                     if n_i > 1:
-                        total_sum_sq += var_i * (n_i - 1) + n_i * mu_i ** 2
+                        total_sum_sq += var_i * (n_i - 1) + n_i * mu_i**2
                     else:
-                        total_sum_sq += mu_i ** 2
+                        total_sum_sq += mu_i**2
                     break  # Use primary endpoint only
 
         if total_n == 0:
@@ -1386,7 +1354,7 @@ class ClinicalAnalyticsOrchestrator:
 
         # Estimate data variance from sufficient statistics
         data_mean = total_sum / max(total_n, 1)
-        data_variance = (total_sum_sq / max(total_n, 1)) - data_mean ** 2
+        data_variance = (total_sum_sq / max(total_n, 1)) - data_mean**2
         data_variance = max(data_variance, 1e-10)  # Floor at small positive
 
         # Conjugate update: posterior precision = prior precision + n / sigma^2
@@ -1397,9 +1365,7 @@ class ClinicalAnalyticsOrchestrator:
         if posterior_precision < 1e-15:
             posterior_precision = 1e-15
 
-        posterior_mean = (
-            prior_precision * prior_mu + data_precision * data_mean
-        ) / posterior_precision
+        posterior_mean = (prior_precision * prior_mu + data_precision * data_mean) / posterior_precision
         posterior_variance = 1.0 / posterior_precision
 
         # 95% credible interval
@@ -1556,9 +1522,7 @@ class ClinicalAnalyticsOrchestrator:
         # --- Consistency (coefficient of variation of site means) ---
         cv_values: list[float] = []
         for key in expected_endpoints:
-            site_means = [
-                c.local_mean[key] for c in contributions if key in c.local_mean
-            ]
+            site_means = [c.local_mean[key] for c in contributions if key in c.local_mean]
             if len(site_means) >= 2:
                 arr = np.array(site_means)
                 mean_val = float(np.mean(arr))
@@ -1575,25 +1539,20 @@ class ClinicalAnalyticsOrchestrator:
         i_squared = self._compute_i_squared(contributions, result.global_mean)
 
         # --- Effective sample size (Kish's formula) ---
-        site_sizes = np.array(
-            [c.n_subjects for c in contributions], dtype=float
-        )
+        site_sizes = np.array([c.n_subjects for c in contributions], dtype=float)
         if len(site_sizes) > 0 and float(np.sum(site_sizes)) > 0:
             total = float(np.sum(site_sizes))
-            sum_sq = float(np.sum(site_sizes ** 2))
+            sum_sq = float(np.sum(site_sizes**2))
             # Division-by-zero guard
             if sum_sq > 0:
-                ess = total ** 2 / sum_sq
+                ess = total**2 / sum_sq
             else:
                 ess = 0.0
         else:
             ess = 0.0
 
         # --- Outlier fraction ---
-        n_outliers = sum(
-            1 for c in contributions
-            if c.quality_flags.get("outlier_detected", False)
-        )
+        n_outliers = sum(1 for c in contributions if c.quality_flags.get("outlier_detected", False))
         # Division-by-zero guard
         outlier_frac = n_outliers / max(n_sites, 1)
 
@@ -1728,9 +1687,7 @@ class ClinicalAnalyticsOrchestrator:
 
         for key in result.global_variance:
             noise = float(rng.normal(0, sigma * 0.5))
-            result.global_variance[key] = max(
-                0.0, result.global_variance[key] + noise
-            )
+            result.global_variance[key] = max(0.0, result.global_variance[key] + noise)
             result.global_std[key] = math.sqrt(result.global_variance[key])
 
         self._audit_log(
@@ -1757,9 +1714,7 @@ class ClinicalAnalyticsOrchestrator:
             phase=self._run.current_phase,
             details={"error": message},
         )
-        logger.error(
-            "Pipeline %s FAILED: %s", self._config.pipeline_id, message
-        )
+        logger.error("Pipeline %s FAILED: %s", self._config.pipeline_id, message)
 
     def cancel_pipeline(self) -> None:
         """Cancel a running pipeline.
@@ -1771,9 +1726,7 @@ class ClinicalAnalyticsOrchestrator:
             PipelineStatus.COMPLETED,
             PipelineStatus.FAILED,
         ):
-            logger.warning(
-                "Cannot cancel pipeline in %s state", self._run.status.value
-            )
+            logger.warning("Cannot cancel pipeline in %s state", self._run.status.value)
             return
         self._run.status = PipelineStatus.CANCELLED
         self._run.completed_at = datetime.now(timezone.utc).isoformat()
@@ -1837,13 +1790,10 @@ class ClinicalAnalyticsOrchestrator:
         if seq > 0:
             prev_hash = self._run.audit_trail[-1].get("entry_hash", "")
 
-        entry_payload = (
-            f"{seq}|{timestamp}|{event}|{phase.value}|"
-            f"{self._config.pipeline_id}|{prev_hash}"
-        ).encode("utf-8")
-        entry_hash = hmac.new(
-            _HMAC_KEY, entry_payload, hashlib.sha256
-        ).hexdigest()
+        entry_payload = (f"{seq}|{timestamp}|{event}|{phase.value}|{self._config.pipeline_id}|{prev_hash}").encode(
+            "utf-8"
+        )
+        entry_hash = hmac.new(_HMAC_KEY, entry_payload, hashlib.sha256).hexdigest()
 
         entry: dict[str, Any] = {
             "sequence": seq,
@@ -1882,12 +1832,8 @@ class ClinicalAnalyticsOrchestrator:
                 f"{entry['event']}|{entry['phase']}|"
                 f"{self._config.pipeline_id}|{expected_prev}"
             ).encode("utf-8")
-            expected_hash = hmac.new(
-                _HMAC_KEY, payload, hashlib.sha256
-            ).hexdigest()
-            if not hmac.compare_digest(
-                entry.get("entry_hash", ""), expected_hash
-            ):
+            expected_hash = hmac.new(_HMAC_KEY, payload, hashlib.sha256).hexdigest()
+            if not hmac.compare_digest(entry.get("entry_hash", ""), expected_hash):
                 logger.error("Audit hash mismatch at sequence %d", i)
                 return False
 
@@ -1917,14 +1863,8 @@ def _safe_bayes_factor(
     if posterior_std < 1e-15 or prior_std < 1e-15:
         return 1.0
 
-    prior_density = float(
-        scipy_stats.norm.pdf(null_value, loc=0.0, scale=prior_std)
-    )
-    posterior_density = float(
-        scipy_stats.norm.pdf(
-            null_value, loc=posterior_mean, scale=posterior_std
-        )
-    )
+    prior_density = float(scipy_stats.norm.pdf(null_value, loc=0.0, scale=prior_std))
+    posterior_density = float(scipy_stats.norm.pdf(null_value, loc=posterior_mean, scale=posterior_std))
 
     # Division-by-zero guard
     if posterior_density < 1e-300:

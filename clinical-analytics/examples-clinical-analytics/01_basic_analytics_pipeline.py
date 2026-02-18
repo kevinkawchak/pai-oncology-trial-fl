@@ -104,9 +104,7 @@ class AnalyticsConfig:
     therapeutic_area: str = "Oncology"
     n_patients: int = 200
     n_sites: int = 5
-    treatment_arms: list[str] = field(
-        default_factory=lambda: ["Control", "Arm_A", "Arm_B"]
-    )
+    treatment_arms: list[str] = field(default_factory=lambda: ["Control", "Arm_A", "Arm_B"])
     alpha: float = 0.05
     seed: int = 42
     bounded_lab_ranges: dict[str, tuple[float, float]] = field(
@@ -187,9 +185,7 @@ class ClinicalAnalyticsOrchestrator:
             )
 
             # Adverse event grade (CTCAE v5)
-            ae_grade = int(
-                self._rng.choice([0, 1, 2, 3, 4], p=[0.30, 0.30, 0.20, 0.15, 0.05])
-            )
+            ae_grade = int(self._rng.choice([0, 1, 2, 3, 4], p=[0.30, 0.30, 0.20, 0.15, 0.05]))
 
             patient = {
                 "patient_id": f"PAT-{i + 1:04d}",
@@ -253,9 +249,7 @@ class ClinicalAnalyticsOrchestrator:
         # Lab value summaries
         lab_summaries: dict[str, dict[str, float]] = {}
         for lab_name in self._config.bounded_lab_ranges:
-            values = np.array(
-                [p["labs"][lab_name] for p in self._patients], dtype=np.float64
-            )
+            values = np.array([p["labs"][lab_name] for p in self._patients], dtype=np.float64)
             lab_summaries[lab_name] = {
                 "mean": round(float(np.mean(values)), 2),
                 "median": round(float(np.median(values)), 2),
@@ -267,9 +261,7 @@ class ClinicalAnalyticsOrchestrator:
         # Treatment arm enrollment
         arm_counts: dict[str, int] = {}
         for arm in self._config.treatment_arms:
-            arm_counts[arm] = sum(
-                1 for p in self._patients if p["treatment_arm"] == arm
-            )
+            arm_counts[arm] = sum(1 for p in self._patients if p["treatment_arm"] == arm)
 
         # Response distribution by arm
         response_by_arm: dict[str, dict[str, int]] = {}
@@ -283,17 +275,13 @@ class ClinicalAnalyticsOrchestrator:
         # Adverse event grade distribution
         ae_distribution: dict[str, int] = {}
         for grade in range(5):
-            ae_distribution[f"Grade_{grade}"] = sum(
-                1 for p in self._patients if p["max_ae_grade"] == grade
-            )
+            ae_distribution[f"Grade_{grade}"] = sum(1 for p in self._patients if p["max_ae_grade"] == grade)
 
         # Site enrollment
         site_enrollment: dict[str, int] = {}
         for i in range(1, self._config.n_sites + 1):
             site_key = f"SITE-{i:02d}"
-            site_enrollment[site_key] = sum(
-                1 for p in self._patients if p["site_id"] == site_key
-            )
+            site_enrollment[site_key] = sum(1 for p in self._patients if p["site_id"] == site_key)
 
         self._results = {
             "run_id": self._run_id,
@@ -332,20 +320,23 @@ class ClinicalAnalyticsOrchestrator:
         print("\n  [DEMOGRAPHICS]")
         demo = r["demographics"]
         age = demo["age"]
-        print(f"    Age (years):  mean={age['mean']}, median={age['median']}, "
-              f"SD={age['std']}, range=[{age['min']}, {age['max']}]")
+        print(
+            f"    Age (years):  mean={age['mean']}, median={age['median']}, "
+            f"SD={age['std']}, range=[{age['min']}, {age['max']}]"
+        )
         wt = demo["weight_kg"]
-        print(f"    Weight (kg):  mean={wt['mean']}, median={wt['median']}, "
-              f"SD={wt['std']}")
+        print(f"    Weight (kg):  mean={wt['mean']}, median={wt['median']}, SD={wt['std']}")
         sex = demo["sex_distribution"]
         print(f"    Sex:          M={sex['M']}, F={sex['F']}")
 
         # Lab summaries
         print("\n  [LAB VALUES]")
         for lab_name, stats in r["lab_summaries"].items():
-            print(f"    {lab_name:25s}  mean={stats['mean']:8.2f}  "
-                  f"median={stats['median']:8.2f}  SD={stats['std']:8.2f}  "
-                  f"IQR=[{stats['p25']:.2f}, {stats['p75']:.2f}]")
+            print(
+                f"    {lab_name:25s}  mean={stats['mean']:8.2f}  "
+                f"median={stats['median']:8.2f}  SD={stats['std']:8.2f}  "
+                f"IQR=[{stats['p25']:.2f}, {stats['p75']:.2f}]"
+            )
 
         # Arm enrollment
         print("\n  [TREATMENT ARM ENROLLMENT]")
@@ -357,7 +348,7 @@ class ClinicalAnalyticsOrchestrator:
         print("\n  [BEST OVERALL RESPONSE BY ARM]")
         for arm, responses in r["response_by_arm"].items():
             arm_n = sum(responses.values())
-            parts = [f"{k}={v}({100*v/max(arm_n,1):.0f}%)" for k, v in responses.items()]
+            parts = [f"{k}={v}({100 * v / max(arm_n, 1):.0f}%)" for k, v in responses.items()]
             print(f"    {arm:15s}  {', '.join(parts)}")
 
         # AE distribution

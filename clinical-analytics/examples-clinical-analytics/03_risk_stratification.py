@@ -100,30 +100,36 @@ class RiskFeatureConfig:
 
     n_patients: int = 300
     seed: int = 42
-    feature_weights: dict[str, float] = field(default_factory=lambda: {
-        "age_years": 0.10,
-        "ecog_ps": 0.20,
-        "ldh_ratio": 0.15,
-        "neutrophil_lymphocyte_ratio": 0.12,
-        "albumin_g_dl": -0.10,  # protective (negative weight)
-        "tumour_burden_mm": 0.18,
-        "ctdna_vaf": 0.15,
-    })
-    risk_thresholds: dict[str, float] = field(default_factory=lambda: {
-        "low": 25.0,          # percentile
-        "intermediate": 50.0,
-        "high": 75.0,
-        # above 75th percentile = very_high
-    })
-    bounded_ranges: dict[str, tuple[float, float]] = field(default_factory=lambda: {
-        "age_years": (18.0, 95.0),
-        "ecog_ps": (0.0, 4.0),
-        "ldh_ratio": (0.5, 5.0),
-        "neutrophil_lymphocyte_ratio": (0.5, 25.0),
-        "albumin_g_dl": (1.5, 5.5),
-        "tumour_burden_mm": (5.0, 200.0),
-        "ctdna_vaf": (0.0, 0.50),
-    })
+    feature_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "age_years": 0.10,
+            "ecog_ps": 0.20,
+            "ldh_ratio": 0.15,
+            "neutrophil_lymphocyte_ratio": 0.12,
+            "albumin_g_dl": -0.10,  # protective (negative weight)
+            "tumour_burden_mm": 0.18,
+            "ctdna_vaf": 0.15,
+        }
+    )
+    risk_thresholds: dict[str, float] = field(
+        default_factory=lambda: {
+            "low": 25.0,  # percentile
+            "intermediate": 50.0,
+            "high": 75.0,
+            # above 75th percentile = very_high
+        }
+    )
+    bounded_ranges: dict[str, tuple[float, float]] = field(
+        default_factory=lambda: {
+            "age_years": (18.0, 95.0),
+            "ecog_ps": (0.0, 4.0),
+            "ldh_ratio": (0.5, 5.0),
+            "neutrophil_lymphocyte_ratio": (0.5, 25.0),
+            "albumin_g_dl": (1.5, 5.5),
+            "tumour_burden_mm": (5.0, 200.0),
+            "ctdna_vaf": (0.0, 0.50),
+        }
+    )
 
 
 @dataclass
@@ -397,13 +403,15 @@ def generate_decision_support(
     decisions: list[dict[str, Any]] = []
     for p in profiles:
         recs = MONITORING_RECOMMENDATIONS.get(p.risk_category, {})
-        decisions.append({
-            "patient_id": p.patient_id,
-            "risk_category": p.risk_category,
-            "risk_score": p.risk_score,
-            "top_factors": p.contributing_factors,
-            "recommendations": recs,
-        })
+        decisions.append(
+            {
+                "patient_id": p.patient_id,
+                "risk_category": p.risk_category,
+                "risk_score": p.risk_score,
+                "top_factors": p.contributing_factors,
+                "recommendations": recs,
+            }
+        )
     logger.info("Decision support generated for %d patients", len(decisions))
     return decisions
 
@@ -492,7 +500,9 @@ def assess_calibration(
 
     logger.info(
         "Calibration assessed | monotonic=%s | HL chi2=%.3f (p=%.4f)",
-        is_monotonic, hl_chi2, hl_pvalue,
+        is_monotonic,
+        hl_chi2,
+        hl_pvalue,
     )
     return result
 
@@ -551,15 +561,16 @@ def main() -> None:
     # Step 3: Stratify cohort
     _print_section("3. COHORT STRATIFICATION")
     strat = stratify_cohort(profiles)
-    print(f"  {'Category':>15s}  {'N':>6s}  {'%':>7s}  {'Mean Score':>12s}  "
-          f"{'SD':>8s}  {'Range':>20s}")
+    print(f"  {'Category':>15s}  {'N':>6s}  {'%':>7s}  {'Mean Score':>12s}  {'SD':>8s}  {'Range':>20s}")
     print(f"  {'-' * 72}")
     for cat in ["low", "intermediate", "high", "very_high"]:
         s = strat[cat]
         if s["n"] > 0:
             rng_str = f"[{s['score_range'][0]:.1f}, {s['score_range'][1]:.1f}]"
-            print(f"  {cat:>15s}  {s['n']:6d}  {s['pct']:6.1f}%  "
-                  f"{s['mean_score']:12.2f}  {s['std_score']:8.2f}  {rng_str:>20s}")
+            print(
+                f"  {cat:>15s}  {s['n']:6d}  {s['pct']:6.1f}%  "
+                f"{s['mean_score']:12.2f}  {s['std_score']:8.2f}  {rng_str:>20s}"
+            )
 
     # Step 4: Decision support
     _print_section("4. CLINICAL DECISION SUPPORT OUTPUT")
@@ -568,8 +579,7 @@ def main() -> None:
     for cat in ["low", "intermediate", "high", "very_high"]:
         rep = next((d for d in decisions if d["risk_category"] == cat), None)
         if rep:
-            print(f"\n  [{cat.upper()}] Patient {rep['patient_id']} "
-                  f"(score={rep['risk_score']:.1f})")
+            print(f"\n  [{cat.upper()}] Patient {rep['patient_id']} (score={rep['risk_score']:.1f})")
             for k, v in rep["recommendations"].items():
                 print(f"    {k:25s}  {v}")
             print("    Top risk factors:")
@@ -585,8 +595,7 @@ def main() -> None:
     for cat in ["low", "intermediate", "high", "very_high"]:
         c = cal["category_calibration"][cat]
         if c["n"] > 0:
-            print(f"  {cat:>15s}  {c['n']:6d}  {c['n_events']:8d}  "
-                  f"{c['event_rate']:12.4f}")
+            print(f"  {cat:>15s}  {c['n']:6d}  {c['n_events']:8d}  {c['event_rate']:12.4f}")
 
     print(f"\n  Monotonicity check:       {'PASS' if cal['is_monotonic'] else 'FAIL'}")
     print(f"  Hosmer-Lemeshow chi2:     {cal['hosmer_lemeshow_chi2']:.3f}")

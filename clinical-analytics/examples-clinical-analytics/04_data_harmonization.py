@@ -90,7 +90,7 @@ ICD10_TO_SNOMED: dict[str, dict[str, str]] = {
     "C34.9": {"snomed": "93880001", "display": "Primary malignant neoplasm of lung"},
     "C50.9": {"snomed": "254838004", "display": "Carcinoma of breast"},
     "C18.9": {"snomed": "363406005", "display": "Malignant neoplasm of colon"},
-    "C61":   {"snomed": "399068003", "display": "Malignant neoplasm of prostate"},
+    "C61": {"snomed": "399068003", "display": "Malignant neoplasm of prostate"},
     "C43.9": {"snomed": "372244006", "display": "Malignant melanoma"},
     "C64.9": {"snomed": "93849006", "display": "Renal cell carcinoma"},
     "C25.9": {"snomed": "363418001", "display": "Malignant neoplasm of pancreas"},
@@ -222,10 +222,14 @@ def align_schemas(schema_a: SiteSchema, schema_b: SiteSchema) -> SchemaAlignment
     )
 
     logger.info(
-        "Schema alignment | %s vs %s | matched=%d, type_mismatches=%d, "
-        "only_a=%d, only_b=%d, score=%.2f",
-        schema_a.site_id, schema_b.site_id, len(matched),
-        len(mismatched), len(only_a), len(only_b), alignment_score,
+        "Schema alignment | %s vs %s | matched=%d, type_mismatches=%d, only_a=%d, only_b=%d, score=%.2f",
+        schema_a.site_id,
+        schema_b.site_id,
+        len(matched),
+        len(mismatched),
+        len(only_a),
+        len(only_b),
+        alignment_score,
     )
     return report
 
@@ -243,9 +247,9 @@ UNIT_CONVERSIONS: dict[tuple[str, str], float] = {
     ("cm", "cm"): 1.0,
     ("g/L", "g/dL"): 0.1,
     ("g/dL", "g/dL"): 1.0,
-    ("umol/L", "mg/dL"): 0.0113,   # creatinine
+    ("umol/L", "mg/dL"): 0.0113,  # creatinine
     ("mg/dL", "mg/dL"): 1.0,
-    ("mmol/L", "mg/dL"): 18.0,     # glucose
+    ("mmol/L", "mg/dL"): 18.0,  # glucose
     ("U/L", "U/L"): 1.0,
     ("10^9/L", "K/uL"): 1.0,
     ("K/uL", "K/uL"): 1.0,
@@ -355,11 +359,12 @@ def generate_alignment_report(
                 var_report["site_b_mean"] = round(float(np.mean(arr_b)), 3)
                 var_report["site_b_std"] = round(float(np.std(arr_b, ddof=1)), 3) if len(arr_b) > 1 else 0.0
                 # Standardised mean difference (Cohen's d)
-                pooled_std = float(np.sqrt(
-                    ((len(arr_a) - 1) * np.var(arr_a, ddof=1) +
-                     (len(arr_b) - 1) * np.var(arr_b, ddof=1)) /
-                    max(len(arr_a) + len(arr_b) - 2, 1)
-                ))
+                pooled_std = float(
+                    np.sqrt(
+                        ((len(arr_a) - 1) * np.var(arr_a, ddof=1) + (len(arr_b) - 1) * np.var(arr_b, ddof=1))
+                        / max(len(arr_a) + len(arr_b) - 2, 1)
+                    )
+                )
                 smd = abs(float(np.mean(arr_a)) - float(np.mean(arr_b))) / max(pooled_std, 1e-9)
                 var_report["standardised_mean_diff"] = round(smd, 4)
                 var_report["aligned"] = smd < 0.1  # <0.1 = negligible difference
@@ -377,14 +382,14 @@ def generate_alignment_report(
 
         report["variable_reports"][var] = var_report
 
-    n_aligned = sum(
-        1 for vr in report["variable_reports"].values() if vr.get("aligned", False)
-    )
+    n_aligned = sum(1 for vr in report["variable_reports"].values() if vr.get("aligned", False))
     report["overall_alignment"] = round(n_aligned / max(len(key_variables), 1), 4)
 
     logger.info(
         "Alignment report | vars=%d | aligned=%d | overall=%.2f",
-        len(key_variables), n_aligned, report["overall_alignment"],
+        len(key_variables),
+        n_aligned,
+        report["overall_alignment"],
     )
     return report
 
@@ -531,7 +536,9 @@ def export_to_sdtm(
 
     logger.info(
         "SDTM export | DM=%d, LB=%d, AE=%d records",
-        len(dm_records), len(lb_records), len(ae_records),
+        len(dm_records),
+        len(lb_records),
+        len(ae_records),
     )
     return domains
 
@@ -561,8 +568,14 @@ def _generate_site_data(
     rng = np.random.default_rng(seed)
     diagnoses = list(ICD10_TO_SNOMED.keys())
     ae_terms = [
-        "Nausea", "Fatigue", "Neutropenia", "Thrombocytopenia",
-        "Diarrhea", "Rash", "Peripheral neuropathy", "Anemia",
+        "Nausea",
+        "Fatigue",
+        "Neutropenia",
+        "Thrombocytopenia",
+        "Diarrhea",
+        "Rash",
+        "Peripheral neuropathy",
+        "Anemia",
     ]
 
     records: list[dict[str, Any]] = []
@@ -571,7 +584,7 @@ def _generate_site_data(
         height = float(np.clip(rng.normal(170, 10), 140.0, 210.0))
         if use_imperial:
             weight = weight * 2.20462  # kg -> lb
-            height = height / 2.54     # cm -> in
+            height = height / 2.54  # cm -> in
 
         rec: dict[str, Any] = {
             "patient_id": f"PAT-{site_id}-{i + 1:04d}",
@@ -639,36 +652,46 @@ def main() -> None:
     print(f"  {'-' * 65}")
     for code in test_codes:
         result = map_icd10_to_snomed(code)
-        print(f"  {result['icd10']:>10s}  {result['snomed']:>12s}  "
-              f"{result['mapped']:>8s}  {result['display']}")
+        print(f"  {result['icd10']:>10s}  {result['snomed']:>12s}  {result['mapped']:>8s}  {result['display']}")
     mapped_count = sum(1 for c in test_codes if map_icd10_to_snomed(c)["mapped"] == "true")
-    print(f"\n  Mapping rate: {mapped_count}/{len(test_codes)} "
-          f"({100*mapped_count/len(test_codes):.0f}%)")
+    print(f"\n  Mapping rate: {mapped_count}/{len(test_codes)} ({100 * mapped_count / len(test_codes):.0f}%)")
 
     # --- 2. Schema alignment ---
     _print_section("2. CROSS-SITE SCHEMA ALIGNMENT")
     schema_a = SiteSchema(
         site_id="SITE-01",
         columns={
-            "patient_id": "str", "age": "int", "sex": "str",
-            "weight": "float", "height": "float", "hemoglobin": "float",
-            "wbc": "float", "albumin": "float", "creatinine": "float",
-            "alt": "float", "diagnosis_icd10": "str", "treatment_arm": "str",
+            "patient_id": "str",
+            "age": "int",
+            "sex": "str",
+            "weight": "float",
+            "height": "float",
+            "hemoglobin": "float",
+            "wbc": "float",
+            "albumin": "float",
+            "creatinine": "float",
+            "alt": "float",
+            "diagnosis_icd10": "str",
+            "treatment_arm": "str",
         },
-        units={"weight": "kg", "height": "cm", "hemoglobin": "g/dL",
-               "albumin": "g/dL", "creatinine": "mg/dL"},
+        units={"weight": "kg", "height": "cm", "hemoglobin": "g/dL", "albumin": "g/dL", "creatinine": "mg/dL"},
     )
     schema_b = SiteSchema(
         site_id="SITE-02",
         columns={
-            "patient_id": "str", "age": "float", "sex": "str",  # type mismatch: int vs float
-            "weight": "float", "height": "float", "hemoglobin": "float",
-            "wbc": "float", "albumin": "float",
-            "diagnosis_icd10": "str", "treatment_arm": "str",
+            "patient_id": "str",
+            "age": "float",
+            "sex": "str",  # type mismatch: int vs float
+            "weight": "float",
+            "height": "float",
+            "hemoglobin": "float",
+            "wbc": "float",
+            "albumin": "float",
+            "diagnosis_icd10": "str",
+            "treatment_arm": "str",
             "ecog_ps": "int",  # only in site B
         },
-        units={"weight": "lb", "height": "in", "hemoglobin": "g/dL",
-               "albumin": "g/dL"},
+        units={"weight": "lb", "height": "in", "hemoglobin": "g/dL", "albumin": "g/dL"},
     )
 
     alignment = align_schemas(schema_a, schema_b)
@@ -711,16 +734,17 @@ def main() -> None:
 
     print(f"  Site A: {report['site_a_n']} records | Site B: {report['site_b_n']} records")
     print(f"  Variables assessed: {report['variables_assessed']}")
-    print(f"\n  {'Variable':>20s}  {'Compl A':>9s}  {'Compl B':>9s}  "
-          f"{'SMD/Conc':>10s}  {'Aligned':>8s}")
+    print(f"\n  {'Variable':>20s}  {'Compl A':>9s}  {'Compl B':>9s}  {'SMD/Conc':>10s}  {'Aligned':>8s}")
     print(f"  {'-' * 62}")
 
     for var, vr in report["variable_reports"].items():
         metric = vr.get("standardised_mean_diff", vr.get("concordance", "N/A"))
         metric_str = f"{metric:.4f}" if isinstance(metric, float) else str(metric)
         aligned_str = "YES" if vr.get("aligned", False) else "NO"
-        print(f"  {var:>20s}  {vr['completeness_a']:9.2%}  {vr['completeness_b']:9.2%}  "
-              f"{metric_str:>10s}  {aligned_str:>8s}")
+        print(
+            f"  {var:>20s}  {vr['completeness_a']:9.2%}  {vr['completeness_b']:9.2%}  "
+            f"{metric_str:>10s}  {aligned_str:>8s}"
+        )
 
     print(f"\n  Overall alignment score: {report['overall_alignment']:.2%}")
 

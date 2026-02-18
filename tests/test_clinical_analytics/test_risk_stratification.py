@@ -242,7 +242,8 @@ class TestAdaptiveEnrichmentAdvisor:
         """Subgroups with negative effect are flagged for exclusion."""
         stratifier = mod.ClinicalRiskStratifier()
         advisor = mod.AdaptiveEnrichmentAdvisor(
-            stratifier, enrichment_benefit_threshold=0.1,
+            stratifier,
+            enrichment_benefit_threshold=0.1,
         )
         patients = [{f.value: 0.5 for f in mod.PrognosticFactor} for _ in range(20)]
         summary = stratifier.stratify_cohort(patients)
