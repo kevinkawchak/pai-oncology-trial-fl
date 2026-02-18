@@ -4,6 +4,29 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 10: v0.9.1 — Extended Platform Module B (Regulatory Submissions)
+
+Consolidates: v1.2.1 (regulatory submission: 6 modules + 6 examples) — templated for regulatory submissions domain extension
+
+Dependencies: Prompt 9
+
+```
+Build regulatory-submissions/ for pai-oncology-trial-fl — an end-to-end regulatory submission platform that complements clinical-analytics/. Follow the identical structure as Prompt 9 with these additions:
+1. regulatory-submissions/: README.md must include a "Relationship to clinical-analytics/" section explaining: clinical-analytics/ handles upstream analytics (PK/PD, survival, risk stratification, data harmonization), regulatory-submissions/ handles downstream regulatory packaging (eCTD compilation, submission tracking, compliance validation, regulatory intelligence); they share common regulatory/privacy/data standards; how they integrate via structured report outputs.
+* submission_orchestrator.py (600-1000 LOC): Core workflow orchestrator. SubmissionPhase/SubmissionType/WorkflowStatus/TaskPriority Enums, SubmissionConfig/SubmissionMilestone/WorkflowTask/SubmissionManifest dataclasses, RegulatorySubmissionOrchestrator managing submission lifecycle, 21 CFR Part 11 audit logging. create_standard_510k_workflow() factory.
+* ectd_compiler.py (500-800 LOC): eCTD compilation engine. ECTDModule/DocumentType/ValidationLevel Enums, ECTDCompiler generating module structures per FDA Technical Conformance Guide, XML backbone, SHA-256 checksums.
+* compliance_validator.py (500-800 LOC): Multi-regulation compliance validation. Regulation/ComplianceStatus/FindingSeverity Enums covering FDA 21 CFR 820/Part 11, HIPAA, GDPR, ISO 14971, IEC 62304, ICH E6(R3)/E9(R1), MDR 2017/745. ComplianceValidator with checklist-driven validation, gap analysis, remediation tracking.
+* document_generator.py (500-800 LOC): Automated document generation. DocumentCategory/TemplateType Enums (CSR synopsis, SAP, risk analysis, software description, predicate comparison, AI/ML PCCP). RegulatoryDocumentGenerator producing structured Markdown output.
+* regulatory_intelligence.py (500-800 LOC): Multi-jurisdiction regulatory intelligence. Jurisdiction/GuidanceStatus/ImpactLevel Enums (FDA, EMA, PMDA, TGA, Health Canada, MHRA, NMPA). RegulatoryIntelligenceEngine tracking AI/ML device guidance, impact assessment, compliance timelines.
+* submission_analytics.py (500-800 LOC): Submission quality analytics. MetricType/TrendDirection/BenchmarkSource Enums. SubmissionAnalyticsEngine computing KPIs (cycle time, deficiency rates, first-pass yield), trend analysis, FDA MDUFA benchmarking.
+* All output must be generated Markdown or structured data — no external API calls.
+2. regulatory-submissions/examples-regulatory-submissions/: 6 progressive examples. Example 06_full_submission_pipeline.py must demonstrate integration between clinical-analytics/ and regulatory-submissions/.
+3. tests/test_regulatory_submissions/: 100+ tests. Must verify clinical-analytics → regulatory-submissions data flow in at least one integration test.
+4. Updates: ruff.toml, README.md. Quality gates: Same as Prompt 9. Additionally: regulatory-submissions README must document relationship to clinical-analytics. Full test suite (all prior + new tests) must pass: verify by running pytest tests/ -v --tb=short.
+```
+
+---
+
 ## Prompt 9: v0.9.0 — Extended Platform Module A (Clinical Analytics)
 
 Consolidates: v1.1.1 (federation: 7 modules + 6 examples + 125 tests) — templated for clinical analytics domain extension

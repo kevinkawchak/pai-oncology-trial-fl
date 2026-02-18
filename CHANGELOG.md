@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-02-18
+
+### Added
+
+- **Regulatory Submissions Platform Module** (`regulatory-submissions/`)
+  - `submission_orchestrator.py` (870+ LOC) — Core workflow orchestrator with `SubmissionPhase`/`SubmissionType`/`WorkflowStatus`/`TaskPriority` Enums, `SubmissionConfig`/`SubmissionMilestone`/`WorkflowTask`/`SubmissionManifest` dataclasses, `RegulatorySubmissionOrchestrator` class managing submission lifecycle, task dependencies, milestone tracking, reviewer assignments, deadline management, and 21 CFR Part 11 audit logging. Includes `create_standard_510k_workflow()` factory.
+  - `ectd_compiler.py` (670+ LOC) — Electronic Common Technical Document compilation engine with `ECTDModule`/`DocumentType`/`ValidationLevel` Enums, `ECTDDocument`/`ECTDSection`/`ModuleStructure`/`CompilationResult` dataclasses, `ECTDCompiler` class generating eCTD module structures per FDA Technical Conformance Guide, validating document completeness, producing XML backbone stubs, and computing SHA-256 checksums for all documents.
+  - `compliance_validator.py` (750+ LOC) — Multi-regulation compliance validation engine with `Regulation`/`ComplianceStatus`/`FindingSeverity` Enums covering FDA 21 CFR 820/Part 11, HIPAA, GDPR, ISO 14971, IEC 62304, ICH E6(R3)/E9(R1), and EU MDR 2017/745. `ComplianceFinding`/`ComplianceAssessment`/`RegulatoryRequirement`/`AuditTrailEntry` dataclasses. `ComplianceValidator` with checklist-driven validation, gap analysis, remediation tracking, and compliance score computation.
+  - `document_generator.py` (930+ LOC) — Automated regulatory document generation with `DocumentCategory`/`TemplateType` Enums supporting CSR synopses, statistical analysis plans, risk analysis reports (ISO 14971), software descriptions (IEC 62304), predicate comparisons, and AI/ML predetermined change control plans (PCCPs). `RegulatoryDocumentGenerator` produces structured Markdown output with section numbering, metadata, and revision tracking.
+  - `regulatory_intelligence.py` (700+ LOC) — Multi-jurisdiction regulatory intelligence engine with `Jurisdiction`/`GuidanceStatus`/`ImpactLevel` Enums covering FDA, EMA, PMDA, TGA, Health Canada, MHRA, and NMPA. `GuidanceDocument`/`RegulatoryUpdate`/`ImpactAssessment`/`ComplianceTimeline` dataclasses. `RegulatoryIntelligenceEngine` tracking guidance documents relevant to AI/ML medical devices, assessing submission impact, generating compliance timelines.
+  - `submission_analytics.py` (680+ LOC) — Submission quality and timeline analytics with `MetricType`/`TrendDirection`/`BenchmarkSource` Enums, `SubmissionMetric`/`TimelineAnalysis`/`DeficiencyPattern`/`PerformanceBenchmark` dataclasses. `SubmissionAnalyticsEngine` computing submission KPIs (cycle time, deficiency rates, first-pass yield), identifying patterns, benchmarking against FDA MDUFA performance goals.
+  - `README.md` — Architecture diagram, directory tree, per-component descriptions with class names, compliance alignment table, **Relationship to clinical-analytics/** section with integration points table.
+
+- **Regulatory Submissions Examples** (`regulatory-submissions/examples-regulatory-submissions/`, 6 scripts)
+  - `01_basic_submission_workflow.py` — Minimal: submission config, document registration, milestone tracking.
+  - `02_ectd_compilation.py` — Single feature: eCTD module structure compilation with validation.
+  - `03_compliance_validation.py` — Multi-regulation compliance checking against FDA/ISO/IEC.
+  - `04_document_generation.py` — Template-driven 510(k) summary and software description generation.
+  - `05_regulatory_intelligence.py` — Guidance tracking, impact assessment, compliance timelines.
+  - `06_full_submission_pipeline.py` — End-to-end combining all modules with clinical-analytics integration.
+  - `README.md` — Example overview table, prerequisites, run commands.
+
+- **Regulatory Submissions Tests** (`tests/test_regulatory_submissions/`, 6 files)
+  - `test_submission_orchestrator.py` — Workflow lifecycle, task dependencies, milestone tracking.
+  - `test_ectd_compiler.py` — Module compilation, document validation, checksum verification.
+  - `test_compliance_validator.py` — Multi-regulation scoring, gap analysis, remediation tracking.
+  - `test_document_generator.py` — Template rendering, section generation, metadata integrity.
+  - `test_regulatory_intelligence.py` — Guidance tracking, impact assessment, timeline computation.
+  - `test_submission_analytics.py` — KPI computation, trend analysis, benchmarking, clinical-analytics integration test.
+
+### Changed
+
+- `ruff.toml` — Added per-file-ignores for `regulatory-submissions/*.py` and `regulatory-submissions/**/*.py`.
+
 ## [0.9.0] - 2026-02-18
 
 ### Added
