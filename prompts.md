@@ -4,6 +4,82 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 11: v0.9.2 — Release Documentation and README Consolidation
+
+Consolidates: v1.0.0 (release docs) + v1.0.1 (development proposals) — templated for release documentation
+
+Dependencies: Prompts 1-10
+
+```
+Prepare the v0.9.2 release documentation for pai-oncology-trial-fl.
+1. V1_RELEASE.md:
+* Header: title, release date 2026-02-18, tag v0.9.2, license MIT, Python 3.10/3.11/3.12.
+* Section 1 — Needs Met: Describe the gaps this repo fills (no existing open-source platform unifies FL + physical AI + digital twins + regulatory + privacy + clinical analytics for oncology trials). Development metrics table (commits, PRs, Python files, Python LOC, Markdown files, total files, directories, example scripts, test files, CLI tools, CI versions). AI model contributions (credit Claude Code Opus 4.6). Tasks accomplished across all releases (numbered list of 14 deliverables from v0.1.0 through v0.9.2).
+* Section 2 — Technical Achievements: Subsections for unification framework, simulation integration, domain examples, digital twin/domain pipelines, agentic AI, CLI tools, regulatory/privacy infrastructure, standards.
+* Section 3 — Version History: Detail all releases v0.1.0 through v0.9.2 with dates. Include security audit findings summary (61 findings: 12 security, 14 logic, 35 compliance).
+* Section 4 — v0.9.2 Standards Compliance: Semantic versioning, CI validation, changelog discipline, security posture, documentation completeness, licensing, dependency management, reproducibility, compliance/safety.
+2. DEVELOPMENT_PROPOSALS.md: 3 future extension proposals. Each with: exact prompt text, what it accomplishes (bulleted), why it is error-free, key files table. Include comparative feature table and strategic impact matrix across all 3 proposals.
+* Proposal 1: Real-Time Federated Safety Signal Detection
+* Proposal 2: Genomic Biomarker Integration Pipeline
+* Proposal 3: Adaptive Trial Design Engine
+3. Update README.md: v0.9.2 badge. Release summary callout with accurate metrics. Complete repository structure tree reflecting ALL content. Citation block current.
+4. Update CHANGELOG.md: Complete entry for v0.9.2. Quality gates: Consistent version numbers across README, CHANGELOG, V1_RELEASE, CITATION.cff, pyproject.toml. Accurate metrics. All internal links valid.
+```
+
+---
+
+## Prompt 10: v0.9.1 — Extended Platform Module B (Regulatory Submissions)
+
+Consolidates: v1.2.1 (regulatory submission: 6 modules + 6 examples) — templated for regulatory submissions domain extension
+
+Dependencies: Prompt 9
+
+```
+Build regulatory-submissions/ for pai-oncology-trial-fl — an end-to-end regulatory submission platform that complements clinical-analytics/. Follow the identical structure as Prompt 9 with these additions:
+1. regulatory-submissions/: README.md must include a "Relationship to clinical-analytics/" section explaining: clinical-analytics/ handles upstream analytics (PK/PD, survival, risk stratification, data harmonization), regulatory-submissions/ handles downstream regulatory packaging (eCTD compilation, submission tracking, compliance validation, regulatory intelligence); they share common regulatory/privacy/data standards; how they integrate via structured report outputs.
+* submission_orchestrator.py (600-1000 LOC): Core workflow orchestrator. SubmissionPhase/SubmissionType/WorkflowStatus/TaskPriority Enums, SubmissionConfig/SubmissionMilestone/WorkflowTask/SubmissionManifest dataclasses, RegulatorySubmissionOrchestrator managing submission lifecycle, 21 CFR Part 11 audit logging. create_standard_510k_workflow() factory.
+* ectd_compiler.py (500-800 LOC): eCTD compilation engine. ECTDModule/DocumentType/ValidationLevel Enums, ECTDCompiler generating module structures per FDA Technical Conformance Guide, XML backbone, SHA-256 checksums.
+* compliance_validator.py (500-800 LOC): Multi-regulation compliance validation. Regulation/ComplianceStatus/FindingSeverity Enums covering FDA 21 CFR 820/Part 11, HIPAA, GDPR, ISO 14971, IEC 62304, ICH E6(R3)/E9(R1), MDR 2017/745. ComplianceValidator with checklist-driven validation, gap analysis, remediation tracking.
+* document_generator.py (500-800 LOC): Automated document generation. DocumentCategory/TemplateType Enums (CSR synopsis, SAP, risk analysis, software description, predicate comparison, AI/ML PCCP). RegulatoryDocumentGenerator producing structured Markdown output.
+* regulatory_intelligence.py (500-800 LOC): Multi-jurisdiction regulatory intelligence. Jurisdiction/GuidanceStatus/ImpactLevel Enums (FDA, EMA, PMDA, TGA, Health Canada, MHRA, NMPA). RegulatoryIntelligenceEngine tracking AI/ML device guidance, impact assessment, compliance timelines.
+* submission_analytics.py (500-800 LOC): Submission quality analytics. MetricType/TrendDirection/BenchmarkSource Enums. SubmissionAnalyticsEngine computing KPIs (cycle time, deficiency rates, first-pass yield), trend analysis, FDA MDUFA benchmarking.
+* All output must be generated Markdown or structured data — no external API calls.
+2. regulatory-submissions/examples-regulatory-submissions/: 6 progressive examples. Example 06_full_submission_pipeline.py must demonstrate integration between clinical-analytics/ and regulatory-submissions/.
+3. tests/test_regulatory_submissions/: 100+ tests. Must verify clinical-analytics → regulatory-submissions data flow in at least one integration test.
+4. Updates: ruff.toml, README.md. Quality gates: Same as Prompt 9. Additionally: regulatory-submissions README must document relationship to clinical-analytics. Full test suite (all prior + new tests) must pass: verify by running pytest tests/ -v --tb=short.
+```
+
+---
+
+## Prompt 9: v0.9.0 — Extended Platform Module A (Clinical Analytics)
+
+Consolidates: v1.1.1 (federation: 7 modules + 6 examples + 125 tests) — templated for clinical analytics domain extension
+
+Dependencies: Prompt 8
+
+```
+Build clinical-analytics/ for pai-oncology-trial-fl — a federated clinical trial analytics platform providing privacy-preserving analytics for multi-site oncology trials.
+1. clinical-analytics/ with README.md (architecture diagram in text, directory tree, per-component descriptions with class names and algorithms, quick start code examples, compliance alignment table covering ICH E6(R3) / 21 CFR Part 11 / HIPAA / FDA AI/ML / CDISC / IEC 62304, roadmap alignment notes):
+* analytics_orchestrator.py (600-1000 LOC): Core orchestrator. 3+ Enums for strategies/statuses/states (AnalyticsPhase, TaskStatus, AggregationMode), 5+ @dataclasses (AnalyticsConfig, AnalyticsTask, PipelineManifest), main ClinicalAnalyticsOrchestrator class, 21 CFR Part 11 audit logging, convergence/completion tracking.
+* pkpd_engine.py (500-800 LOC): Population PK/PD modeling. CompartmentModel/EstimationMethod/AbsorptionRoute Enums, one- and two-compartment models with analytical and ODE solutions (scipy.integrate.solve_ivp), NCA (AUC, Cmax, Tmax, t½), EmaxModel dose-response, allometric clearance.
+* risk_stratification.py (500-800 LOC): Clinical risk scoring and adaptive enrichment. RiskCategory/EnrichmentAction Enums, ClinicalRiskStratifier with composite weighted scores, AdaptiveEnrichmentAdvisor with per-stratum decision support, Hosmer-Lemeshow calibration.
+* trial_data_manager.py (500-800 LOC): Data lifecycle management. DatasetStatus/QualityLevel/QueryStatus Enums, TrialDataManager for multi-site dataset registration, schema validation, quality checks, immutable audit trails.
+* clinical_interoperability.py (500-800 LOC): Vocabulary mapping and standards conversion. ICD-10/SNOMED CT crosswalk, LOINC/RxNorm/MedDRA mappings, unit conversion (lb→kg, in→cm, F→C, mg/dL→mmol/L), schema reconciliation, CDISC SDTM DM/LB/AE export.
+* survival_analysis.py (500-800 LOC): Privacy-preserving survival analysis. Kaplan-Meier with Greenwood SE, log-rank test, Cox PH via BFGS with Breslow ties, Harrell's C-index, RMST.
+* consortium_reporting.py (500-800 LOC): DSMB reporting. ReportType/ReportStatus Enums, ConsortiumReportingEngine for enrollment dashboards, safety summaries, efficacy snapshots, SHA-256 integrity hashing.
+2. clinical-analytics/examples-clinical-analytics/: README.md + 6 progressive examples (200-400 LOC):
+* 01_basic_analytics_pipeline.py: Minimal working example with synthetic cohort and descriptive stats.
+* 02_pkpd_modeling.py: One-compartment and two-compartment PK, NCA, Emax.
+* 03_risk_stratification.py: Composite risk scoring, calibration assessment.
+* 04_data_harmonization.py: ICD-10→SNOMED mapping, schema alignment, SDTM export.
+* 05_survival_analysis.py: KM estimation, log-rank, Cox PH, C-index, RMST.
+* 06_full_clinical_analytics_workflow.py: End-to-end combining all components.
+3. tests/test_clinical_analytics/: __init__.py + one test file per component (7 files, 150-300 LOC each, 12-22 tests per file, 100+ total). Use sys.path.insert or load_module() as appropriate.
+4. Updates: ruff.toml per-file-ignores, README.md structure tree. Quality gates: All code passes ruff check + ruff format --check. RESEARCH USE ONLY in all modules. Structured logging, dataclass configs, Enum states. Tests pass with numpy/scipy/pytest/pyyaml only. No external services — all communication simulated in-process. Only Python 3.10+ stdlib + numpy/scipy. Identical directory/example structure as existing platform modules.
+```
+
+---
+
 ## Prompt 8: v0.8.0 — Comprehensive Test Suite
 
 Consolidates: v1.0.1 (1,289 tests, 54 modules) + v1.1.1 test additions (125 tests)

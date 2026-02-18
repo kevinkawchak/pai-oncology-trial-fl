@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 2026-02-18
+
+### Added
+
+- **Release Documentation** (`V1_RELEASE.md`)
+  - Section 1 — Needs Met: Platform gap analysis, development metrics table (194 Python files, ~80,600 LOC, 288 total files, 87 directories), AI model contributions (Claude Code Opus 4.6), 14 numbered deliverable summaries across all releases (v0.1.0 through v0.9.2).
+  - Section 2 — Technical Achievements: Subsections for unification framework, simulation integration, domain examples, digital twin pipelines, agentic AI, CLI tools, regulatory/privacy infrastructure, and standards compliance.
+  - Section 3 — Version History: Detailed timeline of all releases with security audit findings summary (61 findings: 12 security, 14 logic, 35 compliance).
+  - Section 4 — v0.9.2 Standards Compliance: Semantic versioning, CI validation, changelog discipline, security posture, documentation completeness, licensing (MIT), dependency management, reproducibility, compliance/safety.
+
+- **Development Proposals** (`DEVELOPMENT_PROPOSALS.md`)
+  - Proposal 1: Real-Time Federated Safety Signal Detection — streaming AE surveillance with ICH E2B(R3) / MedDRA / FDA FAERS alignment.
+  - Proposal 2: Genomic Biomarker Integration Pipeline — federated GWAS, VCF/MAF processing, precision oncology workflows.
+  - Proposal 3: Adaptive Trial Design Engine — Bayesian adaptive designs, response-adaptive randomization, interim analysis automation.
+  - Comparative feature table and strategic impact matrix across all proposals.
+
+- **Release Notes** (`releases.md/v0.9.2.md`) — Consolidated release documentation.
+
+### Changed
+
+- `README.md` — Updated to v0.9.2 badge, added release summary callout with metrics, expanded repository structure tree with `clinical-analytics/` and `regulatory-submissions/` entries, added `V1_RELEASE.md` and `DEVELOPMENT_PROPOSALS.md` to tree, updated citation version.
+- `pyproject.toml` — Version bumped to 0.9.2.
+- `CITATION.cff` — Updated to v0.9.2 with `clinical-analytics`, `regulatory-submissions`, `survival-analysis`, `pkpd-modeling` keywords and expanded abstract.
+- `prompts.md` — Added Prompt 11 (v0.9.2) for release documentation consolidation.
+
+## [0.9.1] - 2026-02-18
+
+### Added
+
+- **Regulatory Submissions Platform Module** (`regulatory-submissions/`)
+  - `submission_orchestrator.py` (870+ LOC) — Core workflow orchestrator with `SubmissionPhase`/`SubmissionType`/`WorkflowStatus`/`TaskPriority` Enums, `SubmissionConfig`/`SubmissionMilestone`/`WorkflowTask`/`SubmissionManifest` dataclasses, `RegulatorySubmissionOrchestrator` class managing submission lifecycle, task dependencies, milestone tracking, reviewer assignments, deadline management, and 21 CFR Part 11 audit logging. Includes `create_standard_510k_workflow()` factory.
+  - `ectd_compiler.py` (670+ LOC) — Electronic Common Technical Document compilation engine with `ECTDModule`/`DocumentType`/`ValidationLevel` Enums, `ECTDDocument`/`ECTDSection`/`ModuleStructure`/`CompilationResult` dataclasses, `ECTDCompiler` class generating eCTD module structures per FDA Technical Conformance Guide, validating document completeness, producing XML backbone stubs, and computing SHA-256 checksums for all documents.
+  - `compliance_validator.py` (750+ LOC) — Multi-regulation compliance validation engine with `Regulation`/`ComplianceStatus`/`FindingSeverity` Enums covering FDA 21 CFR 820/Part 11, HIPAA, GDPR, ISO 14971, IEC 62304, ICH E6(R3)/E9(R1), and EU MDR 2017/745. `ComplianceFinding`/`ComplianceAssessment`/`RegulatoryRequirement`/`AuditTrailEntry` dataclasses. `ComplianceValidator` with checklist-driven validation, gap analysis, remediation tracking, and compliance score computation.
+  - `document_generator.py` (930+ LOC) — Automated regulatory document generation with `DocumentCategory`/`TemplateType` Enums supporting CSR synopses, statistical analysis plans, risk analysis reports (ISO 14971), software descriptions (IEC 62304), predicate comparisons, and AI/ML predetermined change control plans (PCCPs). `RegulatoryDocumentGenerator` produces structured Markdown output with section numbering, metadata, and revision tracking.
+  - `regulatory_intelligence.py` (700+ LOC) — Multi-jurisdiction regulatory intelligence engine with `Jurisdiction`/`GuidanceStatus`/`ImpactLevel` Enums covering FDA, EMA, PMDA, TGA, Health Canada, MHRA, and NMPA. `GuidanceDocument`/`RegulatoryUpdate`/`ImpactAssessment`/`ComplianceTimeline` dataclasses. `RegulatoryIntelligenceEngine` tracking guidance documents relevant to AI/ML medical devices, assessing submission impact, generating compliance timelines.
+  - `submission_analytics.py` (680+ LOC) — Submission quality and timeline analytics with `MetricType`/`TrendDirection`/`BenchmarkSource` Enums, `SubmissionMetric`/`TimelineAnalysis`/`DeficiencyPattern`/`PerformanceBenchmark` dataclasses. `SubmissionAnalyticsEngine` computing submission KPIs (cycle time, deficiency rates, first-pass yield), identifying patterns, benchmarking against FDA MDUFA performance goals.
+  - `README.md` — Architecture diagram, directory tree, per-component descriptions with class names, compliance alignment table, **Relationship to clinical-analytics/** section with integration points table.
+
+- **Regulatory Submissions Examples** (`regulatory-submissions/examples-regulatory-submissions/`, 6 scripts)
+  - `01_basic_submission_workflow.py` — Minimal: submission config, document registration, milestone tracking.
+  - `02_ectd_compilation.py` — Single feature: eCTD module structure compilation with validation.
+  - `03_compliance_validation.py` — Multi-regulation compliance checking against FDA/ISO/IEC.
+  - `04_document_generation.py` — Template-driven 510(k) summary and software description generation.
+  - `05_regulatory_intelligence.py` — Guidance tracking, impact assessment, compliance timelines.
+  - `06_full_submission_pipeline.py` — End-to-end combining all modules with clinical-analytics integration.
+  - `README.md` — Example overview table, prerequisites, run commands.
+
+- **Regulatory Submissions Tests** (`tests/test_regulatory_submissions/`, 6 files)
+  - `test_submission_orchestrator.py` — Workflow lifecycle, task dependencies, milestone tracking.
+  - `test_ectd_compiler.py` — Module compilation, document validation, checksum verification.
+  - `test_compliance_validator.py` — Multi-regulation scoring, gap analysis, remediation tracking.
+  - `test_document_generator.py` — Template rendering, section generation, metadata integrity.
+  - `test_regulatory_intelligence.py` — Guidance tracking, impact assessment, timeline computation.
+  - `test_submission_analytics.py` — KPI computation, trend analysis, benchmarking, clinical-analytics integration test.
+
+### Changed
+
+- `ruff.toml` — Added per-file-ignores for `regulatory-submissions/*.py` and `regulatory-submissions/**/*.py`.
+
+## [0.9.0] - 2026-02-18
+
+### Added
+
+- **Clinical Analytics Platform Module** (`clinical-analytics/`)
+  - `analytics_orchestrator.py` (700+ LOC) — Core pipeline orchestrator with `AnalyticsPhase`/`TaskStatus`/`AggregationMode` Enums, `AnalyticsConfig`/`AnalyticsTask`/`PipelineManifest` dataclasses, `ClinicalAnalyticsOrchestrator` class managing DAG-based task scheduling, federated dispatch, convergence tracking, and 21 CFR Part 11 audit logging.
+  - `pkpd_engine.py` (700+ LOC) — Population PK/PD compartmental modeling with `CompartmentModel`/`EstimationMethod`/`AbsorptionRoute` Enums, `OneCompartmentModel`/`TwoCompartmentModel` classes with analytical and ODE-based solutions via `scipy.integrate.solve_ivp`, `EmaxModel` sigmoidal dose-response with Hill coefficient, NCA computation (trapezoidal AUC, Cmax, Tmax, terminal half-life), allometric clearance adjustment.
+  - `risk_stratification.py` (700+ LOC) — Multi-factor clinical risk scoring with `RiskCategory`/`EnrichmentAction` Enums, `PatientRiskProfile`/`StratificationResult` dataclasses, `ClinicalRiskStratifier` computing composite weighted risk scores across tumor burden, biomarkers, ECOG PS, comorbidity indices, `AdaptiveEnrichmentAdvisor` with decision-support recommendations per stratum, Hosmer-Lemeshow calibration assessment.
+  - `trial_data_manager.py` (600+ LOC) — Data lifecycle management with `DatasetStatus`/`QualityLevel`/`QueryStatus` Enums, `DatasetRegistration`/`QualityCheckResult`/`DataQuery` dataclasses, `TrialDataManager` for multi-site dataset registration, schema validation, completeness/range/consistency checks, immutable audit trails.
+  - `clinical_interoperability.py` (800+ LOC) — Cross-system vocabulary mapping with ICD-10/SNOMED CT crosswalk (12 oncology codes), LOINC/RxNorm/MedDRA mappings, unit conversion (lb→kg, in→cm, F→C, mg/dL→mmol/L), `align_schemas()` for cross-site schema reconciliation detecting type mismatches and unit conflicts, `export_to_sdtm()` generating CDISC SDTM DM/LB/AE domain records.
+  - `survival_analysis.py` (800+ LOC) — Privacy-preserving survival analysis with `kaplan_meier()` product-limit estimator using Greenwood standard errors and log-log confidence intervals, `log_rank_test()` Mantel-Haenszel test, `fit_cox_ph()` via BFGS partial likelihood maximization with Breslow ties, `concordance_index()` Harrell's C-index, `compute_rmst()` restricted mean survival time.
+  - `consortium_reporting.py` (600+ LOC) — DSMB report generation with `ReportType`/`ReportStatus` Enums, `ReportSection`/`DSMBPackage` dataclasses, `ConsortiumReportingEngine` producing enrollment dashboards, safety summaries, efficacy snapshots, and regulatory submission appendices with SHA-256 integrity hashing and provenance metadata.
+  - `README.md` — Architecture diagram, directory tree, per-component descriptions with class names and algorithms, quick start code examples, compliance alignment table (ICH E6(R3) / 21 CFR Part 11 / HIPAA / FDA AI/ML / CDISC / IEC 62304), roadmap alignment notes.
+
+- **Clinical Analytics Examples** (`clinical-analytics/examples-clinical-analytics/`, 6 scripts)
+  - `01_basic_analytics_pipeline.py` — Minimal working example: synthetic cohort generation, descriptive statistics, structured report.
+  - `02_pkpd_modeling.py` — One-compartment and two-compartment PK models, NCA, Emax dose-response.
+  - `03_risk_stratification.py` — Composite risk scoring, category assignment, calibration assessment.
+  - `04_data_harmonization.py` — ICD-10→SNOMED mapping, schema alignment, unit conversion, SDTM export.
+  - `05_survival_analysis.py` — Kaplan-Meier estimation, log-rank test, Cox PH fitting, C-index, RMST.
+  - `06_full_clinical_analytics_workflow.py` — End-to-end pipeline combining all components with timing and DSMB report.
+  - `README.md` — Example overview table, prerequisites, run commands, conventions.
+
+- **Clinical Analytics Tests** (`tests/test_clinical_analytics/`, 7 files)
+  - `test_analytics_orchestrator.py` — Orchestrator pipeline, task scheduling, convergence tracking.
+  - `test_pkpd_engine.py` — Compartment models, NCA, Emax, clearance adjustment.
+  - `test_risk_stratification.py` — Risk scoring, category assignment, enrichment advisory.
+  - `test_trial_data_manager.py` — Dataset registration, quality checks, audit trails.
+  - `test_clinical_interoperability.py` — Vocabulary mapping, schema alignment, SDTM export.
+  - `test_survival_analysis.py` — KM estimator, log-rank, Cox PH, C-index, RMST.
+  - `test_consortium_reporting.py` — Report generation, integrity hashing, provenance metadata.
+
+### Changed
+
+- `ruff.toml` — Added per-file-ignores for `clinical-analytics/*.py` and `clinical-analytics/**/*.py`.
+
 ## [0.8.0] - 2026-02-18
 
 ### Added
