@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-02-18
+
+### Added
+
+- **Comprehensive Test Suite** (`tests/`)
+  - `conftest.py` — Shared fixtures and `load_module()` helper using `importlib.util.spec_from_file_location` for loading modules from hyphenated directories. NumPy RNG seeded (`np.random.seed(42)`) via autouse fixture. Section-organized fixtures for all module categories. Mock data factories for patient records, model weights, trial configurations, sensor data, and PHI text.
+  - `tests/README.md` — Testing philosophy, how to run, directory tree, how to add tests, CI integration notes.
+
+- **Federated Learning Tests** (`tests/test_federated/`, 8 files)
+  - Tests for coordinator (aggregation, SCAFFOLD, zero-count guards), client, model, differential privacy (zero-norm clipping), secure aggregation (HMAC pair seeds), site enrollment (audit trail copies), data ingestion, data harmonization.
+
+- **Physical AI Tests** (`tests/test_physical_ai/`, 6 files)
+  - Tests for digital twin (growth models: exponential, logistic, Gompertz), sensor fusion, robotic integration, surgical tasks (thresholds), simulation bridge (URDF/MJCF/SDF), framework detection.
+
+- **Digital Twin Tests** (`tests/test_digital_twins/`, 3 files)
+  - Tests for clinical integrator (HMAC patient ID hashing), patient model (biomarker simulation, zero-value handling), treatment simulator (PK modeling, AUC, trapezoid/trapz).
+
+- **Privacy Tests** (`tests/test_privacy/`, 5 files)
+  - Tests for PHI detector (18 HIPAA identifier patterns), de-identification (REDACT/HASH/PSEUDONYMIZE, os.urandom salt), access control (RBAC, audit log defensive copies), breach response (risk assessment), DUA generator (template types, retention).
+
+- **Regulatory Tests** (`tests/test_regulatory/`, 4 files)
+  - Tests for FDA submission tracker (model_type="unspecified", lifecycle states), IRB protocol manager (amendments, consent versioning), GCP compliance (NOT_ASSESSED exclusion), regulatory tracker (overdue-before-imminent ordering).
+
+- **Tool Tests** (`tests/test_tools/`, 5 files)
+  - Tests for dose calculator (BED, EQD2, max_dose=0 truthiness fix), deployment readiness, trial site monitor, sim job runner, DICOM inspector.
+
+- **Unification Tests** (`tests/test_unification/`, 5 files)
+  - Tests for Isaac-MuJoCo bridge, model converter, unified agent interface, framework detector, validation suite.
+
+- **Standards Tests** (`tests/test_standards/`, 3 files)
+  - Tests for conversion pipeline (format enums, tolerance), benchmark runner (metrics), model validator (metadata).
+
+- **Agentic AI Tests** (`tests/test_agentic_ai/`, 5 files)
+  - Tests for MCP server, ReAct planner, monitoring agent, simulation orchestrator, safety executor.
+
+- **Example Tests** (`tests/test_examples/`, 6 files)
+  - Tests for federated workflow, digital twin planning, cross-framework validation, outcome prediction, physical AI examples, synthetic data generation.
+
+- **Integration Tests** (`tests/test_integration/`, 6 files)
+  - Cross-module workflow tests: trial lifecycle, cross-framework validation, privacy→clinical, domain→safety, agentic→regulatory, federated→privacy.
+
+- **Regression Tests** (`tests/test_regression/`, 1 file)
+  - Guards for all v0.7.0 security audit findings: torch.load weights_only, np.load allow_pickle, HMAC hashing, mutable audit log copies, os.urandom salt, division-by-zero guards, truthiness fixes, dead data fix, RESEARCH USE ONLY compliance.
+
 ## [0.7.0] - 2026-02-18
 
 ### Security

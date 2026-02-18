@@ -4,6 +4,42 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 8: v0.8.0 — Comprehensive Test Suite
+
+Consolidates: v1.0.1 (1,289 tests, 54 modules) + v1.1.1 test additions (125 tests)
+
+Dependencies: Prompts 1-7
+
+```
+Build a comprehensive pytest-based test suite for pai-oncology-trial-fl achieving full coverage of all Python modules.
+1. tests/conftest.py (~300 LOC):
+Docstring: "Shared fixtures and helpers for the pai-oncology-trial-fl test suite. Source modules in hyphenated directories loaded via importlib.util. NumPy RNG seeded for deterministic tests. LICENSE: MIT."
+* PROJECT_ROOT = Path(__file__).resolve().parent.parent
+* load_module(name, relative_path): Uses importlib.util.spec_from_file_location. Returns cached from sys.modules. Calls pytest.skip() if file not found. Wraps spec.loader.exec_module() in try/except ImportError — skips test and removes partial module from sys.modules.
+* @pytest.fixture(autouse=True) def _seed_rng(): np.random.seed(42)
+* Section-organized fixtures: Robot/Safety, Digital-Twin/Domain, Privacy, Regulatory, Tools, Integration.
+* Mock data factories: synthetic_[domain]_geometry, sample_[entity]_record, trial_cohort_config, etc.
+2. Test Modules (one test_*.py per source module, organized into subdirectories with __init__.py):
+* tests/test_federated/: 8 test files for all federated learning modules.
+* tests/test_physical_ai/: 6 test files for all physical AI modules.
+* tests/test_digital_twins/: 3 test files for digital twin modules.
+* tests/test_agentic_ai/: 5 test files for all agentic AI examples.
+* tests/test_tools/: 5 test files for all CLI tools.
+* tests/test_examples/: 6 test files for example scripts.
+* tests/test_privacy/: 5 test files (phi_detector, deidentification, access_control, breach_response, dua_generator).
+* tests/test_regulatory/: 4 test files (fda_submission, irb_protocol, gcp_compliance, regulatory_tracker).
+* tests/test_unification/: 5 test files (bridge, converter, agent interface, framework detector, validation suite).
+* tests/test_standards/: 3 test files (conversion pipeline, benchmark_runner, model_validator).
+* tests/test_integration/: 6 cross-module workflow tests.
+* tests/test_regression/: Regression guards for every bug fixed in Prompt 7.
+Each test file: class Test[ClassName]: grouping, test_[method]_[scenario] naming, 10-25 tests per file.
+3. tests/README.md: Testing philosophy, how to run, how to add tests, coverage targets, CI integration.
+Target: 800+ tests across 40+ modules. All pass with only numpy, scipy, pytest, pyyaml installed.
+Quality gates: All tests pass ruff check + ruff format --check. np.random.seed(42) autouse. No network/GPU/hardware. Every public class/function has at least one test.
+```
+
+---
+
 ## Prompt 7: v0.7.0 — Security, Logic, and Compliance Audit
 
 Consolidates: v0.9.1 (15 files) + v0.9.2 (21 files, 13 critical bugs, 2 security vulns)
