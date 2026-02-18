@@ -1,5 +1,7 @@
 """Cross-platform simulation bridge for physical AI.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Enables interoperability between different simulation frameworks
 (Isaac Lab, MuJoCo, Gazebo, PyBullet) by providing model format
 conversion and physics consistency validation.

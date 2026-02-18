@@ -1,5 +1,7 @@
 """Clinical sensor fusion for real-time monitoring during trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Fuses data from multiple clinical sensors (vitals, imaging, robotic
 telemetry) into unified feature representations that can be used by
 federated models for anomaly detection and decision support.

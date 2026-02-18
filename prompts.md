@@ -4,6 +4,112 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 8: v0.8.0 — Comprehensive Test Suite
+
+Consolidates: v1.0.1 (1,289 tests, 54 modules) + v1.1.1 test additions (125 tests)
+
+Dependencies: Prompts 1-7
+
+```
+Build a comprehensive pytest-based test suite for pai-oncology-trial-fl achieving full coverage of all Python modules.
+1. tests/conftest.py (~300 LOC):
+Docstring: "Shared fixtures and helpers for the pai-oncology-trial-fl test suite. Source modules in hyphenated directories loaded via importlib.util. NumPy RNG seeded for deterministic tests. LICENSE: MIT."
+* PROJECT_ROOT = Path(__file__).resolve().parent.parent
+* load_module(name, relative_path): Uses importlib.util.spec_from_file_location. Returns cached from sys.modules. Calls pytest.skip() if file not found. Wraps spec.loader.exec_module() in try/except ImportError — skips test and removes partial module from sys.modules.
+* @pytest.fixture(autouse=True) def _seed_rng(): np.random.seed(42)
+* Section-organized fixtures: Robot/Safety, Digital-Twin/Domain, Privacy, Regulatory, Tools, Integration.
+* Mock data factories: synthetic_[domain]_geometry, sample_[entity]_record, trial_cohort_config, etc.
+2. Test Modules (one test_*.py per source module, organized into subdirectories with __init__.py):
+* tests/test_federated/: 8 test files for all federated learning modules.
+* tests/test_physical_ai/: 6 test files for all physical AI modules.
+* tests/test_digital_twins/: 3 test files for digital twin modules.
+* tests/test_agentic_ai/: 5 test files for all agentic AI examples.
+* tests/test_tools/: 5 test files for all CLI tools.
+* tests/test_examples/: 6 test files for example scripts.
+* tests/test_privacy/: 5 test files (phi_detector, deidentification, access_control, breach_response, dua_generator).
+* tests/test_regulatory/: 4 test files (fda_submission, irb_protocol, gcp_compliance, regulatory_tracker).
+* tests/test_unification/: 5 test files (bridge, converter, agent interface, framework detector, validation suite).
+* tests/test_standards/: 3 test files (conversion pipeline, benchmark_runner, model_validator).
+* tests/test_integration/: 6 cross-module workflow tests.
+* tests/test_regression/: Regression guards for every bug fixed in Prompt 7.
+Each test file: class Test[ClassName]: grouping, test_[method]_[scenario] naming, 10-25 tests per file.
+3. tests/README.md: Testing philosophy, how to run, how to add tests, coverage targets, CI integration.
+Target: 800+ tests across 40+ modules. All pass with only numpy, scipy, pytest, pyyaml installed.
+Quality gates: All tests pass ruff check + ruff format --check. np.random.seed(42) autouse. No network/GPU/hardware. Every public class/function has at least one test.
+```
+
+---
+
+## Prompt 7: v0.7.0 — Security, Logic, and Compliance Audit
+
+Consolidates: v0.9.1 (15 files) + v0.9.2 (21 files, 13 critical bugs, 2 security vulns)
+
+Dependencies: Prompts 1-6
+
+```
+Perform a comprehensive security, logic, and compliance audit of ALL Python files in pai-oncology-trial-fl. Identify and fix real bugs. This is not a cosmetic pass.
+Category 1 — Security Vulnerabilities:
+* Replace every torch.load(path) with torch.load(path, weights_only=True).
+* Replace every np.load(path, allow_pickle=True) with allow_pickle=False.
+* Verify all hashing uses HMAC-SHA256 with os.urandom salt, not simple hashlib or weak static salts like "default_salt".
+* Verify get_audit_log() returns a copy, not a mutable reference.
+* Verify invalid access expiration dates deny access (not silently grant).
+Category 2 — Logic Bugs:
+* Division by zero: guard all division ops, especially means/ratios/rates. Return sensible defaults.
+* Infinite loops: bound all while loops with MAX_ITERATIONS constant.
+* Sign errors: verify Jacobian signs, gradient signs, rate decay signs.
+* Inverted ratios: hazard ratio = experimental/control (HR<1 favors experimental).
+* Dead code: remove multiplication by 0.0, unreachable branches.
+* Floating-point equality: replace == with np.isclose() or tolerance-based comparisons.
+* Truthiness bugs: use is not None instead of if value: when zero is a valid value.
+* CLI falsy-value bugs: --arg 0 must not be replaced by defaults.
+* State machine completeness: if/elif chains must handle all states.
+* Loop variable scope: for x in collection must iterate correct filtered collection.
+* Format strings: verify %.1f%% not %.1%%.
+* Bidirectional completeness: if a bridge handles A→B, verify it also handles B→A.
+* Parser fallbacks: wrong format detection must raise NotImplementedError.
+* Validation thresholds: success rate must use fixed task-appropriate thresholds.
+Category 3 — Compliance:
+* Add RESEARCH USE ONLY to every Python module docstring missing it.
+* Verify audit trail logging in all privacy/regulatory modules.
+* Verify DATE_SHIFT is explicitly handled.
+* Change model_type="classification" defaults to "unspecified".
+* Safety constraints must report requires_runtime_verification, not auto-pass.
+* Add missing imports, remove unused imports.
+Deliverable: Fix all findings in-place. Create SECURITY_AUDIT.md.
+Quality gates: All fixes maintain ruff check + ruff format --check. No API changes. Division guards return defaults. Loop bounds use named constants. Every module has RESEARCH USE ONLY.
+```
+
+---
+
+## Prompt 6: v0.6.0 — Privacy Framework and Regulatory Compliance Infrastructure
+
+Consolidates: v0.5.0 (privacy: PHI/PII, de-identification, access control, breach response, DUA + regulatory: FDA, IRB, ICH-GCP, regulatory intelligence)
+
+Dependencies: Prompt 1
+
+```
+Build the complete privacy and regulatory compliance infrastructure for pai-oncology-trial-fl.
+1. Privacy Framework (privacy/)
+README.md: Version, overview, directory tree, HIPAA alignment, regulatory cross-references (HIPAA, 21 CFR Part 11, GDPR, EU AI Act, NIST Privacy Framework, ICH E6(R3)), all 18 HIPAA identifiers listed.
+* phi-pii-management/: README.md + phi_detector.py (500-700 LOC). PHICategory Enum mapping all 18 Safe Harbor identifiers per 45 CFR 164.514(b)(2). @dataclass PHIFinding (phi_type, location, value_preview redacted, confidence, risk_level). PHIDetector class: regex patterns for SSN, MRN, phone, email, dates, geographic, IP, ZIP; DICOM tag scanning (conditional pydicom import); optional Presidio integration; batch scanning with ScanResult @dataclass. Non-destructive logging (never log full PHI values).
+* de-identification/: README.md + deidentification_pipeline.py (500-700 LOC). DeidentificationMethod Enum (REDACT, HASH, GENERALIZE, SUPPRESS, PSEUDONYMIZE, DATE_SHIFT). HMAC-SHA256 pseudonymization with cryptographically random salt via os.urandom (NOT weak default). Date shifting with consistent patient-level offsets. Geographic generalization (ZIP to 3-digit). Transformation audit trail.
+* access-control/: README.md + access_control_manager.py (400-600 LOC). Role-Based Access Control with AccessRole, Permission, AuditAction Enums. 21 CFR Part 11 audit trail. get_audit_log() must return a copy (not mutable reference). Invalid date formats must deny access by default.
+* breach-response/: README.md + breach_response_protocol.py (400-600 LOC). BreachSeverity Enum. RiskAssessment with calculate_risk() that clamps out-of-range scores. 60-day notification timeline. Remediation tracking.
+* dua-templates/: README.md + dua_generator.py (300-500 LOC). DUAType Enum. Templates for intra-institutional, multi-site, commercial. Data retention periods. Security requirements (encryption, MFA).
+2. Regulatory Framework (regulatory/)
+README.md: Version, regulatory landscape overview, directory tree, standards cross-reference, FDA device statistics.
+* fda-compliance/: README.md + fda_submission_tracker.py (500-700 LOC). SubmissionType Enum (510k, De_Novo, PMA, Breakthrough). SubmissionStatus Enum. DeviceClass Enum. AI/ML components default to model_type="unspecified" (not "classification"). Reference FDA draft guidance for AI devices (Jan 2025), PCCP guidance (Aug 2025), QMSR (Feb 2026).
+* irb-management/: README.md + irb_protocol_manager.py (400-600 LOC). Use from __future__ import annotations for forward references. Protocol lifecycle, amendment management, consent versioning.
+* ich-gcp/: README.md + gcp_compliance_checker.py (400-600 LOC). Compliance score must exclude NOT_ASSESSED findings from denominator. Reference ICH E6(R3) published Sep 2025.
+* regulatory-intelligence/: README.md + regulatory_tracker.py (400-600 LOC). Multi-jurisdiction monitoring (FDA, EMA, PMDA, TGA, Health Canada). get_recent_updates() must actually use computed cutoff date. Overdue status must be reachable (correct if/elif ordering: check past-due BEFORE imminent).
+* human-oversight/: HUMAN_OVERSIGHT_QMS.md: CRF auto-fill risk tiers (low/medium/high with different automation levels), AE automation boundaries (detection: auto; grading: draft; causality: advisory; submission: prohibited without e-signature), safety gates (SAE immediate escalation, no autonomous regulatory submission, >95% sensitivity for AE detection).
+3. Updates: Add per-file-ignores (regulatory/**/*.py = ["F401", "F821"], privacy/**/*.py = ["F401"]). Update README.md.
+Quality gates: All files pass ruff check + ruff format --check. HIPAA cites specific 45 CFR sections. FDA cites guidance documents with dates. ICH cites E6(R3). IEC cites 62304/80601-2-77. ISO cites 14971. 21 CFR Part 11 in all audit trails. No actual PHI in any file. Pseudonymization uses HMAC-SHA256 with os.urandom.
+```
+
+---
+
 ## Prompt 5: v0.5.0 — Domain Examples and Engineering Demonstrations
 
 Consolidates: v0.6.0 (5 core examples) + v0.7.0 (6 physical AI examples) + v0.9.0 (6 agentic AI examples)

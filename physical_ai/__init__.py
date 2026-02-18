@@ -1,5 +1,7 @@
 """Physical AI integration for oncology clinical trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Bridges robotic systems, digital twins, and sensor fusion
 with the federated learning platform.
 """

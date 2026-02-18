@@ -1,5 +1,7 @@
 """Protected Health Information (PHI) detection.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Identifies the 18 HIPAA identifiers in text and structured data,
 enabling automated screening before data enters the federated
 learning pipeline.

@@ -1,5 +1,7 @@
 """Neural network model for federated oncology trials.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Provides a numpy-based multilayer perceptron that can be trained
 across federated sites without requiring PyTorch or TensorFlow.
 """

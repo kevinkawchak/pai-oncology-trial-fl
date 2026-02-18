@@ -8,6 +8,7 @@ regulatory compliance.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import logging
 from dataclasses import dataclass, field
@@ -16,6 +17,8 @@ from enum import Enum
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+_HMAC_KEY = b"pai-oncology-audit-integrity-key"
 
 
 class EventType(str, Enum):
@@ -74,7 +77,7 @@ class AuditEvent:
     def _compute_hash(self) -> str:
         """Compute integrity hash for tamper detection."""
         payload = f"{self.event_type.value}:{self.actor}:{self.resource}:{self.action}:{self.timestamp}"
-        return hashlib.sha256(payload.encode()).hexdigest()[:32]
+        return hmac.new(_HMAC_KEY, payload.encode(), hashlib.sha256).hexdigest()[:32]
 
     def to_dict(self) -> dict:
         """Serialize to dictionary."""

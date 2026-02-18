@@ -2,6 +2,8 @@
 
 Verifies that the full pipeline works: data generation, partitioning,
 multi-client training, aggregation, and privacy enforcement.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
 """
 
 import numpy as np

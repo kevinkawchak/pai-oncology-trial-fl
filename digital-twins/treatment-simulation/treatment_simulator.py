@@ -129,7 +129,7 @@ class ToxicityGrade(Enum):
 class DrugClass(Enum):
     """Chemotherapy drug classification for PK/PD modeling."""
 
-    ALKYLATING = "alkylating_agent"
+    ALKYLATING_AGENT = "alkylating_agent"
     ANTIMETABOLITE = "antimetabolite"
     ANTHRACYCLINE = "anthracycline"
     TAXANE = "taxane"
@@ -299,6 +299,8 @@ def _compute_auc(
         ]
     )
     _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
+    if _trapz is None:
+        raise RuntimeError("NumPy has no 'trapezoid' or 'trapz' function; cannot compute AUC.")
     auc = float(_trapz(concentrations, time_points))
     return max(auc, 0.0)
 

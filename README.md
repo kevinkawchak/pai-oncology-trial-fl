@@ -1,7 +1,7 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.5.0-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v0.8.0-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
@@ -45,18 +45,38 @@ pai-oncology-trial-fl/
 │   ├── simulation_bridge.py          #   Cross-platform simulation (URDF/MJCF/SDF/USD)
 │   ├── framework_detection.py        #   Simulation framework detection & pipeline
 │   └── surgical_tasks.py             #   Surgical task definitions & clinical thresholds
-├── privacy/                          # Privacy infrastructure
-│   ├── phi_detector.py               #   PHI detection (18 HIPAA IDs)
-│   ├── deidentification.py           #   De-identification pipeline
+├── privacy/                          # Privacy framework (HIPAA Safe Harbor)
+│   ├── phi_detector.py               #   PHI detection (18 HIPAA IDs) — legacy
+│   ├── deidentification.py           #   De-identification pipeline — legacy
 │   ├── consent_manager.py            #   Consent & DUA management
 │   ├── audit_logger.py               #   Audit logging with integrity hashing
-│   ├── access_control.py             #   Role-based access control (RBAC)
-│   ├── breach_response.py            #   Breach detection & incident response
-│   └── dua_templates/                #   DUA templates
-├── regulatory/                       # Regulatory compliance
-│   ├── compliance_checker.py         #   HIPAA/GDPR/FDA checks
-│   ├── fda_submission.py             #   FDA submission tracking (510k/De Novo/PMA)
-│   └── templates/                    #   IRB & consent templates
+│   ├── access_control.py             #   Role-based access control — legacy
+│   ├── breach_response.py            #   Breach detection & incident response — legacy
+│   ├── dua_templates/                #   DUA templates (markdown)
+│   ├── phi-pii-management/           #   Advanced PHI/PII detection (v0.6.0)
+│   │   └── phi_detector.py           #     All 18 Safe Harbor IDs, DICOM scanning, Presidio
+│   ├── de-identification/            #   Production de-identification pipeline (v0.6.0)
+│   │   └── deidentification_pipeline.py  #  HMAC-SHA256, date shifting, generalization
+│   ├── access-control/               #   RBAC with 21 CFR Part 11 audit trail (v0.6.0)
+│   │   └── access_control_manager.py #     Time-limited access, fail-closed expiration
+│   ├── breach-response/              #   Breach response protocol (v0.6.0)
+│   │   └── breach_response_protocol.py #   Four-factor risk assessment, 60-day timeline
+│   └── dua-templates-generator/      #   DUA template generator (v0.6.0)
+│       └── dua_generator.py          #     5 DUA types, security tiers, retention policies
+├── regulatory/                       # Regulatory compliance framework
+│   ├── compliance_checker.py         #   HIPAA/GDPR/FDA checks — legacy
+│   ├── fda_submission.py             #   FDA submission tracking — legacy
+│   ├── templates/                    #   IRB & consent templates
+│   ├── fda-compliance/               #   FDA submission tracker (v0.6.0)
+│   │   └── fda_submission_tracker.py #     510(k)/De Novo/PMA/Breakthrough, PCCP, QMSR
+│   ├── irb-management/               #   IRB protocol manager (v0.6.0)
+│   │   └── irb_protocol_manager.py   #     Protocol lifecycle, amendments, consent versioning
+│   ├── ich-gcp/                      #   ICH E6(R3) compliance checker (v0.6.0)
+│   │   └── gcp_compliance_checker.py #     13 GCP principles, compliance scoring
+│   ├── regulatory-intelligence/      #   Multi-jurisdiction tracker (v0.6.0)
+│   │   └── regulatory_tracker.py     #     FDA/EMA/PMDA/TGA/Health Canada monitoring
+│   └── human-oversight/              #   Human oversight QMS (v0.6.0)
+│       └── HUMAN_OVERSIGHT_QMS.md    #     CRF risk tiers, AE boundaries, safety gates
 ├── unification/                      # Cross-framework unification layer
 │   ├── simulation_physics/           #   Isaac ↔ MuJoCo bridge, parameter mapping
 │   ├── agentic_generative_ai/        #   Unified agent interface (CrewAI/LangGraph/AutoGen)
@@ -174,13 +194,13 @@ Multi-site model training with FedAvg, FedProx, and SCAFFOLD aggregation strateg
 
 Patient digital twins with exponential, logistic, and Gompertz tumor growth models. Chemotherapy, radiation, immunotherapy, and combination therapy simulation with Monte-Carlo uncertainty quantification. Surgical robot interface with telemetry and clinical threshold evaluation.
 
-### 3. Privacy & Compliance
+### 3. Privacy Framework
 
-Automated PHI detection for all 18 HIPAA identifiers, de-identification pipeline, role-based access control, breach response protocol, consent management, and audit logging with SHA-256 integrity verification.
+Comprehensive HIPAA Safe Harbor compliance covering all 18 identifiers per 45 CFR 164.514(b)(2). Advanced PHI/PII detection with regex, DICOM tag scanning, and optional Presidio NER integration. HMAC-SHA256 pseudonymization with cryptographically random salt (os.urandom). Date shifting with consistent patient-level offsets. Geographic generalization (ZIP to 3-digit). Role-based access control with 21 CFR Part 11 audit trails and fail-closed expiration. Four-factor breach risk assessment per 45 CFR 164.402 with 60-day notification tracking. DUA template generation for 5 agreement types with tiered security requirements.
 
 ### 4. Regulatory Infrastructure
 
-HIPAA/GDPR/FDA 21 CFR Part 11 compliance validation, FDA submission tracking for AI/ML devices (Pre-Submission, De Novo, 510(k), PMA, Breakthrough Device), IRB protocol and informed consent templates.
+Multi-pathway FDA submission tracking (510(k), De Novo, PMA, Breakthrough, Pre-Submission) referencing FDA AI/ML Device Guidance (Jan 2025), PCCP Guidance (Aug 2025), and QMSR (Feb 2026). IRB protocol lifecycle management with amendment tracking, consent versioning, and AI/ML disclosure requirements per ICH E6(R3) published September 2025. GCP compliance scoring excluding NOT_ASSESSED findings from denominator. Multi-jurisdiction regulatory intelligence across FDA, EMA, PMDA, TGA, and Health Canada with overdue-before-imminent status ordering. Human oversight QMS with CRF auto-fill risk tiers and AE automation boundaries.
 
 ### 5. Cross-Framework Unification
 
@@ -314,7 +334,7 @@ python scripts/verify_installation.py
   author = {Kawchak, Kevin},
   year = {2026},
   url = {https://github.com/kevinkawchak/pai-oncology-trial-fl},
-  version = {0.3.0}
+  version = {0.8.0}
 }
 ```
 

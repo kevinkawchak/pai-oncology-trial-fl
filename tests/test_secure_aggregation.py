@@ -1,4 +1,7 @@
-"""Tests for secure aggregation."""
+"""Tests for secure aggregation.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 

@@ -718,8 +718,9 @@ class OutcomePredictionPipeline:
             "total_patients": total_patients,
             "favorable_response": total_favorable,
             "poor_response": total_poor,
-            "favorable_pct": total_favorable / max(total_patients, 1) * 100,
-            "poor_pct": total_poor / max(total_patients, 1) * 100,
+            # Avoid division by zero when no patients are enrolled
+            "favorable_pct": 0.0 if total_patients == 0 else total_favorable / total_patients * 100,
+            "poor_pct": 0.0 if total_patients == 0 else total_poor / total_patients * 100,
             "num_sites": len(site_metrics),
         }
 

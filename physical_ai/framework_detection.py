@@ -1,5 +1,7 @@
 """Simulation framework detection for physical AI integration.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Detects which robotics simulation frameworks are available in the
 current environment and recommends a pipeline for training, validation,
 and deployment of surgical robotics policies.

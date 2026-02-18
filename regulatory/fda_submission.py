@@ -1,5 +1,7 @@
 """FDA submission tracking for AI/ML-enabled medical devices.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Manages the regulatory submission lifecycle for AI-powered oncology
 devices, covering 510(k), De Novo, PMA, and Pre-Submission pathways.
 Tracks required documentation based on the January 2025 FDA draft

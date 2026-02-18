@@ -1,4 +1,7 @@
-"""Tests for the data harmonization module."""
+"""Tests for the data harmonization module.
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 

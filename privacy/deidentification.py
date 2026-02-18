@@ -1,5 +1,7 @@
 """De-identification pipeline for patient data.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Removes or replaces PHI in structured and unstructured data before
 it enters the federated learning pipeline, ensuring HIPAA Safe
 Harbor compliance.
@@ -9,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import os
 from dataclasses import dataclass
 from enum import Enum
 
@@ -61,12 +64,14 @@ class Deidentifier:
     def __init__(
         self,
         method: DeidentMethod | str = DeidentMethod.REDACT,
-        salt: str = "pai-oncology-salt",
+        salt: str | bytes | None = None,
     ):
         if isinstance(method, str):
             method = DeidentMethod(method)
         self.method = method
-        self.salt = salt
+        if salt is None:
+            salt = os.urandom(32)
+        self.salt = salt if isinstance(salt, str) else salt.hex()
         self.detector = PHIDetector()
         self._stats = {"records_processed": 0, "phi_removed": 0}
 

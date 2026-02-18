@@ -1,4 +1,7 @@
-"""Tests for the federated model (numpy MLP)."""
+"""Tests for the federated model (numpy MLP).
+
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+"""
 
 import numpy as np
 

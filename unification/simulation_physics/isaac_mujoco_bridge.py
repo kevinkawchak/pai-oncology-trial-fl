@@ -96,6 +96,7 @@ class BridgeState(Enum):
     PAUSED = "paused"
     ERROR = "error"
     SHUTDOWN = "shutdown"
+    DISCONNECTED = "disconnected"
 
 
 class CoordinateConvention(Enum):
@@ -262,6 +263,8 @@ class BridgeConfig:
     substeps_isaac: int = 4
     position_gain_kp: float = 100.0
     velocity_gain_kd: float = 10.0
+    isaac_config: dict[str, Any] = field(default_factory=dict)
+    mujoco_config: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> list[str]:
         """Validate configuration and return list of issues."""

@@ -5,6 +5,163 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-02-18
+
+### Added
+
+- **Comprehensive Test Suite** (`tests/`)
+  - `conftest.py` — Shared fixtures and `load_module()` helper using `importlib.util.spec_from_file_location` for loading modules from hyphenated directories. NumPy RNG seeded (`np.random.seed(42)`) via autouse fixture. Section-organized fixtures for all module categories. Mock data factories for patient records, model weights, trial configurations, sensor data, and PHI text.
+  - `tests/README.md` — Testing philosophy, how to run, directory tree, how to add tests, CI integration notes.
+
+- **Federated Learning Tests** (`tests/test_federated/`, 8 files)
+  - Tests for coordinator (aggregation, SCAFFOLD, zero-count guards), client, model, differential privacy (zero-norm clipping), secure aggregation (HMAC pair seeds), site enrollment (audit trail copies), data ingestion, data harmonization.
+
+- **Physical AI Tests** (`tests/test_physical_ai/`, 6 files)
+  - Tests for digital twin (growth models: exponential, logistic, Gompertz), sensor fusion, robotic integration, surgical tasks (thresholds), simulation bridge (URDF/MJCF/SDF), framework detection.
+
+- **Digital Twin Tests** (`tests/test_digital_twins/`, 3 files)
+  - Tests for clinical integrator (HMAC patient ID hashing), patient model (biomarker simulation, zero-value handling), treatment simulator (PK modeling, AUC, trapezoid/trapz).
+
+- **Privacy Tests** (`tests/test_privacy/`, 5 files)
+  - Tests for PHI detector (18 HIPAA identifier patterns), de-identification (REDACT/HASH/PSEUDONYMIZE, os.urandom salt), access control (RBAC, audit log defensive copies), breach response (risk assessment), DUA generator (template types, retention).
+
+- **Regulatory Tests** (`tests/test_regulatory/`, 4 files)
+  - Tests for FDA submission tracker (model_type="unspecified", lifecycle states), IRB protocol manager (amendments, consent versioning), GCP compliance (NOT_ASSESSED exclusion), regulatory tracker (overdue-before-imminent ordering).
+
+- **Tool Tests** (`tests/test_tools/`, 5 files)
+  - Tests for dose calculator (BED, EQD2, max_dose=0 truthiness fix), deployment readiness, trial site monitor, sim job runner, DICOM inspector.
+
+- **Unification Tests** (`tests/test_unification/`, 5 files)
+  - Tests for Isaac-MuJoCo bridge, model converter, unified agent interface, framework detector, validation suite.
+
+- **Standards Tests** (`tests/test_standards/`, 3 files)
+  - Tests for conversion pipeline (format enums, tolerance), benchmark runner (metrics), model validator (metadata).
+
+- **Agentic AI Tests** (`tests/test_agentic_ai/`, 5 files)
+  - Tests for MCP server, ReAct planner, monitoring agent, simulation orchestrator, safety executor.
+
+- **Example Tests** (`tests/test_examples/`, 6 files)
+  - Tests for federated workflow, digital twin planning, cross-framework validation, outcome prediction, physical AI examples, synthetic data generation.
+
+- **Integration Tests** (`tests/test_integration/`, 6 files)
+  - Cross-module workflow tests: trial lifecycle, cross-framework validation, privacy→clinical, domain→safety, agentic→regulatory, federated→privacy.
+
+- **Regression Tests** (`tests/test_regression/`, 1 file)
+  - Guards for all v0.7.0 security audit findings: torch.load weights_only, np.load allow_pickle, HMAC hashing, mutable audit log copies, os.urandom salt, division-by-zero guards, truthiness fixes, dead data fix, RESEARCH USE ONLY compliance.
+
+## [0.7.0] - 2026-02-18
+
+### Security
+
+- **torch.load Arbitrary Code Execution (5 instances):**
+  - `conversion_pipeline.py` — Four `torch.load()` calls changed from `weights_only=False` to `weights_only=True` (lines 575, 619, 1020, 1085)
+  - `benchmark_runner.py` — One `torch.load()` call changed from `weights_only=False` to `weights_only=True` (line 933)
+
+- **np.load Pickle Deserialization (1 instance):**
+  - `model_validator.py` — Added `allow_pickle=False` to prevent arbitrary code execution (line 1096)
+
+- **Weak Hashing Without HMAC (3 instances):**
+  - `federated/secure_aggregation.py` — Replaced plain `hashlib.sha256` with `hmac.new()` HMAC-SHA256 (line 107)
+  - `privacy/audit_logger.py` — `_compute_hash()` now uses HMAC-SHA256 with module-level key (line 80)
+  - `digital-twins/clinical-integration/clinical_integrator.py` — Patient ID hashing migrated from SHA-256 to HMAC-SHA256 (line 298)
+
+- **Mutable Audit Log References (3 instances):**
+  - `privacy/access_control.py` — `get_access_log()` now returns `list()` copy (line 253)
+  - `privacy/consent_manager.py` — `get_audit_trail()` now returns `list()` copy (line 191)
+  - `federated/coordinator.py` — `get_server_control()` and `get_client_control()` return `[p.copy()]` (lines 158, 174)
+
+- **Weak Pseudonymization Salt (1 instance):**
+  - `privacy/deidentification.py` — Replaced hardcoded `"pai-oncology-salt"` with `os.urandom(32)` default (line 64)
+
+### Fixed
+
+- **Division by Zero — Federation Coordinator (CRITICAL):**
+  - `federated/coordinator.py` line 217 — Weight computation when `client_sample_counts` sums to zero now falls back to uniform weights
+  - `federated/coordinator.py` line 293 — SCAFFOLD control update with zero clients now early-returns
+
+- **Division by Zero — Gradient Clipping:**
+  - `federated/differential_privacy.py` line 59 — Explicit zero-norm check returns copies instead of dividing
+
+- **Truthiness Bug — Dose Calculator:**
+  - `tools/dose-calculator/dose_calculator.py` line 386 — `max_dose=0` no longer treated as falsy; changed `or` chain to explicit `is None` check
+
+- **Truthiness Bug — Patient Model:**
+  - `digital-twins/patient-modeling/patient_model.py` line 509 — Zero biomarker values no longer rejected; changed `<= 0.0` to `< 0.0`
+
+- **Dead Data — Multi-Sensor Fusion:**
+  - `examples-physical-ai/02_multi_sensor_fusion.py` line 651 — Anomaly record `"vital_name"` key was hardcoded to `0.0`; replaced with actual `vital_name` variable
+
+- **Division by Zero — Outcome Prediction:**
+  - `examples/05_outcome_prediction_pipeline.py` lines 721-722 — Explicit zero-patient check with `0.0` default percentages
+
+- **Missing Null Check — Treatment Simulator:**
+  - `digital-twins/treatment-simulation/treatment_simulator.py` line 301 — Added RuntimeError when NumPy trapezoid/trapz is unavailable
+
+### Changed
+
+- **RESEARCH USE ONLY Compliance:** Added disclaimer to 35 Python module docstrings that were missing it (all 82 modules now compliant)
+
+### Added
+
+- `SECURITY_AUDIT.md` — Comprehensive audit report documenting 61 findings (12 security, 14 logic, 35 compliance) with full remediation details, severity ratings, and ongoing security recommendations
+
+## [0.6.0] - 2026-02-18
+
+### Added
+
+- **Privacy Framework — PHI/PII Management** (`privacy/phi-pii-management/`)
+  - `phi_detector.py` — Advanced PHI/PII detection engine (600+ LOC) with `PHICategory` Enum mapping all 18 HIPAA Safe Harbor identifiers per 45 CFR 164.514(b)(2). `PHIFinding` dataclass with redacted value preview (never stores full PHI), confidence scoring, and risk-level classification. `PHIDetector` class with regex patterns for SSN, MRN, phone, email, dates, geographic data, IP, ZIP, account numbers, certificates, vehicle IDs. DICOM tag scanning via conditional `pydicom` import (DICOM PS3.15 Annex E tags). Optional Presidio NER integration. Batch scanning with `ScanResult` aggregation. Non-destructive logging throughout.
+  - `README.md` — Module documentation with API overview and usage examples.
+
+- **Privacy Framework — De-identification Pipeline** (`privacy/de-identification/`)
+  - `deidentification_pipeline.py` — Production de-identification pipeline (550+ LOC) with `DeidentificationMethod` Enum (REDACT, HASH, GENERALIZE, SUPPRESS, PSEUDONYMIZE, DATE_SHIFT). HMAC-SHA256 pseudonymization with cryptographically random 32-byte salt via `os.urandom(32)` (not a weak default). Consistent patient-level date shifting derived from HMAC of patient_id and salt. Geographic generalization (ZIP to 3-digit prefix per Safe Harbor). Transformation audit trail with `TransformationRecord` dataclass. Batch processing with per-record results.
+  - `README.md` — Module documentation.
+
+- **Privacy Framework — Access Control** (`privacy/access-control/`)
+  - `access_control_manager.py` — Role-Based Access Control with 21 CFR Part 11 audit trail (500+ LOC). `AccessRole` Enum (10 roles: PI, coordinator, site admin, clinical researcher, data engineer, biostatistician, safety officer, auditor, regulatory affairs, patient). `Permission` Enum (22 permissions). `AuditAction` Enum (13 action types). Time-limited access with expiration enforcement. Invalid date formats deny access by default (fail-closed). `get_audit_log()` returns a copy (not mutable reference). Comprehensive `AuditEntry` dataclass per 21 CFR Part 11.
+  - `README.md` — Module documentation.
+
+- **Privacy Framework — Breach Response** (`privacy/breach-response/`)
+  - `breach_response_protocol.py` — Breach response protocol (500+ LOC) implementing HIPAA Breach Notification Rule (45 CFR 164.400-414). `BreachSeverity` Enum. `RiskAssessment` dataclass with four-factor risk assessment per 45 CFR 164.402 and `calculate_risk()` that clamps out-of-range scores to [0.0, 1.0]. 60-day HIPAA notification timeline tracking. `BreachNotification` for HHS OCR, state AG, individual, media (500+ individuals), GDPR DPA. `RemediationAction` tracking with status lifecycle. Incident audit trail.
+  - `README.md` — Module documentation.
+
+- **Privacy Framework — DUA Generator** (`privacy/dua-templates-generator/`)
+  - `dua_generator.py` — Data Use Agreement template generator (400+ LOC). `DUAType` Enum (INTRA_INSTITUTIONAL, MULTI_SITE, COMMERCIAL, ACADEMIC_COLLABORATION, GOVERNMENT). Security requirements tiered by DUA type (encryption, MFA, DLP, network segmentation, annual audits, background checks). `RetentionPolicy` with per-type retention periods. 9-section document generation covering preamble, definitions, permitted uses, security, retention, breach notification, term/termination, regulatory compliance, signatures.
+  - `README.md` — Module documentation.
+
+- **Privacy Framework — Top-Level** (`privacy/`)
+  - `README.md` — Framework overview with directory tree, all 18 HIPAA identifiers tabulated, regulatory cross-reference tables for HIPAA, 21 CFR Part 11, GDPR, EU AI Act, NIST Privacy Framework, and ICH E6(R3).
+
+- **Regulatory Framework — FDA Compliance** (`regulatory/fda-compliance/`)
+  - `fda_submission_tracker.py` — FDA submission lifecycle tracker (650+ LOC). `SubmissionType` Enum (510k, De_Novo, PMA, Breakthrough, Pre_Submission). `SubmissionStatus` Enum (12 states). `DeviceClass` Enum. `AIMLComponent` dataclass with `model_type` defaulting to `"unspecified"` (not `"classification"`). Standard document requirements per pathway referencing FDA draft guidance for AI devices (Jan 2025), PCCP guidance (Aug 2025), QMSR (Feb 2026). `ReviewCycle` tracking for FDA interactions. Readiness reporting.
+  - `README.md` — Module documentation.
+
+- **Regulatory Framework — IRB Management** (`regulatory/irb-management/`)
+  - `irb_protocol_manager.py` — IRB protocol lifecycle manager (500+ LOC). Uses `from __future__ import annotations` for forward references. `ProtocolStatus` Enum (11 states), `ReviewType`, `AmendmentType`, `ConsentType`, `RiskLevel` Enums. Protocol lifecycle management with submission, approval (with expiration), suspension, termination, closure. Amendment management with version incrementing. Consent versioning with AI/ML disclosure tracking. Continuing review workflow. References ICH E6(R3) published September 2025.
+  - `README.md` — Module documentation.
+
+- **Regulatory Framework — ICH-GCP Compliance** (`regulatory/ich-gcp/`)
+  - `gcp_compliance_checker.py` — ICH E6(R3) GCP compliance assessment engine (550+ LOC). 13 `GCPPrinciple` Enum values including risk-proportionate approach (E6(R3) innovation). `ComplianceLevel` Enum (COMPLIANT, MINOR_FINDING, MAJOR_FINDING, CRITICAL_FINDING, NOT_ASSESSED). Compliance score calculation excludes NOT_ASSESSED findings from the denominator. Standard checklist covering ethical conduct, scientific soundness, informed consent, IRB/IEC review, qualified personnel, data integrity, protocol compliance, participant safety, quality management, record keeping, and risk-proportionate approach. References ICH E6(R3) published September 2025.
+  - `README.md` — Module documentation.
+
+- **Regulatory Framework — Regulatory Intelligence** (`regulatory/regulatory-intelligence/`)
+  - `regulatory_tracker.py` — Multi-jurisdiction regulatory intelligence tracker (550+ LOC). Monitors FDA, EMA, PMDA, TGA, and Health Canada. `Jurisdiction`, `UpdateType`, `Priority`, `ComplianceStatus`, `ActionStatus` Enums. Built-in jurisdiction profiles with AI/ML framework references. `get_recent_updates()` uses computed cutoff date from `timedelta(days=days)`. `get_overdue_requirements()` checks OVERDUE (past-due) BEFORE IMMINENT — correct if/elif ordering ensures overdue status is always reachable. Action item tracking linked to compliance requirements.
+  - `README.md` — Module documentation.
+
+- **Regulatory Framework — Human Oversight** (`regulatory/human-oversight/`)
+  - `HUMAN_OVERSIGHT_QMS.md` — Human Oversight Quality Management System document defining CRF auto-fill risk tiers (low: auto-populate with audit; medium: draft + clinician review; high: advisory only + manual entry), AE automation boundaries (detection: auto; grading: draft; causality: advisory; submission: prohibited without e-signature), and safety gates (SAE immediate escalation, no autonomous regulatory submission, >95% sensitivity threshold for AE detection).
+
+- **Regulatory Framework — Top-Level** (`regulatory/`)
+  - `README.md` — Regulatory landscape overview with directory tree, standards cross-reference (FDA, EMA, PMDA, TGA, Health Canada), and FDA device statistics context.
+
+### Changed
+
+- `README.md` — Updated to v0.6.0, expanded privacy/ and regulatory/ sections in repository structure tree with new subdirectories, updated Key Capabilities sections 3 and 4 with detailed framework descriptions.
+- `pyproject.toml` — Version bumped to 0.6.0.
+- `CITATION.cff` — Updated to v0.6.0 with 2026-02-18 release date.
+- `ruff.toml` — Added per-file-ignores for `privacy/**/*.py` and `regulatory/**/*.py` subdirectories.
+- `prompts.md` — Added Prompt 6 (v0.6.0) for privacy framework and regulatory compliance infrastructure.
+
 ## [0.5.0] - 2026-02-17
 
 ### Added

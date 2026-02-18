@@ -1,5 +1,7 @@
 """Secure aggregation for federated learning.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Implements a simplified mask-based secure aggregation protocol so
 that the coordinator only observes the *aggregate* of client updates,
 not any individual client's contribution.
@@ -15,6 +17,7 @@ Protocol overview
 from __future__ import annotations
 
 import hashlib
+import hmac
 import logging
 
 import numpy as np
@@ -106,8 +109,9 @@ class SecureAggregator:
 
     def _pair_seed(self, i: int, j: int) -> int:
         """Deterministic seed for a client pair."""
-        data = f"{self.seed}-{i}-{j}".encode()
-        return int(hashlib.sha256(data).hexdigest()[:8], 16)
+        seed_bytes = str(self.seed).encode()
+        message = f"{i}-{j}".encode()
+        return int(hmac.new(seed_bytes, message, hashlib.sha256).hexdigest()[:8], 16)
 
     @staticmethod
     def verify_mask_cancellation(

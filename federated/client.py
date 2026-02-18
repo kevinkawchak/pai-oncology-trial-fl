@@ -1,5 +1,7 @@
 """Federated client — simulates a hospital or research-center node.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Each client holds a local dataset partition and trains the shared model
 architecture on its own data.  Only model-parameter updates (never raw
 patient data) leave the client.

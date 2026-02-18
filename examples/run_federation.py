@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Run a complete federated learning simulation.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 Demonstrates a multi-site oncology trial where several hospitals
 collaboratively train an AI model without sharing raw patient data.
 Includes site enrollment validation, compliance checks, consent

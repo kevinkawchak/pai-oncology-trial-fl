@@ -1,5 +1,7 @@
 """Federation coordinator — orchestrates multi-site training rounds.
 
+RESEARCH USE ONLY — Not intended for clinical deployment without validation.
+
 The coordinator manages the global model, distributes parameters to
 participating clients, collects updates, and produces an aggregated
 model each round.  Supports three aggregation strategies:
@@ -155,7 +157,9 @@ class FederationCoordinator:
 
     def get_server_control(self) -> list[np.ndarray] | None:
         """Return current SCAFFOLD server control variate (or None)."""
-        return self._server_control
+        if self._server_control is None:
+            return None
+        return [p.copy() for p in self._server_control]
 
     def get_client_control(self, client_id: str) -> list[np.ndarray]:
         """Return the stored control variate for a given client.
@@ -167,7 +171,7 @@ class FederationCoordinator:
             raise RuntimeError("SCAFFOLD not enabled — use strategy='scaffold'.")
         if client_id not in self._client_controls:
             self._client_controls[client_id] = [np.zeros_like(c) for c in self._server_control]
-        return self._client_controls[client_id]
+        return [p.copy() for p in self._client_controls[client_id]]
 
     # ------------------------------------------------------------------
     # Round execution
@@ -214,7 +218,10 @@ class FederationCoordinator:
         # Client weights
         if client_sample_counts is not None:
             total = sum(client_sample_counts)
-            weights = [c / total for c in client_sample_counts]
+            if total == 0:
+                weights = [1.0 / len(client_updates)] * len(client_updates)
+            else:
+                weights = [c / total for c in client_sample_counts]
         else:
             weights = [1.0 / len(client_updates)] * len(client_updates)
 
@@ -289,6 +296,8 @@ class FederationCoordinator:
             return
 
         num_params = len(self._server_control)
+        if num_clients == 0:
+            return
         for p in range(num_params):
             delta_sum = sum(d[p] for d in deltas) / num_clients
             self._server_control[p] = self._server_control[p] + delta_sum
