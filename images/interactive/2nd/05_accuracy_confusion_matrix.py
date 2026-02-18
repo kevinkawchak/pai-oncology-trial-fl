@@ -152,10 +152,10 @@ def create_accuracy_confusion_matrix(dark_mode=False):
 if __name__ == "__main__":
     output_dir = Path(__file__).parent
     fig = create_accuracy_confusion_matrix(dark_mode=False)
-    fig.write_html(str(output_dir / "05_accuracy_confusion_matrix.html"), include_plotlyjs="cdn")
+    fig.write_html(str(output_dir / "05_accuracy_confusion_matrix.html"), include_plotlyjs=True)
     fig.write_image(str(output_dir / "05_accuracy_confusion_matrix.png"), width=1920, height=1080, scale=2)
     print("Saved 05_accuracy_confusion_matrix.html and 05_accuracy_confusion_matrix.png")
     fig_dark = create_accuracy_confusion_matrix(dark_mode=True)
-    fig_dark.write_html(str(output_dir / "05_accuracy_confusion_matrix_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_html(str(output_dir / "05_accuracy_confusion_matrix_dark.html"), include_plotlyjs=True)
     fig_dark.write_image(str(output_dir / "05_accuracy_confusion_matrix_dark.png"), width=1920, height=1080, scale=2)
     print("Saved 05_accuracy_confusion_matrix_dark.html and _dark.png")
