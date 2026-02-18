@@ -209,5 +209,7 @@ if __name__ == "__main__":
     print("Saved 01_repository_architecture_treemap.html and .png")
     fig_dark = create_repository_architecture_treemap(dark_mode=True)
     fig_dark.write_html(str(output_dir / "01_repository_architecture_treemap_dark.html"), include_plotlyjs="cdn")
-    fig_dark.write_image(str(output_dir / "01_repository_architecture_treemap_dark.png"), width=1920, height=1080, scale=2)
+    fig_dark.write_image(
+        str(output_dir / "01_repository_architecture_treemap_dark.png"), width=1920, height=1080, scale=2
+    )
     print("Saved 01_repository_architecture_treemap_dark.html and _dark.png")

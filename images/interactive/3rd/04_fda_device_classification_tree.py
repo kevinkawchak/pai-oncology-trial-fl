@@ -246,5 +246,7 @@ if __name__ == "__main__":
     print("Saved 04_fda_device_classification_tree.html and 04_fda_device_classification_tree.png")
     fig_dark = create_fda_device_classification_tree(dark_mode=True)
     fig_dark.write_html(str(output_dir / "04_fda_device_classification_tree_dark.html"), include_plotlyjs="cdn")
-    fig_dark.write_image(str(output_dir / "04_fda_device_classification_tree_dark.png"), width=1920, height=1080, scale=2)
+    fig_dark.write_image(
+        str(output_dir / "04_fda_device_classification_tree_dark.png"), width=1920, height=1080, scale=2
+    )
     print("Saved 04_fda_device_classification_tree_dark.html and _dark.png")
