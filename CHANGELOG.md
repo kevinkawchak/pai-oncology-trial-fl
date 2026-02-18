@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - 2026-02-18
+
+### Added
+
+- **Visualization Infrastructure** (`images/`)
+  - `images/prompts/plan.md` — Overall visualization strategy: 30 Plotly charts across 3 sets of 10, light + dark mode, data sourced from repository modules. Pipeline specification (Python → HTML → PNG), color scheme definitions, and quality gate requirements.
+  - `images/prompts/1st.md` — Set 1 per-chart instructions: chart type, data source, color schemes, and labels for 10 visualizations covering repository architecture and simulation.
+  - `images/prompts/2nd.md` — Set 2 per-chart instructions: 10 visualizations covering training metrics, benchmarks, and performance analysis.
+  - `images/prompts/3rd.md` — Set 3 per-chart instructions: 10 visualizations covering regulatory compliance, privacy framework, and deployment readiness.
+
+- **Set 1 — Repository Architecture & Simulation** (`images/interactive/1st/`, 10 scripts + README)
+  - `01_repository_architecture_treemap.py` — Treemap of repository module structure (194 Python files across 10+ modules).
+  - `02_clinical_trial_workflow.py` — Sankey diagram of clinical trial workflow phases (Enrollment → Submission).
+  - `03_oncology_process_diagram.py` — Sunburst chart of treatment simulation pipeline (5 modalities, 7 drug classes, 4 responses).
+  - `04_framework_comparison_radar.py` — Radar chart comparing Isaac Sim/MuJoCo/Gazebo/PyBullet across 8 capability axes.
+  - `05_parameter_mapping_heatmap.py` — Heatmap of PhysX ↔ MuJoCo physics parameter compatibility.
+  - `06_data_pipeline_throughput.py` — Grouped bar chart of federated pipeline throughput by site size.
+  - `07_model_format_comparison.py` — Grouped bar chart comparing PyTorch/ONNX/SafeTensors/TensorFlow/MONAI.
+  - `08_state_vector_visualization.py` — 3D scatter of simulation state vectors (synchronized vs drifted).
+  - `09_domain_randomization_transfer.py` — Multi-line chart of sim-to-real transfer by randomization level.
+  - `10_oncology_trajectories.py` — Tumor growth curves (Exponential/Logistic/Gompertz/Von Bertalanffy) with treatment intervention.
+
+- **Set 2 — Training & Benchmarks** (`images/interactive/2nd/`, 10 scripts + README)
+  - `01_training_curves.py` — Federated training convergence for FedAvg/FedProx/SCAFFOLD.
+  - `02_benchmark_comparisons.py` — Cross-framework benchmark results (Latency, Step Rate, Memory, Accuracy).
+  - `03_safety_metrics_dashboard.py` — 4-panel safety dashboard (force monitoring, workspace violations, e-stop frequency, ISO 13482).
+  - `04_performance_radars.py` — Overlapping radar charts for 6 platform module performance profiles.
+  - `05_accuracy_confusion_matrix.py` — 12×12 tumor type classification confusion matrix.
+  - `06_sim_to_real_transfer.py` — Dual-axis chart (success rate + position error) for transfer methods.
+  - `07_latency_distributions.py` — Box plots of Isaac-MuJoCo sync latency by direction.
+  - `08_resource_utilization.py` — Stacked area chart of federated training resource allocation.
+  - `09_oncology_kpi_tracker.py` — Indicator gauges for 6 clinical trial KPIs.
+  - `10_cross_framework_consistency.py` — Scatter plot of cross-engine state agreement.
+
+- **Set 3 — Regulatory & Readiness** (`images/interactive/3rd/`, 10 scripts + README)
+  - `01_oncology_convergence.py` — Federated convergence across 5 oncology subtasks.
+  - `02_multi_site_trial_dashboard.py` — 4-panel trial dashboard (enrollment waterfall, screening funnel, monthly trend, site performance).
+  - `03_algorithm_comparison_radar.py` — FedAvg/FedProx/SCAFFOLD trade-off radar.
+  - `04_fda_device_classification_tree.py` — FDA device classification treemap (Class I/II/III → submission pathways).
+  - `05_oncology_device_distribution.py` — Sunburst of oncology AI/ML device landscape.
+  - `06_regulatory_compliance_scorecard.py` — Horizontal bar chart of compliance scores across 9 regulations.
+  - `07_hipaa_phi_detection_matrix.py` — 18×5 heatmap of PHI detection confidence (HIPAA Safe Harbor × data sources).
+  - `08_privacy_analytics_pipeline.py` — Sankey diagram of de-identification data flow.
+  - `09_deployment_readiness_radar.py` — 10-axis deployment readiness assessment.
+  - `10_production_readiness_scores.py` — Per-module production readiness with target lines.
+
+- **Top-Level Documentation** (`images/README.md`) — Prompt-to-visualization workflow, pipeline diagrams (Python → HTML → PNG), conversion metrics (30/30 scripts, 60/60 HTML, 60/60 PNG), per-set LOC tables, data source reference table, and data inputs table for all 30 charts.
+
+- **Release Notes** (`releases.md/v0.9.3.md`) — Visualization infrastructure release documentation.
+
+### Changed
+
+- `ruff.toml` — Added per-file-ignores `"images/**/*.py" = ["F401"]` for visualization scripts.
+- `pyproject.toml` — Version bumped to 0.9.3.
+- `prompts.md` — Added Prompt 12 (v0.9.3) for visualization infrastructure.
+
 ## [0.9.2] - 2026-02-18
 
 ### Added

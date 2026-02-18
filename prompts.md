@@ -4,6 +4,23 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 12: v0.9.3 — Visualization Infrastructure
+
+Dependencies: Prompt 9
+
+```
+Build a visualization infrastructure for pai-oncology-trial-fl generating publication-quality charts from repository data.
+1. images/prompts/: plan.md (visualization strategy: 30 Plotly charts across 3 sets of 10, light + dark mode, data sourced from repo modules), 1st.md, 2nd.md, 3rd.md (per-set instructions specifying chart type, data source, color schemes, labels for each of 10 visualizations).
+2. images/interactive/1st/: README.md (script table with names, descriptions, LOC) + 10 Python scripts (100-250 LOC each). Topics: repository architecture treemap, clinical trial workflow comparison, oncology-specific process diagram, framework comparison radar, parameter mapping heatmap, data pipeline throughput, model comparison, state vector visualization, domain randomization/transfer, oncology trajectories. Each script: create_[name](dark_mode=False) function using plotly.graph_objects, light (plotly_white) and dark (plotly_dark) templates, if __name__ == "__main__" saving HTML + PNG (1920x1080 @2x).
+3. images/interactive/2nd/: Same structure. Topics: training curves, benchmark comparisons, safety metrics dashboard, performance radars, accuracy/confusion matrices, sim-to-real transfer plots, latency distributions, resource utilization, oncology KPI tracker, cross-framework consistency saving HTML + PNG (1920x1080 @2x).
+4. images/interactive/3rd/: Same structure. Topics: oncology-specific convergence, multi-site trial dashboard, algorithm comparison radar, FDA device classification tree, oncology device distribution, regulatory compliance scorecard, HIPAA PHI detection matrix, privacy analytics pipeline, deployment readiness radar, production readiness scores saving HTML + PNG (1920x1080 @2x).
+5. images/README.md: Prompt-to-visualization workflow, text pipeline diagrams (Python → HTML → PNG), conversion metrics (30/30 scripts, 60/60 HTML, 60/60 PNG), per-set LOC tables, data source reference table, data inputs table for all 30 charts.
+6. Updates: ruff.toml (images/**/*.py = ["F401"]).
+Quality gates: All 30 scripts pass ruff check + ruff format --check. Use plotly.graph_objects (not express). Both light/dark modes. Data from actual repo content. Self-standing visualizations (sufficient context in titles/labels). Total 4,000-6,000 LOC across 30 scripts.
+```
+
+---
+
 ## Prompt 11: v0.9.2 — Release Documentation and README Consolidation
 
 Consolidates: v1.0.0 (release docs) + v1.0.1 (development proposals) — templated for release documentation
