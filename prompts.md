@@ -4,6 +4,44 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 16: v1.0.0 — Stable Release: Triple AI Peer Review Complete
+
+Dependencies: Prompts 13-15 (v0.9.4-v0.9.9 peer review cycles)
+
+```
+You are a senior software engineer that needs to systemically prove and push a v1.0.0 stable release according to existing standard methods by analyzing and critiquing the kevinkawchak/pai-oncology-trial-fl GitHub codebase end-to-end. Make sure to clone from the current repo state. Your v1.0.0 update should focus on comprehensively utilizing the following: peer-review directory, changelog, and all releases. The peer-review directory is important due to containing 6 markdowns across a triple AI code review (Codex reviews, Claude code fixes for three cycles): Codex code recommendations v0.9.4, v0.9.6, v0.9.8; Claude code fixes: v0.9.5, v0.9.7, v0.9.9. Include metrics that help track the peer-review correction process along with your final fixes metrics (code specifics, number of code fixes, lines of code, etc.) Other releases (and corresponding changelog) should also be used to prove stable release, especially for code reviews and corrections (v0.6.0, v0.7.0, v0.8.0 through v0.9.9). Once standard methods of proving stable release are fulfilled, complete all objectives in this prompt.
+
+
+Update relevant versions to 1.0.0, ie readme. Fix all prior v1.0.0 references to now refer to this current v1.0.0 (in Readme, V1_RELEASE.md, and other documentation)
+Ultimately, your updated V1_RELEASE.md, v1.0.0 release notes and changelog update should comprehensively provide meaningful metrics that matter to senior AI engineers and senior software engineers (both using standardized methods first and then to fulfill prompt requirements) to prove that Claude code was a) proficient at building the codebase from version to version using Claude code, and b) the triple peer-reviews by codex recommendations followed by Claude code fixes further proved that code generations and fixes collaborated with two AI manufacturers (to reduce bias and improve trust vs. using a single manufacturer only). The ai peer review process marks an important trust benchmark has been achieved, and humans should now rely on AI for code generation, checks, and fixes from now on (again back by metrics and repository findings), instead of human methods that can't move fast enough to handle code quantity and complexity. Also provide a detailed list of what should be shown to colleagues to prove the review and fix process (which files, directories, release notes, changelog, etc.).
+
+Be sure to fix and address errors that would cause failed checks for the single pull request (such as Python environment issues to avoid the following error during final checks): "3 failing checks
+x Cl / lint-and-format (3.10) (pull...
+x Cl / lint-and-format (3.11) (pull...
+x Cl / lint-and-format (3.12) (pull..."
+
+When you are finished, provide a list of new additions and what changed from old to new files. The user will then review your lists prior to committing changes. Provide an update to the changelog (v1.0.0), and add new release notes in the releases.md (v1.0.0) folder using the format below. Do not perform additional code fixes and check unless necessary. Provide this prompt in full under prompts.md. Tag DOI 10.5281/zenodo.17774559 as the AI peer review process paper reference at the end of files, where appropriate. It is important to note the current repository utilized ai peer review methods described in the paper prior to human intervention delays, which is a key benefit of ai peer review speed and ability to make large updates without human delays.
+
+In summary, update the repository (changelog.md, releases.md, peer-review .md, prompts.md) according to your end to end senior software engineer peer review fixes. State how v1.0.0 was reached item by item (focusing on code fixes, but also repository wide). A single pull request will be merged by the user at the end.
+
+"FORMAT"
+Release title
+v1.0.0 -
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@claude
+@codex
+
+## Notes
+```
+
+---
+
 ## Prompt 15: v0.9.9 — Peer Review Fixes Implementation (v0.9.8 Recommendations)
 
 Dependencies: Prompt 14 (v0.9.8 senior peer review recommendations)
