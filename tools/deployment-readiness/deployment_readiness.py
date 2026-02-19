@@ -403,8 +403,8 @@ def main(argv: list[str] | None = None) -> int:
             path = export_report(report, args.output, fmt=args.format)
             print(f"  Report exported to: {path}")
             return 0
-    except Exception as exc:
-        logger.exception("Unexpected error: %s", exc)
+    except (OSError, ValueError, RuntimeError, TypeError, KeyError) as exc:
+        logger.exception("Unexpected error (%s): %s", type(exc).__name__, exc)
         return 1
 
     return 0

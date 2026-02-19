@@ -35,7 +35,7 @@ import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -154,7 +154,7 @@ class ComplianceFinding:
     gap_description: str = ""
     remediation_recommendation: str = ""
     assessed_by: str = ""
-    assessed_date: str = field(default_factory=lambda: datetime.now().isoformat())
+    assessed_date: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 @dataclass
@@ -179,7 +179,7 @@ class ComplianceAssessment:
 
     assessment_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     submission_id: str = ""
-    assessed_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    assessed_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     regulations_assessed: List[Regulation] = field(default_factory=list)
     total_requirements: int = 0
     compliant_count: int = 0
@@ -209,7 +209,7 @@ class AuditTrailEntry:
     """Audit trail entry for compliance validation decisions."""
 
     entry_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     action: str = ""
     entity_type: str = ""
     entity_id: str = ""
@@ -616,7 +616,7 @@ class ComplianceValidator:
         action = self._remediations[action_id]
         action.status = status
         if status == RemediationStatus.RESOLVED:
-            action.completion_date = datetime.now().isoformat()
+            action.completion_date = datetime.now(timezone.utc).isoformat()
         if notes:
             action.verification_notes = notes
         self._record_audit("update_remediation", "remediation", action_id, f"Status: {status.value}")
@@ -716,7 +716,7 @@ class ComplianceValidator:
             for rem in open_rems[:10]:
                 lines.append(f"- [{rem.priority.value}] {rem.title} (owner: {rem.owner or 'unassigned'})")
 
-        lines.extend(["", f"*Report generated: {datetime.now().isoformat()[:19]}*"])
+        lines.extend(["", f"*Report generated: {datetime.now(timezone.utc).isoformat()[:19]}*"])
         return "\n".join(lines)
 
     # ------------------------------------------------------------------

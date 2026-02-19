@@ -472,8 +472,8 @@ def main(argv: list[str] | None = None) -> int:
     except RuntimeError as exc:
         logger.error("%s", exc)
         return 1
-    except Exception as exc:
-        logger.exception("Unexpected error: %s", exc)
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        logger.exception("Unexpected error (%s): %s", type(exc).__name__, exc)
         return 1
 
     return 0

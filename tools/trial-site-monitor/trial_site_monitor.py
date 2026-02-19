@@ -476,8 +476,8 @@ def main(argv: list[str] | None = None) -> int:
                 for alert in filtered:
                     print(f"  [{alert.level.upper()}] {alert.site_id}: {alert.message}")
             return 0
-    except Exception as exc:
-        logger.exception("Unexpected error: %s", exc)
+    except (OSError, ValueError, RuntimeError, TypeError, KeyError) as exc:
+        logger.exception("Unexpected error (%s): %s", type(exc).__name__, exc)
         return 1
 
     return 0

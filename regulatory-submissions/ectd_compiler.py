@@ -32,7 +32,7 @@ import hashlib
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -122,7 +122,7 @@ class ECTDDocument:
     content_hash: str = ""
     file_size_bytes: int = 0
     version: str = "1.0"
-    effective_date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
+    effective_date: str = field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%d"))
     author: str = ""
     status: str = "draft"
     leaf_id: str = ""
@@ -212,7 +212,7 @@ class CompilationResult:
 
     result_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     submission_id: str = ""
-    compiled_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    compiled_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     modules: List[ModuleStructure] = field(default_factory=list)
     findings: List[ValidationFinding] = field(default_factory=list)
     total_documents: int = 0
@@ -502,7 +502,7 @@ class ECTDCompiler:
             '<?xml version="1.0" encoding="UTF-8"?>',
             f"<!-- eCTD Backbone for submission {self._submission_id} -->",
             f"<!-- Sequence: {self._sequence_number} -->",
-            f"<!-- Generated: {datetime.now().isoformat()} -->",
+            f"<!-- Generated: {datetime.now(timezone.utc).isoformat()} -->",
             f'<ectd version="{ECTD_VERSION}">',
             f'  <submission id="{self._submission_id}" type="{self._submission_type}" '
             f'sequence="{self._sequence_number}">',
@@ -620,7 +620,7 @@ class ECTDCompiler:
                 f"- Warnings: {result.warning_count}",
                 f"- Info: {result.info_count}",
                 "",
-                f"*Report generated: {datetime.now().isoformat()[:19]}*",
+                f"*Report generated: {datetime.now(timezone.utc).isoformat()[:19]}*",
             ]
         )
         return "\n".join(lines)

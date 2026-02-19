@@ -190,7 +190,7 @@ def _check_package(pkg: dict) -> dict:
                 import importlib.metadata
 
                 version = importlib.metadata.version(pkg["import_name"])
-            except Exception:
+            except (ImportError, ValueError):
                 pass
 
         result["version"] = version
@@ -202,8 +202,8 @@ def _check_package(pkg: dict) -> dict:
 
     except ImportError as exc:
         result["error"] = str(exc)
-    except Exception as exc:
-        result["error"] = f"Unexpected error: {exc}"
+    except (AttributeError, TypeError, OSError, ValueError) as exc:
+        result["error"] = f"Unexpected error ({type(exc).__name__}): {exc}"
 
     return result
 

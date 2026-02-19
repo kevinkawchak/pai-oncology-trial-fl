@@ -34,7 +34,7 @@ import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -156,7 +156,7 @@ class GuidanceDocument:
             return None
         try:
             pub = datetime.fromisoformat(self.publication_date)
-            ref = datetime.fromisoformat(reference_date) if reference_date else datetime.now()
+            ref = datetime.fromisoformat(reference_date) if reference_date else datetime.now(timezone.utc)
             return (ref - pub).days
         except (ValueError, TypeError):
             return None
@@ -169,7 +169,7 @@ class RegulatoryUpdate:
     update_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     title: str = ""
     jurisdiction: Jurisdiction = Jurisdiction.FDA
-    update_date: str = field(default_factory=lambda: datetime.now().isoformat())
+    update_date: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     impact_level: ImpactLevel = ImpactLevel.INFORMATIONAL
     category: GuidanceCategory = GuidanceCategory.GENERAL_DEVICE
     description: str = ""
@@ -186,7 +186,7 @@ class ImpactAssessment:
     assessment_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     update_id: str = ""
     submission_id: str = ""
-    assessed_date: str = field(default_factory=lambda: datetime.now().isoformat())
+    assessed_date: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     impact_level: ImpactLevel = ImpactLevel.LOW
     impact_description: str = ""
     affected_sections: List[str] = field(default_factory=list)
@@ -557,7 +557,7 @@ class RegulatoryIntelligenceEngine:
             logger.warning("Guidance not found: %s", guidance_id)
             return None
 
-        start = start_date or datetime.now().strftime("%Y-%m-%d")
+        start = start_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
         sub_id = submission_id or self._submission_id
 
         milestones = [
@@ -629,7 +629,7 @@ class RegulatoryIntelligenceEngine:
             "",
             f"**Submission:** {self._submission_id}",
             f"**Jurisdictions:** {', '.join(j.value.upper() for j in self._jurisdictions)}",
-            f"**Generated:** {datetime.now().strftime('%Y-%m-%d')}",
+            f"**Generated:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             "",
             "## Guidance Document Landscape",
             "",
@@ -672,7 +672,7 @@ class RegulatoryIntelligenceEngine:
                 f"{entry.classification.value} | {entry.submission_type} |"
             )
 
-        lines.extend(["", f"*Report generated: {datetime.now().isoformat()[:19]}*"])
+        lines.extend(["", f"*Report generated: {datetime.now(timezone.utc).isoformat()[:19]}*"])
         return "\n".join(lines)
 
     # ------------------------------------------------------------------

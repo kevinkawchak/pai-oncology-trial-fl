@@ -4,6 +4,40 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 14: v0.9.7 — Peer Review Fixes Implementation (v0.9.6 Recommendations)
+
+Dependencies: Prompt 13 (v0.9.6 senior peer review recommendations)
+
+```
+You are a senior software engineer that fixes comprehensive code reviews across the entire kevinkawchak/pai-oncology-trial-fl GitHub codebase. Fix all recommendations at kevinkawchak/pai-oncology-trial-fl/blob/main/peer-review/v0.9.6-senior-peer-review-recommendations.md. Add your new code fixes .md to the same "peer-review" directory under main in response to the v0.9.6 recommendations. Make sure code fixes are comprehensive. Make sure to clone from the current repo state. Include metrics that help track your peer-review correction process along with your final fixes metrics (code specifics, number of code fixes, lines of code, etc.)
+
+Be sure to fix and address errors that would cause failed checks for the single pull request (such as Python environment issues to avoid the following error during final checks): "3 failing checks
+x Cl / lint-and-format (3.10) (pull...
+x Cl / lint-and-format (3.11) (pull...
+x Cl / lint-and-format (3.12) (pull..."
+
+When you are finished, provide a list of new additions and what changed from old to new files. The user will then review your lists prior to committing changes. Provide an update to the changelog (v0.9.7), and add new release notes in the releases.md (v0.9.7) folder using the format below. Provide this prompt in full under prompts.md.
+
+In summary, update the repository (changelog.md, releases.md, peer-review .md, prompts.md) according to your end to end senior software engineer peer review fixes. State how each of the peer-review recommendations were addressed item by item. A single pull request will be merged by the user at the end.
+
+"FORMAT"
+Release title
+v0.9.7 -
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@claude
+@codex
+
+## Notes
+```
+
+---
+
 ## Prompt 13: v0.9.5 — Peer Review Fixes Implementation
 
 Dependencies: Prompt 12 (v0.9.4 peer review artifacts)

@@ -402,7 +402,7 @@ class ConversionPipeline:
             result.error_message = str(exc)
             logger.error("Conversion %s failed: %s", result.conversion_id, exc)
 
-        except Exception as exc:
+        except (OSError, ValueError, RuntimeError, TypeError) as exc:
             result.status = ConversionStatus.FAILED
             result.error_message = f"Unexpected error: {exc}"
             logger.exception("Conversion %s unexpected failure", result.conversion_id)
@@ -502,7 +502,7 @@ class ConversionPipeline:
         try:
             source_output = self._run_inference(config.source_format, config.source_path, dummy_input, config)
             target_output = self._run_inference(config.target_format, output_path, dummy_input, config)
-        except Exception as exc:
+        except (OSError, ValueError, RuntimeError, TypeError) as exc:
             raise VerificationError(f"Inference failed during verification: {exc}") from exc
 
         abs_diff = np.abs(source_output - target_output)
@@ -1228,6 +1228,6 @@ class ConversionPipeline:
                 )
                 return passed
 
-        except Exception as exc:
+        except (ConversionError, VerificationError, OSError, ValueError, RuntimeError) as exc:
             logger.warning("Round-trip verification failed with exception: %s", exc)
             return False

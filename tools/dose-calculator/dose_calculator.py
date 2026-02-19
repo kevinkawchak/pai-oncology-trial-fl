@@ -488,8 +488,8 @@ def main(argv: list[str] | None = None) -> int:
             result = validate_oar_dose(organ=args.organ, dose_gy=args.dose)
             _output(result, args.json)
             return 0 if result.is_within_bounds else 1
-    except Exception as exc:
-        logger.exception("Unexpected error: %s", exc)
+    except (OSError, ValueError, RuntimeError, TypeError, KeyError) as exc:
+        logger.exception("Unexpected error (%s): %s", type(exc).__name__, exc)
         return 1
 
     return 0
