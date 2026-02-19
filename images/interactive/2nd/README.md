@@ -1,6 +1,8 @@
-# Interactive Visualizations - Set 2
+# Set 2 - Repository Architecture & Simulation Visualizations
 
-Interactive Plotly visualizations for the PAI Oncology Trial FL platform. Each script generates both an HTML file (with interactive features) and a PNG file (1920x1080 @2x resolution).
+Interactive Plotly visualizations covering repository structure, clinical trial workflows, simulation framework comparisons, and oncology-specific data pipelines.
+
+[View 2nd Set PNG and HTML Files](https://drive.google.com/drive/folders/1XU6aIqU0Y-Pw9tPqVA6Ntjmuxn-wFD_5)
 
 ## Requirements
 
