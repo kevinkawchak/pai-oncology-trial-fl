@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Documented targeted remediation guidance for PR check stability, with emphasis on preventing `lint-and-format` failures across Python 3.10/3.11/3.12 by recommending pinned lint toolchains and reproducible CI/local lint workflows.
 
+### Removed
+
+- **Interactive Visualization Outputs** (`images/interactive/`)
+  - Removed 60 HTML files (20 per set × 3 sets) — light and dark mode Plotly HTML exports from `1st/`, `2nd/`, `3rd/` directories. These generated outputs can be reproduced by running the retained Python scripts.
+  - Removed 60 PNG files (20 per set × 3 sets) — light and dark mode static image exports from `1st/`, `2nd/`, `3rd/` directories. These generated outputs can be reproduced by running the retained Python scripts.
+  - Retained all 30 Python visualization scripts (10 per set), 3 README.md files (1 per set), and the `generate_all.py` master script.
+
 ### Contributors
 
 - @kevinkawchak
