@@ -398,7 +398,7 @@ def detect_ml_backends() -> list[FrameworkInfo]:
             pytorch.gpu_available = torch.cuda.is_available()
             if pytorch.gpu_available:
                 pytorch.notes.append(f"CUDA devices: {torch.cuda.device_count()}")
-        except Exception:
+        except (RuntimeError, ValueError, OSError):
             pass
     frameworks.append(pytorch)
 

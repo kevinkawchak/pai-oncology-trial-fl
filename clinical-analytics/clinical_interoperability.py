@@ -29,10 +29,12 @@ from typing import Any
 
 import numpy as np
 
+from utils.crypto import get_hmac_key
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-_HMAC_KEY: bytes = b"pai-oncology-interop-v0.9.0"
+_HMAC_KEY: bytes = get_hmac_key()
 _MIN_JACCARD_THRESHOLD: float = 0.25
 _FHIR_R4_RESOURCE_TYPES: list[str] = [
     "Patient",

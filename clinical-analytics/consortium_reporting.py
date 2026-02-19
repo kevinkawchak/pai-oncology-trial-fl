@@ -40,9 +40,11 @@ from typing import Any, Sequence
 
 import numpy as np
 
+from utils.crypto import get_hmac_key
+
 logger = logging.getLogger(__name__)
 
-_HMAC_KEY = b"pai-consortium-audit-integrity-key"  # 21 CFR Part 11
+_HMAC_KEY = get_hmac_key()  # 21 CFR Part 11
 
 
 # ---------------------------------------------------------------------------

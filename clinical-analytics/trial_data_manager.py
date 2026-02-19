@@ -44,13 +44,15 @@ from typing import Any
 
 import numpy as np
 
+from utils.crypto import get_hmac_key
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Security constants
 # ---------------------------------------------------------------------------
 
-_HMAC_KEY = b"pai-oncology-trial-data-integrity-key"
+_HMAC_KEY = get_hmac_key()
 _HASH_TRUNCATION = 32
 
 # ---------------------------------------------------------------------------

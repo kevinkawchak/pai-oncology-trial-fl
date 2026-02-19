@@ -573,7 +573,7 @@ class MJCFWriter:
             report.links_converted = len(model.links)
             report.joints_converted = len(model.joints)
 
-        except Exception as exc:
+        except (ValueError, TypeError, KeyError) as exc:
             report.status = ConversionStatus.FAILED
             report.errors.append(str(exc))
             logger.error("MJCF conversion failed: %s", exc)

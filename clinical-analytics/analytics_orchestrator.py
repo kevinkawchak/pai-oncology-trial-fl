@@ -47,6 +47,8 @@ from typing import Any
 import numpy as np
 from scipy import stats as scipy_stats
 
+from utils.crypto import get_hmac_key
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,8 +71,8 @@ _DEFAULT_CONVERGENCE_TOLERANCE: float = 1e-4
 _MAX_PIPELINE_ITERATIONS: int = 50
 """Safety cap on iterative pipelines to prevent infinite loops."""
 
-_HMAC_KEY: bytes = b"pai-oncology-trial-fl-analytics-v0.9.0"
-"""Static HMAC key for audit record hashing (rotate per deployment)."""
+_HMAC_KEY: bytes = get_hmac_key()
+"""HMAC key loaded from environment for audit record hashing."""
 
 
 # ---------------------------------------------------------------------------

@@ -33,6 +33,8 @@ from typing import Any, Optional, Protocol, Sequence
 
 import numpy as np
 
+from utils.time import utc_now_iso
+
 # ---------------------------------------------------------------------------
 # Conditional imports for optional simulation backends
 # ---------------------------------------------------------------------------
@@ -211,7 +213,7 @@ class ContactPoint:
 class SimulationState:
     """Complete simulation state for cross-engine transfer."""
 
-    timestamp: float = 0.0
+    timestamp: str = ""
     sim_time: float = 0.0
     joint_states: list[JointState] = field(default_factory=list)
     link_states: list[LinkState] = field(default_factory=list)
@@ -296,7 +298,7 @@ class SyncReport:
 
     sync_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     direction: SyncDirection = SyncDirection.BIDIRECTIONAL
-    timestamp: float = 0.0
+    timestamp: str = ""
     sim_time_source: float = 0.0
     sim_time_target: float = 0.0
     num_joints_synced: int = 0
@@ -625,7 +627,7 @@ class MuJoCoBackend:
                 self._model.nbody,
             )
             return True
-        except Exception as exc:
+        except (RuntimeError, ValueError, OSError) as exc:
             logger.error("Failed to initialize MuJoCo backend: %s", exc)
             return False
 
@@ -704,7 +706,7 @@ class MuJoCoBackend:
             )
 
         return SimulationState(
-            timestamp=time.time(),
+            timestamp=utc_now_iso(),
             sim_time=float(self._data.time),
             joint_states=joint_states,
             link_states=link_states,
@@ -813,7 +815,7 @@ class IsaacSimBackend:
                 self._initialized = True
                 logger.info("Isaac Sim backend initialized with live Omniverse connection")
                 return True
-            except Exception as exc:
+            except (RuntimeError, ValueError, OSError) as exc:
                 logger.warning("Isaac Sim initialization failed, falling back to stub: %s", exc)
 
         # Stub mode for environments without Isaac Sim
@@ -842,7 +844,7 @@ class IsaacSimBackend:
         joint_states = list(self._joint_states.values())
         link_states = list(self._body_states.values())
         return SimulationState(
-            timestamp=time.time(),
+            timestamp=utc_now_iso(),
             sim_time=self._sim_time,
             joint_states=joint_states,
             link_states=link_states,
@@ -974,7 +976,7 @@ class IsaacMuJoCoBridge:
     def _sync(self, direction: SyncDirection) -> SyncReport:
         """Core synchronization logic."""
         start_time = time.time()
-        report = SyncReport(direction=direction, timestamp=start_time)
+        report = SyncReport(direction=direction, timestamp=utc_now_iso())
 
         if self._state not in (BridgeState.READY, BridgeState.RUNNING):
             report.success = False
@@ -1049,7 +1051,7 @@ class IsaacMuJoCoBridge:
             )
             report.success = True
 
-        except Exception as exc:
+        except (RuntimeError, ValueError, OSError) as exc:
             report.success = False
             report.errors.append(str(exc))
             logger.error("Sync failed: %s", exc)
@@ -1147,7 +1149,7 @@ class IsaacMuJoCoBridge:
                 )
 
         return SimulationState(
-            timestamp=time.time(),
+            timestamp=utc_now_iso(),
             sim_time=state.sim_time,
             joint_states=converted_joints,
             link_states=converted_links,
@@ -1220,7 +1222,7 @@ class IsaacMuJoCoBridge:
                 averaged_joints.append(js_a)
 
         return SimulationState(
-            timestamp=time.time(),
+            timestamp=utc_now_iso(),
             sim_time=(state_a.sim_time + state_b.sim_time) / 2.0,
             joint_states=averaged_joints,
             link_states=state_a.link_states,

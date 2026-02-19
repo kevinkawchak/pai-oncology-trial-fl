@@ -16,9 +16,11 @@ from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 
+from utils.crypto import get_hmac_key
+
 logger = logging.getLogger(__name__)
 
-_HMAC_KEY = b"pai-oncology-audit-integrity-key"
+_HMAC_KEY = get_hmac_key()
 
 
 class EventType(str, Enum):
@@ -67,6 +69,7 @@ class AuditEvent:
     details: dict = field(default_factory=dict)
     timestamp: str = ""
     integrity_hash: str = ""
+    previous_hash: str = ""
 
     def __post_init__(self) -> None:
         if not self.timestamp:
@@ -75,8 +78,10 @@ class AuditEvent:
             self.integrity_hash = self._compute_hash()
 
     def _compute_hash(self) -> str:
-        """Compute integrity hash for tamper detection."""
-        payload = f"{self.event_type.value}:{self.actor}:{self.resource}:{self.action}:{self.timestamp}"
+        """Compute integrity hash chained to previous event."""
+        payload = (
+            f"{self.previous_hash}:{self.event_type.value}:{self.actor}:{self.resource}:{self.action}:{self.timestamp}"
+        )
         return hmac.new(_HMAC_KEY, payload.encode(), hashlib.sha256).hexdigest()[:32]
 
     def to_dict(self) -> dict:
@@ -90,6 +95,7 @@ class AuditEvent:
             "details": self.details,
             "timestamp": self.timestamp,
             "integrity_hash": self.integrity_hash,
+            "previous_hash": self.previous_hash,
         }
 
 
@@ -132,6 +138,7 @@ class AuditLogger:
         Returns:
             The created AuditEvent.
         """
+        previous_hash = self._events[-1].integrity_hash if self._events else ""
         event = AuditEvent(
             event_type=event_type,
             severity=severity,
@@ -139,6 +146,7 @@ class AuditLogger:
             resource=resource,
             action=action,
             details=details or {},
+            previous_hash=previous_hash,
         )
         self._events.append(event)
 
@@ -214,13 +222,17 @@ class AuditLogger:
         }
 
     def verify_integrity(self) -> list[int]:
-        """Check all events for tamper evidence.
+        """Check all events for tamper evidence in the hash chain.
 
         Returns:
             List of event indices that fail integrity verification.
         """
         failed: list[int] = []
         for i, event in enumerate(self._events):
+            expected_prev = self._events[i - 1].integrity_hash if i > 0 else ""
+            if event.previous_hash != expected_prev:
+                failed.append(i)
+                continue
             expected = event._compute_hash()
             if event.integrity_hash != expected:
                 failed.append(i)

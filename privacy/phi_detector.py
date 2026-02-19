@@ -17,7 +17,14 @@ learning pipeline.
 from __future__ import annotations
 
 import re
+import warnings
 from dataclasses import dataclass
+
+warnings.warn(
+    "privacy.phi_detector is deprecated; use privacy.phi-pii-management.phi_detector instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 # The 18 HIPAA identifiers
 HIPAA_IDENTIFIERS: list[str] = [
@@ -115,6 +122,12 @@ class PHIDetector:
         self.patterns = dict(_PATTERNS)
         if custom_patterns:
             self.patterns.update(custom_patterns)
+        warnings.warn(
+            "PHIDetector from privacy.phi_detector is deprecated. "
+            "Use privacy/phi-pii-management/phi_detector.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     def scan_text(self, text: str) -> list[PHIMatch]:
         """Scan free text for PHI patterns.
