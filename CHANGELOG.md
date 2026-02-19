@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-02-19
+
+### Added
+
+- **v1.0.0 Stable Release Documentation** (`V1_RELEASE.md`)
+  - Comprehensive 7-section release document covering: needs met, technical achievements, version history, standards compliance, triple AI peer review process with full metrics, evidence guide for colleagues, and item-by-item path to v1.0.0.
+  - 20-version history table from v0.1.0 through v1.0.0.
+  - Cumulative peer review metrics: 31 recommendations, 31 resolved (100%), 50 files modified, 14 new files created, 573 lines added, 95 removed.
+  - Evidence tables mapping all 6 peer-review documents, release artifacts, and code quality checks.
+
+- **Release Documentation** (`releases.md/v1.0.0.md`)
+  - Added v1.0.0 release notes with summary, features, contributors, and notes.
+
+- **Prompt 16** (`prompts.md`)
+  - Added the v1.0.0 stable release prompt with full text.
+
+### Changed
+
+- **Version Bump to 1.0.0** — Updated `pyproject.toml` (version + Development Status 5 - Production/Stable), `CITATION.cff`, `README.md` badge from 0.9.9 to 1.0.0.
+
+- **README.md** — Updated release callout with v1.0.0 metrics (235 Python files, ~86,800 LOC, 31/31 peer review recommendations resolved, DOI reference). Updated citation block to version 1.0.0. Added AI Peer Review Process citation with DOI 10.5281/zenodo.17774559.
+
+- **V1_RELEASE.md** — Rewritten from v0.9.2 documentation to comprehensive v1.0.0 stable release document with 7 sections including full triple AI peer review metrics, evidence guide, and item-by-item release checklist.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+- @codex
+
 ## [0.9.9] - 2026-02-19
 
 ### Added

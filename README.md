@@ -1,7 +1,7 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.9.9-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v1.0.0-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
@@ -11,8 +11,10 @@ Practical tools for Physical AI Federated Learning in oncology clinical trials, 
 > development use only. Independent clinical validation, IRB approval, and regulatory clearance are
 > required before any component is used in a clinical setting. Patient safety is the highest priority.
 
-> **v0.9.2 Release:** 194 Python modules, ~80,600 LOC, 31 example scripts, 97 test files,
-> 5 CLI tools, 80 Markdown docs. Full release details in [V1_RELEASE.md](V1_RELEASE.md).
+> **v1.0.0 Stable Release:** 235 Python modules, ~86,800 LOC, 31 example scripts, 82 test files,
+> 5 CLI tools, 104 Markdown docs. Triple AI peer review (3 Codex reviews + 3 Claude Code fix cycles)
+> completed across v0.9.4–v0.9.9 with 31/31 recommendations resolved (100%). Full release details
+> in [V1_RELEASE.md](V1_RELEASE.md). DOI: [10.5281/zenodo.17774559](https://doi.org/10.5281/zenodo.17774559)
 
 ## Quick Start
 
@@ -165,7 +167,7 @@ pai-oncology-trial-fl/
 ├── SUPPORT.md
 ├── CHANGELOG.md
 ├── CITATION.cff
-├── V1_RELEASE.md                     # v0.9.2 release documentation
+├── V1_RELEASE.md                     # v1.0.0 stable release documentation
 ├── DEVELOPMENT_PROPOSALS.md          # 3 future extension proposals
 ├── LICENSE
 ├── requirements.txt
@@ -356,7 +358,16 @@ python scripts/verify_installation.py
   author = {Kawchak, Kevin},
   year = {2026},
   url = {https://github.com/kevinkawchak/pai-oncology-trial-fl},
-  version = {0.9.2}
+  version = {1.0.0}
+}
+```
+
+### AI Peer Review Process
+
+```bibtex
+@article{kawchak2026aipeerreview,
+  title = {AI Peer Review Process for Code Generation and Verification},
+  doi = {10.5281/zenodo.17774559}
 }
 ```
 
