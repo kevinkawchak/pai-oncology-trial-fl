@@ -339,7 +339,7 @@ class PolicyExporter:
             elif path.exists():
                 report.file_size_bytes = path.stat().st_size
 
-        except Exception as exc:
+        except (ValueError, TypeError, OSError) as exc:
             report.status = ExportStatus.FAILED
             report.errors.append(str(exc))
             logger.error("NumPy export failed: %s", exc)
@@ -407,7 +407,7 @@ class PolicyExporter:
             if path.exists():
                 report.file_size_bytes = path.stat().st_size
 
-        except Exception as exc:
+        except (RuntimeError, ValueError, OSError) as exc:
             report.status = ExportStatus.FAILED
             report.errors.append(str(exc))
 

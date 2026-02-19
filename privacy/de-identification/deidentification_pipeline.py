@@ -27,6 +27,8 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
+from utils.log_sanitizer import sanitize_log_message
+
 logger = logging.getLogger(__name__)
 
 
@@ -299,8 +301,8 @@ class DeidentificationPipeline:
                     original_type=phi_type,
                     status=TransformationStatus.SUCCESS,
                 )
-            except Exception as exc:
-                logger.error("Transformation failed for field '%s': %s", key, exc)
+            except (ValueError, TypeError, KeyError) as exc:
+                logger.error("Transformation failed for field '%s': %s", key, sanitize_log_message(str(exc)))
                 clean[key] = "[DEIDENTIFICATION_FAILED]"
                 xform = TransformationRecord(
                     field_name=key,

@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.9] - 2026-02-19
+
+### Added
+
+- **Centralized Utilities Package** (`utils/`)
+  - `crypto.py` — Environment-driven HMAC key management via `PAI_HMAC_KEY`, replacing 8 hardcoded key literals across the codebase.
+  - `time.py` — Shared `utc_now_iso()` and `utc_now_date()` for consistent ISO 8601 UTC timestamp formatting.
+  - `log_sanitizer.py` — PHI-safe log sanitizer stripping SSN, phone, email, MRN, IP, and date patterns from error messages.
+  - `config.py` — Centralized `SecurityConfig` and `OperationalConfig` frozen dataclasses with environment variable loading.
+  - `error_codes.py` — 18 structured, machine-oriented error codes across 6 operational categories (model, simulation, privacy, data, config, analytics).
+
+- **Property-Based Fuzz Tests** (`tests/test_privacy/test_phi_fuzz.py`)
+  - 6 Hypothesis-driven tests for PHI detection: arbitrary unicode input robustness, match offset validity, record scanning, SSN/email detection invariants.
+
+- **SEC-006 Security Check** (`scripts/security_scan.py`)
+  - Detects hardcoded secret-like literals (`*_KEY`, `*_SECRET`, `*_TOKEN`, `*_PASSWORD` assigned 8+ character strings) with `# noqa: SEC006` inline suppression.
+
+- **Peer Review Fixes Report** (`peer-review/v0.9.9-peer-review-fixes.md`)
+  - Comprehensive fix report addressing all 10 v0.9.8 recommendations with per-fix traceability and correction metrics.
+
+- **Release Documentation** (`releases.md/v0.9.9.md`)
+  - Added v0.9.9 release notes.
+
+### Changed
+
+- **Hardcoded Key Removal (P1-1)** — All 8 modules now load HMAC keys from `utils.crypto.get_hmac_key()` (env-driven) instead of embedded byte literals.
+
+- **Audit Hash Chaining (P1-2)** — `AuditEvent` now includes `previous_hash` field; integrity hashes chain to predecessor event, enabling tamper-evident ordering detection in `verify_integrity()`.
+
+- **PHI-Safe Logging (P1-3)** — Exception messages in `deidentification_pipeline.py` and `phi_detector.py` are sanitized via `sanitize_log_message()` before logging.
+
+- **Typed Exception Handlers (P2-1)** — Replaced 11 `except Exception` blocks with specific exception tuples across 7 files (model_validator, isaac_mujoco_bridge, model_converter, policy_exporter, deidentification_pipeline, phi_detector, framework_detector).
+
+- **Timestamp Normalization (P2-2)** — `isaac_mujoco_bridge.py` record timestamps changed from epoch floats to ISO 8601 UTC strings via `utc_now_iso()`.
+
+- **Legacy Deprecation Wrappers (P2-3)** — Added functional `warnings.warn(DeprecationWarning)` to `privacy/phi_detector.py` and `privacy/deidentification.py` at both module and class levels.
+
+- **Version Bump** — `pyproject.toml`, `CITATION.cff`, `README.md` badge updated from 0.9.7 to 0.9.9.
+
+- **Ruff Configuration** — Added `"utils/**/*.py" = ["F401"]` to `ruff.toml`.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+- @codex
+
 ## [0.9.8] - 2026-02-19
 
 ### Added

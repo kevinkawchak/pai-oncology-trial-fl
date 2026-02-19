@@ -42,6 +42,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 from scipy import stats as sp_stats
 
+from utils.crypto import get_hmac_key
+
 # ---------------------------------------------------------------------------
 # Logging & constants
 # ---------------------------------------------------------------------------
@@ -54,7 +56,7 @@ DEFAULT_CONFIDENCE_LEVEL: float = 0.95
 MAX_NEWTON_RAPHSON_ITER: int = 50
 NEWTON_RAPHSON_TOL: float = 1e-9
 MIN_AT_RISK: int = 1
-DEFAULT_HMAC_KEY: bytes = b"pai-oncology-trial-fl-default-key"
+DEFAULT_HMAC_KEY: bytes = get_hmac_key()
 
 
 # ===================================================================

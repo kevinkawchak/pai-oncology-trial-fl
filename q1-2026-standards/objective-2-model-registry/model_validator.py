@@ -897,7 +897,7 @@ class ModelValidator:
 
         try:
             tensors = self._load_model_tensors(metadata)
-        except Exception as exc:
+        except (FileNotFoundError, OSError, ValueError, RuntimeError) as exc:
             results.append(
                 ValidationCheckResult(
                     check_name="stability.weight_load",

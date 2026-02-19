@@ -47,6 +47,11 @@ _CHECKS: list[tuple[str, re.Pattern[str], str]] = [
         re.compile(r"^\s*except\s*:\s*$", re.MULTILINE),
         "Always catch a specific exception type (never bare 'except:').",
     ),
+    (
+        "SEC-006: hardcoded secret-like literal",
+        re.compile(r"""(?:_KEY|_SECRET|_TOKEN|_PASSWORD)\s*[:=]\s*[br]?["'][^"']{8,}["']"""),
+        "Move secrets to environment variables or a secrets manager.",
+    ),
 ]
 
 
@@ -66,6 +71,9 @@ def scan_file(path: Path) -> list[tuple[str, int, str]]:
             if stripped.startswith("#") or stripped.startswith('"') or stripped.startswith("'"):
                 continue
             if pattern.search(line):
+                # Allow inline suppression with justification
+                if "SEC-006" in check_id and "# noqa: SEC006" in line:
+                    continue
                 findings.append((check_id, i, line.strip()))
     return findings
 

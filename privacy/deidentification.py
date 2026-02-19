@@ -19,10 +19,17 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 
 from privacy.phi_detector import PHIDetector, PHIMatch
+
+warnings.warn(
+    "privacy.deidentification is deprecated; use privacy.de-identification.deidentification_pipeline instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +80,12 @@ class Deidentifier:
         method: DeidentMethod | str = DeidentMethod.REDACT,
         salt: str | bytes | None = None,
     ):
+        warnings.warn(
+            "Deidentifier from privacy.deidentification is deprecated. "
+            "Use privacy/de-identification/deidentification_pipeline.py instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if isinstance(method, str):
             method = DeidentMethod(method)
         self.method = method

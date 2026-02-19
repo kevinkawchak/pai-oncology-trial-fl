@@ -23,6 +23,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from utils.log_sanitizer import sanitize_log_message
+
 logger = logging.getLogger(__name__)
 
 
@@ -511,8 +513,8 @@ class PHIDetector:
             import pydicom  # type: ignore[import-untyped]
 
             ds = pydicom.dcmread(dicom_path, stop_before_pixels=True)
-        except Exception as exc:
-            logger.error("Failed to read DICOM file %s: %s", dicom_path, exc)
+        except (ValueError, TypeError, AttributeError) as exc:
+            logger.error("Failed to read DICOM file %s: %s", dicom_path, sanitize_log_message(str(exc)))
             return []
 
         findings: list[PHIFinding] = []
@@ -610,8 +612,8 @@ class PHIDetector:
                 language="en",
                 entities=["PERSON", "PHONE_NUMBER", "EMAIL_ADDRESS", "US_SSN", "LOCATION"],
             )
-        except Exception as exc:
-            logger.warning("Presidio analysis failed: %s", exc)
+        except (ValueError, TypeError, RuntimeError) as exc:
+            logger.warning("Presidio analysis failed: %s", sanitize_log_message(str(exc)))
             return []
 
         _presidio_to_phi: dict[str, PHICategory] = {

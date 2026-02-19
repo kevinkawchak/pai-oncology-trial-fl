@@ -32,9 +32,11 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 from scipy import stats as sp_stats
 
+from utils.crypto import get_hmac_key
+
 logger = logging.getLogger(__name__)
 
-_HMAC_KEY = b"pai-oncology-risk-stratification-key"
+_HMAC_KEY = get_hmac_key()
 _DEFAULT_SEED = 42
 _RISK_SCORE_MIN = 0.0
 _RISK_SCORE_MAX = 1.0

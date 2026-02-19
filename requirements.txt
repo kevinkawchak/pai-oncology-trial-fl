@@ -37,6 +37,7 @@ pyyaml>=6.0             # https://github.com/yaml/pyyaml — Released 2021-10-13
 
 # ── Testing / Development ────────────────────────────────────────────────────
 pytest>=7.4.0           # https://github.com/pytest-dev/pytest — Released 2023-06-23
+hypothesis>=6.0.0       # https://github.com/HypothesisWorks/hypothesis — Property-based testing
 ruff>=0.4.0             # https://github.com/astral-sh/ruff — Released 2024-04-01
 # mypy>=1.8.0           # https://github.com/python/mypy — Released 2024-01-04 (optional)
 

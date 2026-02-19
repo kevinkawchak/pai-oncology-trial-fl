@@ -33,6 +33,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from scipy import integrate, optimize
 
+from utils.crypto import get_hmac_key
+
 # ---------------------------------------------------------------------------
 # Structured logging — 21 CFR Part 11 audit trail support
 # ---------------------------------------------------------------------------
@@ -42,7 +44,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-_HMAC_KEY = b"pai-oncology-pkpd-audit-key"
+_HMAC_KEY = get_hmac_key()
 
 # ---------------------------------------------------------------------------
 # Constants — clinically plausible parameter bounds
