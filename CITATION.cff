@@ -8,8 +8,8 @@ authors:
 repository-code: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 url: "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 license: MIT
-version: "0.9.2"
-date-released: "2026-02-18"
+version: "0.9.5"
+date-released: "2026-02-19"
 keywords:
   - federated-learning
   - oncology

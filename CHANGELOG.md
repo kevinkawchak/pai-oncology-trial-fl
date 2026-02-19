@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.5] - 2026-02-19
+
+### Added
+
+- **Lint Constraints File** (`constraints/lint.txt`)
+  - Pinned `ruff==0.15.1` and `yamllint==1.38.0` as single source of truth for CI and local development.
+
+- **Local Lint Script** (`scripts/lint.sh`)
+  - Mirrors CI `lint-and-format` job exactly — runs `ruff check`, `ruff format --check`, and `yamllint -d relaxed`. Supports `--fix` flag for auto-correction. 44 LOC.
+
+- **Pre-commit Configuration** (`.pre-commit-config.yaml`)
+  - Hooks for `ruff` (check + format) and `yamllint` pinned to the same versions as `constraints/lint.txt` and CI.
+
+- **Peer Review Fixes Document** (`peer-review/v0.9.5-peer-review-fixes.md`)
+  - Comprehensive fix report addressing all 12 recommendations from the v0.9.4 senior peer review across 4 finding categories (A–D), with per-fix traceability, correction process metrics, and final validation results.
+
+- **Release Documentation** (`releases.md/v0.9.5.md`)
+  - v0.9.5 release notes covering CI determinism fixes, local reproducibility tooling, version alignment, and process hardening.
+
+### Changed
+
+- `.github/workflows/ci.yml` — Replaced floating `pip install ruff yamllint` with constrained `pip install -c constraints/lint.txt ruff yamllint`; added "Show tool versions" diagnostic step printing `python --version`, `ruff --version`, `yamllint --version`, and `pip freeze` filter for auditability.
+- `pyproject.toml` — Version bumped from `0.9.3` to `0.9.5`; pinned `ruff==0.15.1` (was `>=0.4.0`); added `yamllint==1.38.0` to `[project.optional-dependencies] dev`.
+- `CITATION.cff` — Version bumped from `0.9.2` to `0.9.5`; date updated to `2026-02-19`.
+- `README.md` — Release badge updated from `v0.9.2` to `v0.9.5`.
+- `prompts.md` — Added Prompt 13 (v0.9.5) for peer review fixes implementation.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+- @codex
+
 ## [0.9.4] - 2026-02-19
 
 ### Added
