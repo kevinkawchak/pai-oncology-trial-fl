@@ -68,7 +68,7 @@ Repository = "https://github.com/kevinkawchak/pai-oncology-trial-fl"
 Issues = "https://github.com/kevinkawchak/pai-oncology-trial-fl/issues"
 
 [tool.setuptools.packages.find]
-include = ["federated*", "physical_ai*", "privacy*", "regulatory*", "unification*"]
+include = ["federated*", "physical_ai*", "privacy*", "regulatory*", "unification*", "utils*"]
 
 # Ruff configuration is in ruff.toml (project root)
 

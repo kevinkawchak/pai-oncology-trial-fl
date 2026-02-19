@@ -22,6 +22,11 @@ import pytest
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+# Ensure project root is on sys.path so that modules loaded via load_module()
+# can resolve intra-project imports (e.g. ``from utils.crypto import ...``).
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 # ---------------------------------------------------------------------------
 # Module loader — the permanent architectural pattern for optional heavy
 # dependencies and hyphenated directory names.
