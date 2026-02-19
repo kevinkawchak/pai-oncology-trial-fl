@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.7] - 2026-02-19
+
+### Added
+
+- **Peer Review Fixes Document** (`peer-review/v0.9.7-peer-review-fixes.md`)
+  - Comprehensive fix report addressing all 9 recommendations from the v0.9.6 senior peer review across P1-P3 priority bands, with per-fix traceability, correction process metrics, and final validation results.
+
+- **Version Alignment CI Check** (`scripts/check_version_alignment.py`)
+  - Automated version-string consistency check comparing `pyproject.toml`, `CITATION.cff`, and `README.md` badge. Added to CI `validate-scripts` job and local `scripts/lint.sh` workflow. 71 LOC.
+
+- **Static Security Pattern Scanner** (`scripts/security_scan.py`)
+  - Scans all Python files for 5 vulnerability patterns (SEC-001 through SEC-005): torch.load without weights_only, np.load with allow_pickle, hashlib.md5 usage, UTC-naive datetime.now(), and bare except clauses. Integrated into `scripts/lint.sh`. 96 LOC.
+
+- **Release Metrics Generator** (`scripts/release_metrics.py`)
+  - Automated snapshot of repository-wide metrics (Python files, LOC, test files, Markdown, YAML, directories). Supports `--json` output for CI integration. 89 LOC.
+
+- **Release Documentation** (`releases.md/v0.9.7.md`)
+  - Added v0.9.7 release notes summarizing peer-review fixes, new tooling, and contributors.
+
+### Changed
+
+- **UTC Timestamp Hardening** — Replaced all 24 `datetime.now()` calls with `datetime.now(timezone.utc)` across 6 regulatory-submissions modules (`submission_orchestrator.py`, `compliance_validator.py`, `document_generator.py`, `ectd_compiler.py`, `regulatory_intelligence.py`, `submission_analytics.py`).
+
+- **Typed Exception Handlers** — Narrowed 17 broad `except Exception as exc` handlers to specific exception tuples across 12 files: `framework_detector.py`, `conversion_pipeline.py` (3), `benchmark_runner.py` (3), `verify_installation.py` (2), `deployment_readiness.py`, `dicom_inspector.py`, `dose_calculator.py`, `sim_job_runner.py`, `trial_site_monitor.py`.
+
+- **MD5 to SHA-256** — Replaced `hashlib.md5()` with `hashlib.sha256()` in `06_oncology_rag_compliance_agent.py` embedding generator.
+
+- **Privacy Module Deprecation Notices** — Added `.. deprecated::` docstrings to `privacy/phi_detector.py` and `privacy/deidentification.py` directing new code to canonical sub-package implementations.
+
+- **CI Enhancement** — Added `Check version alignment` step to `.github/workflows/ci.yml` `validate-scripts` job.
+
+- **Local Lint Enhancement** — Added security scan and version alignment checks to `scripts/lint.sh`.
+
+- **Version Alignment** — Bumped version from `0.9.5` to `0.9.7` across `pyproject.toml`, `CITATION.cff`, and `README.md` badge.
+
+- `CHANGELOG.md` — Added v0.9.7 entry.
+- `prompts.md` — Added Prompt 14 (v0.9.7) for peer review fixes implementation.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+- @codex
+
 ## [0.9.6] - 2026-02-19
 
 ### Added

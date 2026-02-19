@@ -33,7 +33,7 @@ import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -607,7 +607,7 @@ class SubmissionAnalyticsEngine:
             "",
             f"**Total Submissions:** {len(self._submissions)}",
             f"**Total Deficiencies:** {len(self._deficiencies)}",
-            f"**Generated:** {datetime.now().strftime('%Y-%m-%d')}",
+            f"**Generated:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             "",
             "## Cycle Time Analysis",
             "",
@@ -654,7 +654,7 @@ class SubmissionAnalyticsEngine:
         for rec in self.generate_recommendations():
             lines.append(f"- {rec}")
 
-        lines.extend(["", f"*Report generated: {datetime.now().isoformat()[:19]}*"])
+        lines.extend(["", f"*Report generated: {datetime.now(timezone.utc).isoformat()[:19]}*"])
         return "\n".join(lines)
 
     # ------------------------------------------------------------------

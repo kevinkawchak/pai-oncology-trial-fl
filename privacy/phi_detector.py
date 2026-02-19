@@ -5,6 +5,13 @@ RESEARCH USE ONLY — Not intended for clinical deployment without validation.
 Identifies the 18 HIPAA identifiers in text and structured data,
 enabling automated screening before data enters the federated
 learning pipeline.
+
+.. deprecated::
+    This module provides the legacy regex-only PHI detector retained for
+    backward compatibility.  New code should use the canonical implementation
+    at ``privacy/phi-pii-management/phi_detector.py`` which adds DICOM tag
+    scanning, Presidio NER integration, risk-level classification, and batch
+    scanning with ``ScanResult`` aggregation.
 """
 
 from __future__ import annotations

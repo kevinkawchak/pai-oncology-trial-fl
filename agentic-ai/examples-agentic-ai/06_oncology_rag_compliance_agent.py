@@ -658,7 +658,7 @@ class NumpyVectorIndex:
         embedding = np.zeros(self._embedding_dim)
 
         for i, word in enumerate(words):
-            word_hash = int(hashlib.md5(word.encode()).hexdigest()[:8], 16)
+            word_hash = int(hashlib.sha256(word.encode()).hexdigest()[:8], 16)
             idx = word_hash % self._embedding_dim
             embedding[idx] += 1.0 / (1.0 + i * 0.01)
 

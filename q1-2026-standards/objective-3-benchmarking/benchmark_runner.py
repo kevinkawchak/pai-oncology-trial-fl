@@ -581,7 +581,7 @@ class BenchmarkRunner:
             result.error_message = str(exc)
             logger.error("Benchmark %s failed: %s", result.benchmark_id, exc)
 
-        except Exception as exc:
+        except (OSError, ValueError, RuntimeError, TypeError) as exc:
             result.status = BenchmarkStatus.FAILED
             result.error_message = f"Unexpected error: {exc}"
             logger.exception("Benchmark %s unexpected failure", result.benchmark_id)
@@ -696,7 +696,7 @@ class BenchmarkRunner:
             else:
                 predicted_labels = np.asarray(predictions_raw).flatten()
                 predicted_probs = None
-        except Exception as exc:
+        except (OSError, ValueError, RuntimeError, TypeError) as exc:
             raise BenchmarkError(f"Inference failed during accuracy benchmark: {exc}") from exc
 
         result.num_samples = len(ground_truth_labels)
@@ -769,7 +769,7 @@ class BenchmarkRunner:
             try:
                 infer_fn = self._get_inference_function(config)
                 infer_fn(dummy_input)
-            except Exception as exc:
+            except (OSError, ValueError, RuntimeError, TypeError) as exc:
                 logger.warning("Inference failed during memory benchmark: %s", exc)
 
             # Measure RSS after inference

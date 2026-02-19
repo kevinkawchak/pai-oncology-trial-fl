@@ -34,7 +34,7 @@ import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -170,7 +170,7 @@ class SubmissionMilestone:
             return None
         try:
             target = datetime.fromisoformat(self.target_date)
-            ref = datetime.fromisoformat(reference_date) if reference_date else datetime.now()
+            ref = datetime.fromisoformat(reference_date) if reference_date else datetime.now(timezone.utc)
             return (target - ref).days
         except (ValueError, TypeError):
             return None
@@ -178,7 +178,7 @@ class SubmissionMilestone:
     def mark_completed(self, completion_date: Optional[str] = None) -> None:
         """Mark milestone as completed."""
         self.is_completed = True
-        self.actual_date = completion_date or datetime.now().isoformat()
+        self.actual_date = completion_date or datetime.now(timezone.utc).isoformat()
 
 
 @dataclass
@@ -191,7 +191,7 @@ class WorkflowTask:
     status: WorkflowStatus = WorkflowStatus.DRAFT
     priority: TaskPriority = TaskPriority.MEDIUM
     assignee: str = ""
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = ""
     due_date: str = ""
     description: str = ""
@@ -212,7 +212,7 @@ class AuditTrailEntry:
     """21 CFR Part 11 compliant audit trail entry."""
 
     entry_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     action: AuditAction = AuditAction.CREATE
     user: str = ""
     entity_type: str = ""
@@ -237,7 +237,7 @@ class SubmissionManifest:
     manifest_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     submission_id: str = ""
     submission_type: SubmissionType = SubmissionType.ECTD_510K
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     status: WorkflowStatus = WorkflowStatus.DRAFT
     total_documents: int = 0
     total_sections: int = 0
@@ -268,7 +268,7 @@ class ReviewerAssignment:
     reviewer_name: str = ""
     reviewer_role: str = ""
     task_id: str = ""
-    assigned_date: str = field(default_factory=lambda: datetime.now().isoformat())
+    assigned_date: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     due_date: str = ""
     status: WorkflowStatus = WorkflowStatus.DRAFT
     comments: str = ""
@@ -488,7 +488,7 @@ class RegulatorySubmissionOrchestrator:
 
         previous_status = task.status
         task.status = new_status
-        task.updated_at = datetime.now().isoformat()
+        task.updated_at = datetime.now(timezone.utc).isoformat()
         self._record_audit(
             AuditAction.UPDATE,
             "task",
@@ -743,7 +743,7 @@ class RegulatorySubmissionOrchestrator:
                 f"{entry.entity_type}/{entry.entity_id[:8]} | {entry.user} |"
             )
 
-        lines.extend(["", f"*Report generated: {datetime.now().isoformat()[:19]}*", ""])
+        lines.extend(["", f"*Report generated: {datetime.now(timezone.utc).isoformat()[:19]}*", ""])
         return "\n".join(lines)
 
     # ------------------------------------------------------------------

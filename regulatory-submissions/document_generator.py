@@ -30,7 +30,7 @@ import hashlib
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -108,7 +108,7 @@ class DocumentMetadata:
     category: DocumentCategory = DocumentCategory.CLINICAL
     version: str = DOCUMENT_VERSION
     author: str = ""
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = ""
     status: DocumentStatus = DocumentStatus.DRAFT
     submission_id: str = ""
@@ -607,7 +607,7 @@ def _generate_510k_summary(config: TemplateConfig) -> List[DocumentSection]:
             content=(
                 f"**Sponsor:** {config.sponsor_name or 'Sponsor Name'}\n\n"
                 f"**Submission ID:** {config.submission_id or 'K000000'}\n\n"
-                f"**Date Prepared:** {datetime.now().strftime('%Y-%m-%d')}"
+                f"**Date Prepared:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
             ),
         ),
         DocumentSection(
@@ -810,7 +810,7 @@ class RegulatoryDocumentGenerator:
             f"**Submission:** {config.submission_id}",
             f"**Sponsor:** {config.sponsor_name}",
             f"**Device:** {config.device_name}",
-            f"**Date:** {datetime.now().strftime('%Y-%m-%d')}",
+            f"**Date:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             "**Status:** DRAFT",
             "",
             "---",
@@ -837,7 +837,7 @@ class RegulatoryDocumentGenerator:
             [
                 "---",
                 "",
-                f"*Document generated: {datetime.now().isoformat()[:19]}*",
+                f"*Document generated: {datetime.now(timezone.utc).isoformat()[:19]}*",
             ]
         )
         return "\n".join(lines)

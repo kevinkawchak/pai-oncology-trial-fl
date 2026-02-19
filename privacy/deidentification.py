@@ -5,6 +5,13 @@ RESEARCH USE ONLY — Not intended for clinical deployment without validation.
 Removes or replaces PHI in structured and unstructured data before
 it enters the federated learning pipeline, ensuring HIPAA Safe
 Harbor compliance.
+
+.. deprecated::
+    This module provides the legacy de-identification pipeline retained for
+    backward compatibility.  New code should use the canonical implementation
+    at ``privacy/de-identification/deidentification_pipeline.py`` which adds
+    HMAC-SHA256 pseudonymization, consistent date shifting, geographic
+    generalization, and transformation audit trails.
 """
 
 from __future__ import annotations

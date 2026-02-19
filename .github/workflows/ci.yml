@@ -62,6 +62,9 @@ jobs:
       - name: Validate Python compilation
         run: python -m py_compile scripts/verify_installation.py
 
+      - name: Check version alignment
+        run: python scripts/check_version_alignment.py
+
   test:
     runs-on: ubuntu-latest
     needs: lint-and-format

@@ -250,7 +250,7 @@ def _detect_python_package(
 
     except ImportError:
         info.status = DetectionStatus.NOT_FOUND
-    except Exception as exc:
+    except (AttributeError, TypeError, OSError) as exc:
         info.status = DetectionStatus.ERROR
         info.notes.append(f"Detection error: {exc}")
 

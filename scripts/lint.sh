@@ -41,4 +41,12 @@ echo "=== yamllint (relaxed) ==="
 yamllint -d relaxed configs/ .github/workflows/ unification/ q1-2026-standards/ || true
 
 echo ""
+echo "=== Security pattern scan ==="
+python scripts/security_scan.py || true
+
+echo ""
+echo "=== Version alignment check ==="
+python scripts/check_version_alignment.py || true
+
+echo ""
 echo "All lint checks passed."
