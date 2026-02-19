@@ -13,14 +13,8 @@ from __future__ import annotations
 import re
 
 import pytest
-
-try:
-    from hypothesis import given, settings, HealthCheck
-    from hypothesis import strategies as st
-
-    HAS_HYPOTHESIS = True
-except ImportError:
-    HAS_HYPOTHESIS = False
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from tests.conftest import load_module
 
@@ -36,29 +30,27 @@ _PHONE_RE = re.compile(r"\b(?:\+1[-.\\s]?)?\(?\d{3}\)?[-.\\s]?\d{3}[-.\\s]?\d{4}
 
 # ── Strategies ────────────────────────────────────────────────────────────
 
-if HAS_HYPOTHESIS:
-    _phi_ssn = st.from_regex(r"\d{3}-\d{2}-\d{4}", fullmatch=True)
-    _phi_email = st.from_regex(r"[a-z]{3,8}@[a-z]{3,8}\.com", fullmatch=True)
-    _phi_mrn = st.from_regex(r"MRN#\d{6,10}", fullmatch=True)
+_phi_ssn = st.from_regex(r"\d{3}-\d{2}-\d{4}", fullmatch=True)
+_phi_email = st.from_regex(r"[a-z]{3,8}@[a-z]{3,8}\.com", fullmatch=True)
+_phi_mrn = st.from_regex(r"MRN#\d{6,10}", fullmatch=True)
 
-    _freetext = st.text(
-        alphabet=st.characters(categories=("L", "N", "P", "Z")),
-        min_size=0,
-        max_size=500,
-    )
+_freetext = st.text(
+    alphabet=st.characters(categories=("L", "N", "P", "Z")),
+    min_size=0,
+    max_size=500,
+)
 
-    _mixed_input = st.one_of(
-        _freetext,
-        st.builds(lambda prefix, ssn, suffix: f"{prefix} {ssn} {suffix}", _freetext, _phi_ssn, _freetext),
-        st.builds(lambda prefix, email, suffix: f"{prefix} {email} {suffix}", _freetext, _phi_email, _freetext),
-        st.builds(lambda prefix, mrn, suffix: f"{prefix} {mrn} {suffix}", _freetext, _phi_mrn, _freetext),
-    )
+_mixed_input = st.one_of(
+    _freetext,
+    st.builds(lambda prefix, ssn, suffix: f"{prefix} {ssn} {suffix}", _freetext, _phi_ssn, _freetext),
+    st.builds(lambda prefix, email, suffix: f"{prefix} {email} {suffix}", _freetext, _phi_email, _freetext),
+    st.builds(lambda prefix, mrn, suffix: f"{prefix} {mrn} {suffix}", _freetext, _phi_mrn, _freetext),
+)
 
 
 # ── PHI detector fuzz tests ──────────────────────────────────────────────
 
 
-@pytest.mark.skipif(not HAS_HYPOTHESIS, reason="hypothesis not installed")
 class TestPHIDetectorFuzz:
     """Property-based tests for PHI detection robustness."""
 
