@@ -1,6 +1,8 @@
-# Interactive Visualizations - Batch 3
+# Set 3 - Repository Architecture & Simulation Visualizations
 
-Third batch of interactive Plotly visualizations for the PAI Oncology Trial Federated Learning platform. All scripts use `plotly.graph_objects` exclusively (no `plotly.express`) and support both light and dark mode via the `dark_mode` parameter.
+Interactive Plotly visualizations covering repository structure, clinical trial workflows, simulation framework comparisons, and oncology-specific data pipelines.
+
+[View 3rd Set PNG and HTML Files](https://drive.google.com/drive/folders/1XU6aIqU0Y-Pw9tPqVA6Ntjmuxn-wFD_5)
 
 ## Scripts
 
