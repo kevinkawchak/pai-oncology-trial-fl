@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.6] - 2026-02-19
+
+### Added
+
+- **Senior Peer Review Recommendations** (`peer-review/v0.9.6-senior-peer-review-recommendations.md`)
+  - Added a repository-wide senior engineering review from the current repo state with prioritized remediation guidance for Claude Code.
+  - Included quantitative peer-review metrics: inventory coverage (225 Python files / 86,126 LOC), automated validation outcomes (1,819 tests passed), and risk-focused static findings (exception breadth, timestamp consistency, hash/compliance posture).
+  - Documented 9 actionable code-fix recommendations across P1–P3 priority bands, including UTC timestamp hardening, typed exception handling, MD5 replacement guidance, version alignment automation, and privacy module consolidation strategy.
+
+- **Release Documentation** (`releases.md/v0.9.6.md`)
+  - Added v0.9.6 release notes summarizing this peer-review release, contributors, and implementation notes for downstream remediation work.
+
+### Changed
+
+- `CHANGELOG.md` — Added v0.9.6 entry for the latest senior peer-review cycle and remediation backlog metrics.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+- @codex
+
 ## [0.9.5] - 2026-02-19
 
 ### Added
