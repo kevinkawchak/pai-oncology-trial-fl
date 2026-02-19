@@ -131,10 +131,10 @@ def create_algorithm_comparison_radar(dark_mode=False):
 if __name__ == "__main__":
     output_dir = Path(__file__).parent
     fig = create_algorithm_comparison_radar(dark_mode=False)
-    fig.write_html(str(output_dir / "03_algorithm_comparison_radar.html"), include_plotlyjs="cdn")
+    fig.write_html(str(output_dir / "03_algorithm_comparison_radar.html"), include_plotlyjs=True)
     fig.write_image(str(output_dir / "03_algorithm_comparison_radar.png"), width=1920, height=1080, scale=2)
     print("Saved 03_algorithm_comparison_radar.html and 03_algorithm_comparison_radar.png")
     fig_dark = create_algorithm_comparison_radar(dark_mode=True)
-    fig_dark.write_html(str(output_dir / "03_algorithm_comparison_radar_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_html(str(output_dir / "03_algorithm_comparison_radar_dark.html"), include_plotlyjs=True)
     fig_dark.write_image(str(output_dir / "03_algorithm_comparison_radar_dark.png"), width=1920, height=1080, scale=2)
     print("Saved 03_algorithm_comparison_radar_dark.html and _dark.png")

@@ -157,6 +157,22 @@ def create_fda_device_classification_tree(dark_mode=False):
         4,  # Breakthrough Class III
     ]
 
+    # Compute branch totals bottom-up so kaleido renders the treemap
+    _children = {}
+    for _i, (_lbl, _par) in enumerate(zip(labels, parents)):
+        if _par:
+            _children.setdefault(_par, []).append(_i)
+
+    def _total(idx):
+        lbl = labels[idx]
+        if lbl not in _children:
+            return values[idx]
+        s = sum(_total(c) for c in _children[lbl])
+        values[idx] = s
+        return s
+
+    _total(0)
+
     # Color mapping by device class
     class_i_color = "#2ecc71"
     class_ii_color = "#3498db"
@@ -241,11 +257,11 @@ def create_fda_device_classification_tree(dark_mode=False):
 if __name__ == "__main__":
     output_dir = Path(__file__).parent
     fig = create_fda_device_classification_tree(dark_mode=False)
-    fig.write_html(str(output_dir / "04_fda_device_classification_tree.html"), include_plotlyjs="cdn")
+    fig.write_html(str(output_dir / "04_fda_device_classification_tree.html"), include_plotlyjs=True)
     fig.write_image(str(output_dir / "04_fda_device_classification_tree.png"), width=1920, height=1080, scale=2)
     print("Saved 04_fda_device_classification_tree.html and 04_fda_device_classification_tree.png")
     fig_dark = create_fda_device_classification_tree(dark_mode=True)
-    fig_dark.write_html(str(output_dir / "04_fda_device_classification_tree_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_html(str(output_dir / "04_fda_device_classification_tree_dark.html"), include_plotlyjs=True)
     fig_dark.write_image(
         str(output_dir / "04_fda_device_classification_tree_dark.png"), width=1920, height=1080, scale=2
     )

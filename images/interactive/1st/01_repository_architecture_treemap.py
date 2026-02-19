@@ -169,6 +169,22 @@ def create_repository_architecture_treemap(dark_mode=False):
             values.append(child_count)
             colors.append(float(idx + 1))
 
+    # Compute branch totals bottom-up so kaleido renders the treemap
+    _children = {}
+    for _i, (_lbl, _par) in enumerate(zip(labels, parents)):
+        if _par:
+            _children.setdefault(_par, []).append(_i)
+
+    def _total(idx):
+        lbl = labels[idx]
+        if lbl not in _children:
+            return values[idx]
+        s = sum(_total(c) for c in _children[lbl])
+        values[idx] = s
+        return s
+
+    _total(0)
+
     fig = go.Figure(
         go.Treemap(
             labels=labels,
@@ -204,11 +220,11 @@ def create_repository_architecture_treemap(dark_mode=False):
 if __name__ == "__main__":
     output_dir = Path(__file__).parent
     fig = create_repository_architecture_treemap(dark_mode=False)
-    fig.write_html(str(output_dir / "01_repository_architecture_treemap.html"), include_plotlyjs="cdn")
+    fig.write_html(str(output_dir / "01_repository_architecture_treemap.html"), include_plotlyjs=True)
     fig.write_image(str(output_dir / "01_repository_architecture_treemap.png"), width=1920, height=1080, scale=2)
     print("Saved 01_repository_architecture_treemap.html and .png")
     fig_dark = create_repository_architecture_treemap(dark_mode=True)
-    fig_dark.write_html(str(output_dir / "01_repository_architecture_treemap_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_html(str(output_dir / "01_repository_architecture_treemap_dark.html"), include_plotlyjs=True)
     fig_dark.write_image(
         str(output_dir / "01_repository_architecture_treemap_dark.png"), width=1920, height=1080, scale=2
     )

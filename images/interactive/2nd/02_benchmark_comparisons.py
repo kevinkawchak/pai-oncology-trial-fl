@@ -118,10 +118,10 @@ def create_benchmark_comparisons(dark_mode=False):
 if __name__ == "__main__":
     output_dir = Path(__file__).parent
     fig = create_benchmark_comparisons(dark_mode=False)
-    fig.write_html(str(output_dir / "02_benchmark_comparisons.html"), include_plotlyjs="cdn")
+    fig.write_html(str(output_dir / "02_benchmark_comparisons.html"), include_plotlyjs=True)
     fig.write_image(str(output_dir / "02_benchmark_comparisons.png"), width=1920, height=1080, scale=2)
     print("Saved 02_benchmark_comparisons.html and 02_benchmark_comparisons.png")
     fig_dark = create_benchmark_comparisons(dark_mode=True)
-    fig_dark.write_html(str(output_dir / "02_benchmark_comparisons_dark.html"), include_plotlyjs="cdn")
+    fig_dark.write_html(str(output_dir / "02_benchmark_comparisons_dark.html"), include_plotlyjs=True)
     fig_dark.write_image(str(output_dir / "02_benchmark_comparisons_dark.png"), width=1920, height=1080, scale=2)
     print("Saved 02_benchmark_comparisons_dark.html and _dark.png")
