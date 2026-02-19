@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.4] - 2026-02-19
+
+### Added
+
+- **Senior Peer Review Artifacts** (`peer-review/`)
+  - `peer-review/v0.9.4-senior-peer-review.md` — Repository-wide engineering peer review with CI risk analysis, prioritized code-fix recommendations for Claude, acceptance criteria, and quantitative review metrics.
+
+- **Release Documentation** (`releases.md/`)
+  - `releases.md/v0.9.4.md` — v0.9.4 release notes covering summary, features, contributors, and notes for this peer-review release.
+
+### Changed
+
+- Documented targeted remediation guidance for PR check stability, with emphasis on preventing `lint-and-format` failures across Python 3.10/3.11/3.12 by recommending pinned lint toolchains and reproducible CI/local lint workflows.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+- @codex
+
 ## [0.9.3] - 2026-02-18
 
 ### Added
