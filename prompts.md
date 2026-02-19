@@ -4,6 +4,41 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 17: v1.0.1 — Comprehensive Documentation Update
+
+Dependencies: Prompt 16 (v1.0.0 stable release)
+
+```
+You are a senior software engineer that needs to comprehensively update all documentation for kevinkawchak/pai-oncology-trial-fl GitHub (Readme files, repository structure diagrams, other diagrams, markdown files, etc.) Make sure to clone from the current repo state. Your v1.0.1 update should focus on comprehensively addressing the entire repository except code.
+
+Be sure to update with v1.0.0 highlights from V1_RELEASE.md such as the triple peer-reviews by codex recommendations followed by Claude code fixes. The ai peer review process marks an important trust benchmark has been achieved, and humans should now rely on AI for code generation, checks, and fixes from now on, and should have a corresponding text diagram on the main readme.
+
+Be sure to fix and address errors that would cause failed checks for the single pull request (such as Python environment issues to avoid the following error during final checks): "3 failing checks
+x Cl / lint-and-format (3.10) (pull...
+x Cl / lint-and-format (3.11) (pull...
+x Cl / lint-and-format (3.12) (pull..."
+
+When you are finished, provide a list of new additions and what changed from old to new files. The user will then review your lists prior to committing changes. Provide an update to the changelog (v1.0.1), and add new release notes in the releases.md (v1.0.1) folder using the format below. Do not perform additional code fixes and check unless necessary. Provide this prompt in full under prompts.md.
+
+In summary, update the repository (changelog.md, releases.md, prompts.md) according to your end to end senior software engineer documentation updates and fixes. A single pull request will be merged by the user at the end.
+
+"FORMAT"
+Release title
+v1.0.1 -
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@claude
+
+## Notes
+```
+
+---
+
 ## Prompt 16: v1.0.0 — Stable Release: Triple AI Peer Review Complete
 
 Dependencies: Prompts 13-15 (v0.9.4-v0.9.9 peer review cycles)

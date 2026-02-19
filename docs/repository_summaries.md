@@ -28,8 +28,13 @@
 - Regulatory-focused components include FDA submission tracking, IRB management, ICH-GCP checks, and regulatory intelligence tracking.
 - Repository includes explicit responsible-use guidance, emphasizing IRB approval, independent validation, and safety before clinical use.
 
+### AI Peer Review Assurance
+- Triple AI peer review completed (v0.9.4–v0.9.9): Codex (OpenAI) reviewed, Claude Code (Anthropic) fixed. 31/31 recommendations resolved (100%). Combined with v0.7.0 security audit, 92 total issues resolved.
+- Dual-manufacturer review reduces single-AI bias and establishes a verifiable trust chain. DOI: [10.5281/zenodo.17774559](https://doi.org/10.5281/zenodo.17774559).
+
 ### Maturity Snapshot
-- Package is versioned as `0.9.3` (beta classifier) with Python 3.10+ support and a modular package layout spanning federated, physical AI, privacy, regulatory, and unification domains.
+- Package is versioned as `1.0.1` (Production/Stable classifier) with Python 3.10+ support and a modular package layout spanning federated, physical AI, privacy, regulatory, unification, clinical analytics, and regulatory submissions domains.
+- 235 Python files, ~86,800 LOC, 82 test files, 105+ Markdown docs, 31 example scripts, 5 CLI tools.
 
 ---
 
@@ -75,6 +80,12 @@ Primary external stakeholders are ML engineers, simulation engineers, privacy/co
 - Install with editable mode and dev extras.
 - Validate environment using `scripts/verify_installation.py`.
 - Execute tests through pytest configuration in `pyproject.toml` (`tests/`, `test_*.py`, verbose short tracebacks).
+
+### Code Assurance
+- **Security audit (v0.7.0):** 61 findings remediated (12 security, 14 logic, 35 compliance).
+- **Triple AI peer review (v0.9.4–v0.9.9):** 31 recommendations from Codex (OpenAI), all 31 implemented by Claude Code (Anthropic). 100% resolution rate across 3 cycles.
+- **Shared utilities (v0.9.7–v0.9.9):** `utils/` package provides environment-driven HMAC keys, UTC timestamps, PHI-safe logging, centralized config, and structured error codes.
+- **CI validation:** ruff check + ruff format across Python 3.10/3.11/3.12 matrix, yamllint, version alignment check, security scan.
 
 ### Risks / Technical Debt (visible from structure)
 - Large monorepo breadth increases coupling risk across regulated/privacy/simulation domains.
