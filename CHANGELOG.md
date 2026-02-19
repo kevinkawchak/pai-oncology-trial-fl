@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.8] - 2026-02-19
+
+### Added
+
+- **Senior Peer Review Recommendations** (`peer-review/v0.9.8-senior-peer-review-recommendations.md`)
+  - Added an end-to-end senior engineering review from the current repository state with a prioritized remediation backlog for Claude Code.
+  - Captured peer-review process metrics: repository inventory, full test validation snapshot, and static-risk findings.
+  - Published 10 actionable recommended code fixes across P1-P3 priorities, focused on secrets management, audit integrity chaining, PHI-safe logging, typed exception handling, and CI security guardrails.
+
+- **Release Documentation** (`releases.md/v0.9.8.md`)
+  - Added v0.9.8 release notes summarizing the peer-review cycle, recommendation totals, and contributor list.
+
+### Changed
+
+- `CHANGELOG.md` — Added v0.9.8 entry for the latest senior peer-review cycle and recommendation metrics.
+
+### Contributors
+
+- @kevinkawchak
+- @codex
+- @claude
+
 ## [0.9.7] - 2026-02-19
 
 ### Added
