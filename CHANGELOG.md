@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-02-19
+
+### Added
+
+- **AI Peer Review Process Diagram** (`README.md`)
+  - Text-based pipeline diagram illustrating the triple AI peer review workflow: Codex (OpenAI) reviews followed by Claude Code (Anthropic) fixes across 3 cycles (v0.9.4–v0.9.9), showing 31/31 recommendations resolved at 100% resolution rate.
+  - "What the Triple AI Peer Review Proves" section with 5 key findings on AI code generation reliability, cross-manufacturer review effectiveness, bias reduction, speed advantages over human review, and convergent correction trajectory.
+  - Trust benchmark statement: AI-driven code generation, review, and fixes operate at a pace and thoroughness exceeding traditional human-only processes.
+
+- **Release Documentation** (`releases.md/v1.0.1.md`)
+  - Added v1.0.1 release notes with summary, features, contributors, and notes.
+
+- **Prompt 17** (`prompts.md`)
+  - Added the v1.0.1 comprehensive documentation update prompt with full text.
+
+### Changed
+
+- **Version Bump to 1.0.1** — Updated `pyproject.toml`, `CITATION.cff`, and `README.md` badge from 1.0.0 to 1.0.1.
+
+- **README.md** — Comprehensive documentation refresh:
+  - Release callout updated from v1.0.0 to v1.0.1 with updated Markdown file count.
+  - Added `peer-review/` directory (6 AI peer review documents) to repository structure tree.
+  - Added `utils/` directory (5 shared utility modules from peer review) to repository structure tree.
+  - Expanded `scripts/` section with `check_version_alignment.py`, `security_scan.py`, and `release_metrics.py`.
+  - Updated `tests/` annotation to show 82 test files.
+  - Updated citation block version to 1.0.1.
+
+- **docs/repository_summaries.md** — Updated maturity snapshot from `0.9.3` (beta) to `1.0.1` (Production/Stable). Added AI Peer Review Assurance section with metrics. Added Code Assurance section to architecture summary with security audit and peer review details.
+
+- **CHANGELOG.md** — Added v1.0.1 entry.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+
 ## [1.0.0] - 2026-02-19
 
 ### Added
