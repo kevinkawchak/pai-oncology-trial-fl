@@ -111,6 +111,33 @@ v0.9.9 -
 
 ---
 
+## Prompt 15a v0.9.8 — Peer Review 
+
+```
+You are a senior software engineer that provides comprehensive code reviews to find errors and flaws across the entire kevinkawchak/pai-oncology-trial-fl GitHub codebase. Provide all fixes needed, which will be provided to Claude code to make corrections. Add your code fix recommendations as a new .md to the “peer-review” directory under main. Do not fix any code. Make sure to clone from the current repo state.
+
+When you are finished, provide a list of new additions and what changed from old to new files. The user will then review your lists prior to committing changes. Provide an update to the changelog (v0.9.8), and add new release notes in the releases.md (v0.9.8) folder using the format below. Include metrics that help track your peer-review process along with your final recommendation metrics (code specifics, number of recommended code fixes, etc.) 
+
+In summary, update the repository (changelog.md, releases.md, peer-review directory and .md) according to your end to end senior software engineer peer review recommendations. A single pull request will be merged by the user at the end.
+
+“FORMAT”
+Release title 
+v0.9.8 - 
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@codex
+@claude
+
+## Notes
+```
+
+---
+
 ## Prompt 14: v0.9.7 — Peer Review Fixes Implementation (v0.9.6 Recommendations)
 
 Dependencies: Prompt 13 (v0.9.6 senior peer review recommendations)
@@ -145,6 +172,34 @@ v0.9.7 -
 
 ---
 
+## Prompt 14a: v0.9.6 — Peer Review 
+
+```
+You are a senior software engineer that provides comprehensive code reviews to find errors and flaws across the entire kevinkawchak/pai-oncology-trial-fl GitHub codebase. Provide all fixes needed, which will be provided to Claude code to make corrections. Add your code fix recommendations as a new .md to the “peer-review” directory under main. Do not fix any code. Make sure to clone from the current repo state.
+
+When you are finished, provide a list of new additions and what changed from old to new files. The user will then review your lists prior to committing changes. Provide an update to the changelog (v0.9.6), and add new release notes in the releases.md (v0.9.6) folder using the format below. Include metrics that help track your peer-review process along with your final recommendation metrics (code specifics, number of recommended code fixes, etc.) 
+
+In summary, update the repository (changelog.md, releases.md, peer-review directory and .md) according to your end to end senior software engineer peer review recommendations. A single pull request will be merged by the user at the end.
+
+“FORMAT”
+Release title 
+v0.9.6 - 
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@codex
+@claude
+
+## Notes
+
+```
+
+---
+
 ## Prompt 13: v0.9.5 — Peer Review Fixes Implementation
 
 Dependencies: Prompt 12 (v0.9.4 peer review artifacts)
@@ -173,6 +228,38 @@ v0.9.5 -
 @kevinkawchak
 @claude
 @codex
+
+## Notes
+```
+
+---
+
+## Prompt 13a: v0.9.4 — Peer Review 
+
+```
+You are a senior software engineer that provides comprehensive code reviews to find errors and flaws across the entire kevinkawchak/pai-oncology-trial-fl GitHub codebase. Provide all fixes needed, which will be provided to Claude code to make corrections. Add your code fix recommendations as a .md to a new “peer-review” directory under main. Do not fix any code.
+
+Make sure codex is now listed as a contributor, alongside with the other two contributors currently shown in main. Make sure to clone from the current repo state.
+
+Be sure to fix and address errors that would cause failed checks for the single pull request (such as Python environment issues to avoid the following error during final checks): “3 failing checks 
+x Cl / lint-and-format (3.10) (pull...
+x Cl / lint-and-format (3.11) (pull...
+x Cl / lint-and-format (3.12) (pull...”
+
+When you are finished, provide a list of new additions and what changed from old to new files. The user will then review your lists prior to committing changes. Provide an update to the changelog (v0.9.4), and add new release notes in the releases.md (v0.9.4) folder using the format below. Include metrics that help track your peer-review process along with your final recommendation metrics (code specifics, number of recommended code fixes, etc.) 
+
+In summary, update the repository (changelog.md, releases.md, peer-review directory and .md) according to your end to end senior software engineer peer review recommendations. A single pull request will be merged by the user at the end.
+
+“FORMAT”
+Release title 
+v0.9.4 - 
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
 
 ## Notes
 ```
