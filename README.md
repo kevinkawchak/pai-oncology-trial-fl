@@ -1,10 +1,12 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.0.1-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v1.1.0-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
+
+> **v1.1.0 Paper Release:** Kawchak K. "Federated Learning Physical AI Oncology Trials Unification." Zenodo. 2026. DOI: [10.5281/zenodo.18795507](https://doi.org/10.5281/zenodo.18795507). PDF and LaTeX source available in [`paper/`](paper/).
 
 > **Responsible-Use Notice:** This repository provides research-grade tooling for engineers building
 > federated learning systems for oncology clinical trials. All modules are intended for research and
@@ -267,6 +269,12 @@ pai-oncology-trial-fl/
 ├── requirements.txt
 ├── pyproject.toml
 ├── ruff.toml
+├── paper/                            # Academic paper (v1.1.0)
+│   ├── Federated Learning Physical AI Oncology Trials Unification.pdf
+│   ├── Latex Source Code.zip          #   LaTeX source (main.tex, arxiv.sty, references.bib, README)
+│   ├── main.tex                       #   LaTeX source
+│   ├── arxiv.sty                      #   Modified arxiv style
+│   └── references.bib                 #   Bibliography (26 references)
 ├── posts.md
 └── prompts.md
 ```

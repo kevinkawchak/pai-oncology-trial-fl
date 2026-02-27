@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-27
+
+### Added
+
+- **Academic Paper** (`paper/`)
+  - "Federated Learning Physical AI Oncology Trials Unification" — 18-page LaTeX paper compiled to PDF
+  - Describes the full architecture across five infrastructure pillars: Privacy, Regulatory, Cross-Framework Unification, Standards & Benchmarking, and Multi-Organization Cooperation
+  - Documents the sequential triple AI peer review pipeline (v0.9.4–v0.9.9) with 31/31 recommendations resolved
+  - Includes code snippets, architecture diagrams, quantitative metrics tables, and 26 references
+  - DOI: [10.5281/zenodo.18795507](https://doi.org/10.5281/zenodo.18795507)
+
+- **LaTeX Source Code** (`paper/Latex Source Code.zip`)
+  - Archive containing main.tex, arxiv.sty (modified), references.bib, and README
+
+- **Modified arxiv.sty** (`paper/arxiv.sty`)
+  - Based on [kourgeorge/arxiv-style](https://github.com/kourgeorge/arxiv-style) with "A Preprint" header and title box frames removed
+
+- **Release Documentation** (`releases.md/v1.1.0.md`)
+  - Added v1.1.0 release notes with summary, features, contributors, and notes
+
+- **Prompt 18** (`prompts.md`)
+  - Added the paper generation prompt with full text
+
+### Changed
+
+- **README.md** — Added paper release hyperlink with Zenodo DOI above Responsible-Use Notice. Updated repository structure with `paper/` directory.
+- **Version references** — Updated to 1.1.0 where applicable.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+
 ## [1.0.1] - 2026-02-19
 
 ### Added

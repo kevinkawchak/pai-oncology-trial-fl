@@ -1,0 +1,44 @@
+Federated Learning Physical AI Oncology Trials Unification
+===========================================================
+LaTeX Source Code
+
+Author: Kevin Kawchak, CEO ChemicalQDevice
+ORCID:  https://orcid.org/0009-0007-5457-8667
+Email:  kevink@chemicalqdevice.com
+Date:   February 27, 2026
+DOI:    10.5281/zenodo.18795507
+
+Files
+-----
+  main.tex        - Main LaTeX source file
+  arxiv.sty       - Modified arxiv style (removed "A Preprint" header and box frames)
+  references.bib  - BibTeX bibliography with 26 references
+  README          - This file
+
+Compilation
+-----------
+  pdflatex main.tex
+  bibtex main
+  pdflatex main.tex
+  pdflatex main.tex
+
+Requirements
+------------
+  - TeX Live 2023 or later
+  - Packages: hyperref, booktabs, amsfonts, amsmath, graphicx, enumitem,
+    listings, xcolor, longtable, array, multirow, tabularx, float, tikz
+
+Style Modifications
+-------------------
+  The arxiv.sty file is based on kourgeorge/arxiv-style with two modifications:
+  1. Removed "A Preprint" from page headers and under-title text
+  2. Removed horizontal rule box frames around the title
+
+License
+-------
+  CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+
+Citation
+--------
+  Kawchak K. Federated Learning Physical AI Oncology Trials Unification.
+  Zenodo. 2026; 10.5281/zenodo.18795507.
