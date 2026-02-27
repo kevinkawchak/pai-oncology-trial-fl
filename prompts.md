@@ -4,6 +4,80 @@ This document records the prompts used to develop the PAI Oncology Trial FL plat
 
 ---
 
+## Prompt 18: v1.1.0 — Federated Learning Physical AI Oncology Trials Unification Paper
+
+Dependencies: Prompt 17 (v1.0.1 documentation update)
+
+```
+Your goal is to create a new 18 page total end-to-end paper titled "Federated Learning Physical AI Oncology Trials Unification" written in LaTeX based on kevinkawchak/pai-oncology-trial-fl/tree/main. Use 10.5281/zenodo.18795507 and https://doi.org/10.5281/zenodo.18795507 as the doi where appropriate. For paper appearance, use the kourgeorge/arxiv-style/blob/master/arxiv.sty - except remove the "A Preprint" from the top of the page, and don't add colored box frames around text, links, etc. (https://github.com/kourgeorge/arxiv-style). Include author Kevin Kawchak, CEO ChemicalQDevice, the green orcid logo as https://orcid.org/0009-0007-5457-8667, kevink@chemicalqdevice.com, today's date, and appropriate keywords. After finishing the paper, make sure all aesthetics regarding white spacing, text diagrams, tables, etc. are appropriate even if modifications to style guide are needed. Place the time it took since the first prompt was submitted by the user until the PR was sent to Guthub in the methods section.
+
+Purpose: Your new paper describes the full architecture associated with Federated Learning Physical AI Oncology Trials Unification end-to-end workflow demonstrations: 1) Privacy Infrastructure, 2) Regulatory Infrastructure v0.6.0, v0.9.1, 3) Cross-Framework Unification, 4) Standards & Benchmarking, 5) Multi-Organization Cooperation. You are required to fully understand the full set of releases (v0.0.0 format), and incorporate release IDs where appropriate in text, tables, text diagrams, etc. where appropriate for this paper template type. Unified platforms are a necessary precondition for transitioning the industry to using robots in physical AI oncology trials.
+
+Examples from v0.5.0 should be covered as they contribute as workflow demonstrations. It is important that the triple AI peer review process in v0.9.4-v0.9.9 (recommendations and fix cycles), v1.01 (Claude Code + Codex, 31/31 resolved code fixes are detailed as an example to mitigate AI bias using 2 different AI manufacturers and as an emerging software quality methodology). Please correct the Triple AI Peer Review Pipeline (v0.9.4 - v0.9.9), as that these were sequential cycles of recs and reviews Claude Code to Codex to Claude Code to Codex to Claude Code to Codex (not parallel). In close proximity in the paper, describe all the fixes/tests/checks/migrations (where applicable) that were performed, and their significance to code trust and safety in locations such as i) /tests as part of v0.8.0 (a core test suite containing 14 directories).
+Make sure to clone the current repo and cite codebase versions throughout the paper where aesthetically appropriate, especially in tables and for designated text diagrams. The visualization structure in v0.9.3 should only be mentioned where appropriate at the end of a section.
+
+Utilize information from areas a)-c) in the following order of importance.
+a) kevinkawchak/pai-oncology-trial-fl/tree/main files and subdirectories (the core codebase)
+b) kevinkawchak/physical-ai-oncology-trials (the original physical-ai-oncology-trials repo from which the current repo was based on
+c) Other required GitHub repos, and web searches
+
+Be sure to implement quantitative data, code snippets, text diagrams (fix where needed, and make sure incorporation is suitable to the paper), etc. where appropriate. It is imperative that all types of information utilized from across the repository be accurate and appropriate to each section of the paper. Make sure every section is properly formatted and seems attractive to read (bullet points and numbered lists where appropriate and other types of formatting to avoid many long paragraphs). Provide a copy of this prompt under the related prompts.md.
+
+It is important that you go into detail regarding many of the initiatives that make this new physical ai federated learning platform for oncology trials as a new standard. For instance what is the purpose, function, and benefit of specific python scripts such as kevinkawchak/pai-oncology-trial-fl/blob/main/agentic-ai/examples-agentic-ai/01_mcp_oncology_server.py? How do the rest of the examples-agentic-ai scripts work independently, together, or synergistically on the code level? It is important that valuable quantitative data from code across the repo is extracted from across the repository and utilized. Again, using the codebase based on 1)-5) from above to exhibit paper end-to-end workflow demonstrations is paramount to the success of physical ai adoption to this field.
+
+
+Paper Sections:
+- Abstract (Start with the necessity of a) federated learning physical AI oncology trials transition, then to the benefit of the pai-oncology-trial-fl/tree/main codebase, then to the end-to-end demonstrations in the paper)
+- Table of Contents
+- Introduction (Begin with a) current AI in federated learning oncology, then transition to b) the benefits of upgrading to AI robots in oncology trials, then project future physical AI benefits (based on quantitative data from the current codebase)
+- Methods (utilize prompts from prompts.md and this current prompt), as well as exact AI manufacturers and models (primarily Anthropic Claude Code Opus 4.6; and also ChatGPT-5.2-Codex used for code fix recommendations). Discuss the relevant time it took in terms of dates and versions Claude/Codex/Kevin Kawchak took to do the main repo. Describe that this paper was primarily generated by Claude Code based on Mr. Kawchak's prompt(s) and other prior Claude Code PRs. Mr. Kawchak's hand-written prompt took approximately 2 hrs to write. Mention the codebase was converted from private to public on today's date. Be sure to provide both comprehensive and fine grained dates that are based on releases, such as total number of days (span), total number of days with an AI update, number of days of AI code recommendations, number of days of AI fixes (again using version ids throughout)
+- Results
+- Discussion
+- Limitations and Future Work (Be sure to describe the human Claude Code, and Codex limitations throughout out the entire process to date.)
+- Conclusion
+- References (make sure each and every reference has a url (important), and are properly formatted and clickable)
+- Acknowledgments (see below)
+- Ethical disclosures (see below)
+- Rights and permissions (see below)
+- Cite this article (see below)
+
+Be sure to fix and address errors that would cause failed checks for the single pull request (such as Python environment issues to avoid the following error during final checks): "3 failing checks
+x Cl / lint-and-format (3.10) (pull...
+x Cl / lint-and-format (3.11) (pull...
+x Cl / lint-and-format (3.12) (pull... " Place the new release notes in releases.md under main using the format below (note title gets no hashes, while summary, features, etc. get two leading hashes). Update other relevant documentation such as project structures. Update the main Readme diagrams, repository structure, etc. where necessary. Provide an updated changelog (v1.1.0).
+
+Output the finished paper with file name "Federated Learning Physical AI Oncology Trials Unification" as a .pdf under /main/paper. Provide a concise statement of the paper release with a hyperlink to the zenodo DOI above the Responsible-Use Notice in main Readme. Output a zip file containing 4 files titled "Latex Source Code" under /main/paper/: .tex,.sty, README, .bib. When you are finished, auto-push the update to GitHub on your own for my review. The user will then review your updates in GitHub prior to finalization.
+
+"FORMAT"
+Release title
+v1.1.0 - [Fill in Title Here]
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@claude
+
+## Notes
+
+
+Acknowledgments
+The author would like to acknowledge Anthropic for providing access to Claude Code, Claude Cowork; and OpenAI for providing access to ChatGPT.
+
+Ethical disclosures
+The author of the article declares no competing interests.
+
+Rights and permissions
+This article is distributed under the terms of the Creative Commons Attribution 4.0 International License (CC BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author(s) and source are properly credited, a link to the Creative Commons license is provided, and any modifications made are indicated. To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/.
+
+Cite this article
+Kawchak K. Federated Learning Physical AI Oncology Trials Unification. Zenodo. 2026; 10.5281/zenodo.18795507.
+```
+
+---
+
 ## Prompt 17: v1.0.1 — Comprehensive Documentation Update
 
 Dependencies: Prompt 16 (v1.0.0 stable release)
