@@ -33,8 +33,8 @@
 - Dual-manufacturer review reduces single-AI bias and establishes a verifiable trust chain. DOI: [10.5281/zenodo.17774559](https://doi.org/10.5281/zenodo.17774559).
 
 ### Maturity Snapshot
-- Package is versioned as `1.0.1` (Production/Stable classifier) with Python 3.10+ support and a modular package layout spanning federated, physical AI, privacy, regulatory, unification, clinical analytics, and regulatory submissions domains.
-- 235 Python files, ~86,800 LOC, 82 test files, 105+ Markdown docs, 31 example scripts, 5 CLI tools.
+- Package is versioned as `1.1.1` (Production/Stable classifier) with Python 3.10+ support and a modular package layout spanning federated, physical AI, privacy, regulatory, unification, clinical analytics, and regulatory submissions domains.
+- 235 Python files, ~86,800 LOC, 82 test files, 105+ Markdown docs, 31 example scripts, 5 CLI tools. All 21 GitHub releases promoted to stable (non-pre-release).
 
 ---
 
