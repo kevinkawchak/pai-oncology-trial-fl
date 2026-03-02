@@ -704,3 +704,39 @@ Effort & Expertise: High. Requires expertise in machine learning, physical ai, f
 Monetization & Customers: Target customers include research consortia, hospitals, and pharma companies collaborating on oncology AI models. Monetization could be via enterprise licensing or cloud-based SaaS (managed federated training). Premium features (advanced analytics, support) could be add-ons. The product leverages open MIT-licensed core but charges for value-added services (certifications, deployments).
 Regulatory & Ethical: Must adhere to HIPAA/GDPR: all patient data must be de-identified and encrypted in transit. Differential privacy or secure aggregation should ensure no individual can be re-identified. Ethical concerns include data bias: consortium should audit model fairness across subgroups. Regulatory docs (e.g. IRB approvals) may be needed before federated trials. The product should include logging and audit trails (perhaps leveraging privacy/breach-response/).
 ```
+
+---
+
+## Prompt 19: v1.1.1 — Release Stable GA Promotion and Version Consistency
+
+Dependencies: Prompt 18 (v1.1.0 paper release)
+
+```
+For pai-oncology-trial-fl, Goal: uncheck the "This is a pre-release" box for each of the affected GitHub releases. Update all affected areas repository wide so all versions are treated as stable/GA everywhere, with no lingering "pre-release/beta" framing and with strict version-string consistency. Update other documentation and Readme files where relevant. v1.1.0 remains the latest release (prior to these updates).
+1) Establish the "version truth" and fix any inconsistencies
+2) Remove "pre-release" language from release artifacts for promoted versions
+3) Ensure repository maturity metadata matches "stable"
+4) Validate the README "current release story"
+5) Perform CI / tooling sanity checks
+
+Make sure to clone the current repo and utilize appropriate information regarding this pdf. Be sure to fix and address errors that would cause failed checks for the single pull request (such as Python environment issues to avoid the following error during final checks): "3 failing checks
+x Cl / lint-and-format (3.10) (pull...
+x Cl / lint-and-format (3.11) (pull...
+x Cl / lint-and-format (3.12) (pull... " Place the new release notes in releases.md under main using the format below (note title gets no hashes, while summary, features, etc. get two leading hashes).
+
+Provide an updated changelog (v1.1.1). Provide a copy of this prompt under the prompts.md When you are finished, auto-push the update to GitHub on your own for my review. The user will then review your updates in GitHub prior to finalization.
+
+"FORMAT"
+Release title
+v1.1.1 - [Use format only from most prior actual release, not releases.md]
+
+## Summary
+
+## Features
+
+## Contributors
+@kevinkawchak
+@claude
+
+## Notes
+```

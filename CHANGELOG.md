@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-03-02
+
+### Changed
+
+- **GitHub Releases Promoted to Stable** — All 20 pre-release versions (v0.1.0 through v1.0.1) unchecked from "This is a pre-release" on GitHub Releases. v1.1.0 was already stable. All 21 releases now carry stable/GA designation.
+
+- **Version Alignment to 1.1.1** — Updated `pyproject.toml`, `CITATION.cff`, `README.md` badge, `federated/__init__.py`, and `docs/repository_summaries.md` to 1.1.1 with strict consistency.
+
+- **Version Inconsistencies Fixed** — `README.md` bibtex citation updated from 1.0.1 to 1.1.1. `federated/__init__.py` updated from 0.2.0 to 1.1.1. `docs/repository_summaries.md` maturity snapshot updated from 1.0.1 to 1.1.1.
+
+- **Repository Maturity Metadata** — `pyproject.toml` classifier remains `Development Status :: 5 - Production/Stable`. All release artifacts now consistently reflect stable/GA status with no lingering pre-release framing.
+
+- **Release Documentation** (`releases.md/v1.1.1.md`) — Added v1.1.1 release notes with summary, features, contributors, and notes.
+
+- **Prompt 19** (`prompts.md`) — Added the v1.1.1 stable GA promotion prompt with full text.
+
+### Contributors
+
+- @kevinkawchak
+- @claude
+
 ## [1.1.0] - 2026-02-27
 
 ### Added

@@ -1,7 +1,7 @@
 # PAI Oncology Trial FL
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.1.0-green.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v1.1.1-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
@@ -460,7 +460,7 @@ python scripts/verify_installation.py
   author = {Kawchak, Kevin},
   year = {2026},
   url = {https://github.com/kevinkawchak/pai-oncology-trial-fl},
-  version = {1.0.1}
+  version = {1.1.1}
 }
 ```
 
