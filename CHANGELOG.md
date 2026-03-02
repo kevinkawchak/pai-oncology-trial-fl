@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Prompt 19** (`prompts.md`) — Added the v1.1.1 stable GA promotion prompt with full text.
 
+- 2026-03-02 @kevinkawchak manually unchecked "pre-release" boxes; and added DOI + Last Update badges to main README.
+
 ### Contributors
 
 - @kevinkawchak
