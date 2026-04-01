@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v1.1.1-green.svg)](CHANGELOG.md)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Last Updated](https://img.shields.io/badge/Updated-March%202026-blue.svg)]()
+[![Last Updated](https://img.shields.io/badge/Updated-April%202026-blue.svg)]()
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18840880-blue)](https://doi.org/10.5281/zenodo.18840880)
 
 Practical tools for Physical AI Federated Learning in oncology clinical trials, by Claude Code Opus 4.6.
