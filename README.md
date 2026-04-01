@@ -95,7 +95,7 @@ establishes a verifiable trust chain for AI-generated code.
 
 This AI peer review process marks an important trust benchmark: AI-driven code generation,
 review, and fixes can now operate at a pace and thoroughness that exceeds traditional human-only
-processes. The peer review evidence is documented in `peer-review/` and referenced in
+processes. The peer review evidence is documented in `peer-review/`, and referenced in
 DOI [10.5281/zenodo.17774559](https://doi.org/10.5281/zenodo.17774559).
 
 ## Quick Start
