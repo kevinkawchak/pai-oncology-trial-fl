@@ -324,7 +324,7 @@ Patient digital twins with exponential, logistic, and Gompertz tumor growth mode
 
 ### 3. Privacy Framework
 
-Comprehensive HIPAA Safe Harbor compliance covering all 18 identifiers per 45 CFR 164.514(b)(2). Advanced PHI/PII detection with regex, DICOM tag scanning, and optional Presidio NER integration. HMAC-SHA256 pseudonymization with cryptographically random salt (os.urandom). Date shifting with consistent patient-level offsets. Geographic generalization (ZIP to 3-digit). Role-based access control with 21 CFR Part 11 audit trails and fail-closed expiration. Four-factor breach risk assessment per 45 CFR 164.402 with 60-day notification tracking. DUA template generation for 5 agreement types with tiered security requirements.
+Comprehensive HIPAA Safe Harbor compliance covering all 18 identifiers per 45 CFR 164.514(b)(2). Advanced PHI/PII detection with regex, DICOM tag scanning, and optional Presidio NER integration. HMAC-SHA256 pseudonymization with cryptographically random salt (os.urandom). Date shifting with consistent patient-level offsets. 
 
 ### 4. Regulatory Infrastructure
 
