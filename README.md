@@ -328,7 +328,7 @@ Comprehensive HIPAA Safe Harbor compliance covering all 18 identifiers per 45 CF
 
 ### 4. Regulatory Infrastructure
 
-Multi-pathway FDA submission tracking (510(k), De Novo, PMA, Breakthrough, Pre-Submission) referencing FDA AI/ML Device Guidance (Jan 2025), PCCP Guidance (Aug 2025), and QMSR (Feb 2026). IRB protocol lifecycle management with amendment tracking, consent versioning, and AI/ML disclosure requirements per ICH E6(R3) published September 2025. GCP compliance scoring excluding NOT_ASSESSED findings from denominator. Multi-jurisdiction regulatory intelligence across FDA, EMA, PMDA, TGA, and Health Canada with overdue-before-imminent status ordering. Human oversight QMS with CRF auto-fill risk tiers and AE automation boundaries.
+Multi-pathway FDA submission tracking (510(k), De Novo, PMA, Breakthrough, Pre-Submission) referencing FDA AI/ML Device Guidance (Jan 2025), PCCP Guidance (Aug 2025), and QMSR (Feb 2026). IRB protocol lifecycle management with amendment tracking, consent versioning, and AI/ML disclosure requirements per ICH E6(R3) published September 2025. 
 
 ### 5. Cross-Framework Unification
 
