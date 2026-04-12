@@ -18,7 +18,7 @@ Practical tools for Physical AI Federated Learning in oncology clinical trials, 
 > **v1.0.1 Documentation Update:** Comprehensive documentation refresh for v1.0.1. 235 Python
 > modules, ~86,800 LOC, 31 example scripts, 82 test files, 5 CLI tools, 105+ Markdown docs.
 > Triple AI peer review (3 Codex reviews + 3 Claude Code fix cycles) completed across v0.9.4–v0.9.9
-> with 31/31 recommendations resolved (100%). Full release details in [V1_RELEASE.md](V1_RELEASE.md).
+> Full release details in [V1_RELEASE.md](V1_RELEASE.md).
 > DOI: [10.5281/zenodo.17774559](https://doi.org/10.5281/zenodo.17774559)
 
 ## AI Peer Review Process — Trust Benchmark
