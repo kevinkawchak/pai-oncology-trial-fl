@@ -13,7 +13,7 @@ Practical tools for Physical AI Federated Learning in oncology clinical trials, 
 > **Responsible-Use Notice:** This repository provides research-grade tooling for engineers building
 > federated learning systems for oncology clinical trials. All modules are intended for research and
 > development use only. Independent clinical validation, IRB approval, and regulatory clearance are
-> required before any component is used in a clinical setting. 
+> required before clinical use. 
 
 > **v1.0.1 Documentation Update:** Comprehensive documentation refresh for v1.0.1. 235 Python
 > modules, ~86,800 LOC, 31 example scripts, 82 test files, 5 CLI tools, 105+ Markdown docs.
