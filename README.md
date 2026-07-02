@@ -57,16 +57,16 @@ establishes a verifiable trust chain for AI-generated code.
          | 12/12 resolved        | 9/9 resolved          | 10/10 resolved
          v                       v                       v
   +---------------------------------------------------------------+
-  |                  31/31 Recommendations Resolved (100%)         |
-  |  CI/Process --> Compliance/Security --> Hardening/Secrets      |
-  |  Each cycle addresses progressively deeper risk layers         |
+  |                  31/31 Recommendations Resolved (100%)        |
+  |  CI/Process --> Compliance/Security --> Hardening/Secrets     |
+  |  Each cycle addresses progressively deeper risk layers        |
   +---------------------------------------------------------------+
          |
          v
   +---------------------------------------------------------------+
-  |                     v1.0.0 Stable Release                      |
-  |  92 total issues resolved (61 audit + 31 peer review)          |
-  |  235 Python files | ~86,800 LOC | 82 test files                |
+  |                     v1.0.0 Stable Release                     |
+  |  92 total issues resolved (61 audit + 31 peer review)         |
+  |  235 Python files | ~86,800 LOC | 82 test files               |
   +---------------------------------------------------------------+
 
   Key: Codex = independent reviewer (OpenAI)
